@@ -1,242 +1,188 @@
-# AI Flashcards
+# Supabase CLI
 
-> 🧠 AI-powered web application for generating and learning programming flashcards with spaced repetition
+[![Coverage Status](https://coveralls.io/repos/github/supabase/cli/badge.svg?branch=main)](https://coveralls.io/github/supabase/cli?branch=main) [![Bitbucket Pipelines](https://img.shields.io/bitbucket/pipelines/supabase-cli/setup-cli/master?style=flat-square&label=Bitbucket%20Canary)](https://bitbucket.org/supabase-cli/setup-cli/pipelines) [![Gitlab Pipeline Status](https://img.shields.io/gitlab/pipeline-status/sweatybridge%2Fsetup-cli?label=Gitlab%20Canary)
+](https://gitlab.com/sweatybridge/setup-cli/-/pipelines)
 
-## Table of Contents
+[Supabase](https://supabase.io) is an open source Firebase alternative. We're building the features of Firebase using enterprise-grade open source tools.
 
-- [Description](#description)
-- [Tech Stack](#tech-stack)
-- [Getting Started](#getting-started)
-- [Available Scripts](#available-scripts)
-- [Project Scope](#project-scope)
-- [Project Status](#project-status)
-- [License](#license)
+This repository contains all the functionality for Supabase CLI.
 
-## Description
+- [x] Running Supabase locally
+- [x] Managing database migrations
+- [x] Creating and deploying Supabase Functions
+- [x] Generating types directly from your database schema
+- [x] Making authenticated HTTP requests to [Management API](https://supabase.com/docs/reference/api/introduction)
 
-AI Flashcards is a modern web application that revolutionizes the way developers learn programming concepts. By leveraging AI technology, it instantly generates high-quality flashcards from pasted text content, eliminating the tedious manual creation process.
+## Getting started
 
-### Key Features
+### Install the CLI
 
-- 🤖 **AI-Powered Generation**: Create up to 10 flashcards from text content (up to 2,000 characters) using advanced AI models
-- 📚 **Spaced Repetition**: Built-in Leitner 3-box system (1d, 3d, 7d intervals) for optimal learning retention
-- ✋ **Manual Control**: Full CRUD operations for flashcards with accept/reject functionality for AI suggestions
-- 👤 **User Management**: Secure authentication with email verification and account management
-- 📊 **Progress Tracking**: Daily review limits (50 cards/day + 20 catch-up) with detailed statistics
-- 📱 **Accessibility**: WCAG AA compliant design with desktop-first responsive UI
+Available via [NPM](https://www.npmjs.com) as dev dependency. To install:
 
-### Problem Solved
+```bash
+npm i supabase --save-dev
+```
 
-Manual flashcard creation is time-consuming and discouraging, leading to lower knowledge retention and reduced engagement in learning new technologies. AI Flashcards minimizes creation time, allowing users to focus on consistent study habits.
+To install the beta release channel:
 
-## Tech Stack
+```bash
+npm i supabase@beta --save-dev
+```
 
-### Frontend
+When installing with yarn 4, you need to disable experimental fetch with the following nodejs config.
 
-- **Astro 5** - Static rendering with interactive islands
-- **React 19** - UI components with modern hooks and Server/Client patterns
-- **TypeScript 5** - Strict typing and enhanced developer experience
-- **Tailwind CSS 4** - Utility-first styling framework with WCAG AA compliance
-- **shadcn/ui** - Accessible React components built on Radix UI
+```
+NODE_OPTIONS=--no-experimental-fetch yarn add supabase
+```
 
-### Backend
+> **Note**
+> For Bun versions below v1.0.17, you must add `supabase` as a [trusted dependency](https://bun.sh/guides/install/trusted) before running `bun add -D supabase`.
 
-- **Supabase**
-  - PostgreSQL database with Row Level Security (RLS)
-  - Supabase Auth (email + OAuth, password policy ≥12 chars)
-  - Edge Functions for AI logic, SRS algorithms, and cron jobs
-  - Storage for future file uploads
+<details>
+  <summary><b>macOS</b></summary>
 
-### AI Integration
+Available via [Homebrew](https://brew.sh). To install:
 
-- **Openrouter.ai**
-  - Default model: GPT-4o-Mini (~$0.003/1k tokens)
-  - Financial limits: $10/month with 80% usage alerts
-  - Model swapping capability without code changes
+```sh
+brew install supabase/tap/supabase
+```
 
-### CI/CD & Infrastructure
+To install the beta release channel:
 
-- **GitHub Actions** - Automated pipeline: lint → unit tests → e2e tests → Docker build → deployment
-- **DigitalOcean App Platform** - Container runtime hosting
-- **Docker** - Containerized deployment
-- **DigitalOcean Container Registry** - Private image storage
+```sh
+brew install supabase/tap/supabase-beta
+brew link --overwrite supabase-beta
+```
 
-### Monitoring & Analytics
+To upgrade:
 
-- **Sentry** - Error tracking and performance monitoring
-- **Grafana/Metabase** - KPI tracking and cost monitoring
+```sh
+brew upgrade supabase
+```
 
-## Getting Started
+</details>
 
-### Prerequisites
+<details>
+  <summary><b>Windows</b></summary>
 
-- **Node.js**: v22.14.0 (use `.nvmrc` for version management)
-- **npm** or **yarn** package manager
-- **Git** for version control
+Available via [Scoop](https://scoop.sh). To install:
 
-### Installation
+```powershell
+scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
+scoop install supabase
+```
 
-1. **Clone the repository**
+To upgrade:
 
-   ```bash
-   git clone https://github.com/yourusername/10devscards.git
-   cd 10devscards
-   ```
+```powershell
+scoop update supabase
+```
 
-2. **Install Node.js version**
+</details>
 
-   ```bash
-   nvm use  # Uses version from .nvmrc
-   ```
+<details>
+  <summary><b>Linux</b></summary>
 
-3. **Install dependencies**
+Available via [Homebrew](https://brew.sh) and Linux packages.
 
-   ```bash
-   npm install
-   ```
+#### via Homebrew
 
-4. **Set up environment variables**
+To install:
 
-   ```bash
-   cp .env.example .env
-   # Configure your Supabase and Openrouter API keys
-   ```
+```sh
+brew install supabase/tap/supabase
+```
 
-5. **Start development server**
+To upgrade:
 
-   ```bash
-   npm run dev
-   ```
+```sh
+brew upgrade supabase
+```
 
-6. **Open your browser**
+#### via Linux packages
 
-   ```
-   http://localhost:4321
-   ```
+Linux packages are provided in [Releases](https://github.com/supabase/cli/releases). To install, download the `.apk`/`.deb`/`.rpm`/`.pkg.tar.zst` file depending on your package manager and run the respective commands.
 
-### Development Setup
+```sh
+sudo apk add --allow-untrusted <...>.apk
+```
 
-The project uses several development tools for code quality:
+```sh
+sudo dpkg -i <...>.deb
+```
 
-- **ESLint** - Code linting with TypeScript and React support
-- **Prettier** - Code formatting
-- **Husky** - Git hooks for pre-commit checks
-- **lint-staged** - Run linters on staged files
+```sh
+sudo rpm -i <...>.rpm
+```
 
-## Available Scripts
+```sh
+sudo pacman -U <...>.pkg.tar.zst
+```
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server with hot reload |
-| `npm run build` | Build the application for production |
-| `npm run preview` | Preview the production build locally |
-| `npm run astro` | Run Astro CLI commands |
-| `npm run lint` | Run ESLint on the codebase |
-| `npm run lint:fix` | Run ESLint and automatically fix issues |
-| `npm run format` | Format code with Prettier |
+</details>
 
-## Project Scope
+<details>
+  <summary><b>Other Platforms</b></summary>
 
-### Core Functionality
+You can also install the CLI via [go modules](https://go.dev/ref/mod#go-install) without the help of package managers.
 
-1. **AI Flashcard Generation**
-   - Process text input up to 2,000 characters
-   - Generate maximum 10 flashcards per request
-   - ~100 tokens per flashcard with 5-second generation time
+```sh
+go install github.com/supabase/cli@latest
+```
 
-2. **Learning System**
-   - Leitner 3-box spaced repetition algorithm
-   - Daily review limit of 50 cards + 20 catch-up
-   - Automatic scheduling based on user performance
+Add a symlink to the binary in `$PATH` for easier access:
 
-3. **User Management**
-   - Email/password authentication with Supabase Auth
-   - Age verification (≥16 years) for GDPR compliance
-   - Account export and deletion capabilities
+```sh
+ln -s "$(go env GOPATH)/bin/cli" /usr/bin/supabase
+```
 
-4. **Content Management**
-   - Full CRUD operations for flashcards
-   - Accept/reject workflow for AI-generated content
-   - Manual flashcard creation and editing
+This works on other non-standard Linux distros.
 
-5. **Administration**
-   - Budget monitoring with 80% usage alerts
-   - Automatic AI generation blocking at 100% budget
-   - KPI tracking and cost optimization
+</details>
 
-### MVP Limitations
+<details>
+  <summary><b>Community Maintained Packages</b></summary>
 
-- **No mobile applications** - Web-only experience
-- **No file imports** - Text input only (no PDF/DOCX support)
-- **No sharing features** - Individual user accounts only
-- **Basic SRS algorithm** - Simple Leitner system vs. advanced algorithms
-- **Limited integrations** - No external educational platform connections
+Available via [pkgx](https://pkgx.sh/). Package script [here](https://github.com/pkgxdev/pantry/blob/main/projects/supabase.com/cli/package.yml).
+To install in your working directory:
 
-### Success Metrics
+```bash
+pkgx install supabase
+```
 
-- **AI Acceptance Rate**: ≥75% of generated flashcards accepted
-- **AI Usage**: ≥75% of new flashcards created by AI
-- **User Retention**: ≥50% Monthly Active Users with ≥3 sessions/week
-- **Cost Efficiency**: ≤$10/month LLM costs
-- **Reliability**: ≥99% backend uptime
+Available via [Nixpkgs](https://nixos.org/). Package script [here](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/supabase-cli/default.nix).
 
-## Project Status
+</details>
 
-![Development Status](https://img.shields.io/badge/status-in%20development-yellow)
-![Version](https://img.shields.io/badge/version-0.0.1-blue)
-![Node Version](https://img.shields.io/badge/node-22.14.0-green)
+### Run the CLI
 
-### Current Phase: MVP Development
+```bash
+supabase bootstrap
+```
 
-**Completed:**
+Or using npx:
 
-- ✅ Project structure and development environment
-- ✅ Core tech stack configuration (Astro + React + TypeScript)
-- ✅ UI component library setup (shadcn/ui + Tailwind)
-- ✅ Development tooling (ESLint, Prettier, Husky)
+```bash
+npx supabase bootstrap
+```
 
-**In Progress:**
+The bootstrap command will guide you through the process of setting up a Supabase project using one of the [starter](https://github.com/supabase-community/supabase-samples/blob/main/samples.json) templates.
 
-- 🔄 Supabase integration and database schema
-- 🔄 Authentication system implementation
-- 🔄 AI integration with Openrouter.ai
-- 🔄 Core flashcard CRUD functionality
+## Docs
 
-**Upcoming:**
+Command & config reference can be found [here](https://supabase.com/docs/reference/cli/about).
 
-- 📋 Spaced repetition algorithm implementation
-- 📋 User dashboard and statistics
-- 📋 Admin panel and monitoring
-- 📋 CI/CD pipeline setup
-- 📋 Production deployment
+## Breaking changes
 
-### Roadmap
+We follow semantic versioning for changes that directly impact CLI commands, flags, and configurations.
 
-**Phase 1: Core MVP** (Current)
+However, due to dependencies on other service images, we cannot guarantee that schema migrations, seed.sql, and generated types will always work for the same CLI major version. If you need such guarantees, we encourage you to pin a specific version of CLI in package.json.
 
-- Basic flashcard generation and learning system
-- User authentication and data management
-- Essential accessibility features
+## Developing
 
-**Phase 2: Enhanced Features**
+To run from source:
 
-- Advanced analytics and progress tracking
-- Improved AI model integration
-- Performance optimizations
-
-**Phase 3: Scale & Polish**
-
-- WCAG AAA compliance
-- High contrast mode
-- API rate limiting and optimization
-- Advanced monitoring and alerting
-
-## License
-
-This project is currently under development. License information will be updated before the first public release.
-
----
-
-**Contributing:** This project is in active development. Contribution guidelines will be available soon.
-
-**Support:** For questions or issues, please check the project documentation or create an issue in the repository.
+```sh
+# Go >= 1.22
+go run . help
+```
