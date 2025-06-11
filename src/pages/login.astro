@@ -1,0 +1,130 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { Button } from "../components/ui/button";
+---
+
+<Layout title="Logowanie | 10DevCards">
+  <main class="container mx-auto max-w-md p-6">
+    <div class="bg-card rounded-lg shadow-lg p-8">
+      <h1 class="text-3xl font-bold mb-6 text-center">Logowanie</h1>
+
+      <div id="success-message" class="mb-4 p-3 bg-green-100 text-green-800 rounded-md text-sm hidden">
+        Rejestracja zakończona sukcesem. Możesz się teraz zalogować.
+      </div>
+
+      <div id="confirmed-message" class="mb-4 p-3 bg-green-100 text-green-800 rounded-md text-sm hidden">
+        Adres email został potwierdzony. Możesz się teraz zalogować.
+      </div>
+
+      <form id="login-form" class="space-y-4">
+        <div>
+          <label for="email" class="block text-sm font-medium mb-1">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+            placeholder="email@example.com"
+            required
+          />
+        </div>
+
+        <div>
+          <label for="password" class="block text-sm font-medium mb-1">Hasło</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+            minlength="8"
+            required
+          />
+        </div>
+
+        <div id="error-message" class="text-red-500 text-sm hidden"></div>
+
+        <Button type="submit" className="w-full">Zaloguj się</Button>
+
+        <div class="text-center text-sm mt-4">
+          <a href="/reset-password" class="text-primary hover:underline">Zapomniałeś hasła?</a>
+        </div>
+
+        <div class="text-center text-sm mt-2">
+          <span>Nie masz konta? </span>
+          <a href="/register" class="text-primary hover:underline">Zarejestruj się</a>
+        </div>
+      </form>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const loginForm = document.getElementById("login-form");
+    const errorMessage = document.getElementById("error-message");
+    const successMessage = document.getElementById("success-message");
+
+    // Sprawdź, czy jest parametr 'registered=true' w URL
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("registered") === "true" && successMessage) {
+      successMessage.classList.remove("hidden");
+    }
+
+    // Sprawdź, czy jest parametr 'confirmed=true' w URL
+    const confirmedMessage = document.getElementById("confirmed-message");
+    if (urlParams.get("confirmed") === "true" && confirmedMessage) {
+      confirmedMessage.classList.remove("hidden");
+    }
+
+    loginForm?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      // Hide any previous error messages
+      if (errorMessage) {
+        errorMessage.textContent = "";
+        errorMessage.classList.add("hidden");
+      }
+
+      // Get form data
+      const formData = new FormData(e.target as HTMLFormElement);
+      const email = formData.get("email") as string;
+      const password = formData.get("password") as string;
+
+      try {
+        const response = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          // Display error message
+          if (errorMessage) {
+            errorMessage.textContent = data.error?.message || "Wystąpił błąd podczas logowania";
+            errorMessage.classList.remove("hidden");
+          }
+          return;
+        }
+
+        // Successful login - store tokens and redirect
+        localStorage.setItem("access_token", data.data.access_token);
+        localStorage.setItem("refresh_token", data.data.refresh_token);
+
+        // Redirect to dashboard or home page
+        window.location.href = "/";
+      } catch {
+        if (errorMessage) {
+          errorMessage.textContent = "Wystąpił błąd podczas połączenia z serwerem";
+          errorMessage.classList.remove("hidden");
+        }
+      }
+    });
+  });
+</script>

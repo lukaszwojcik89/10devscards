@@ -1,22 +1,22 @@
 import type { APIRoute } from "astro";
 import { supabaseClient } from "@/db/supabase.client";
 import { AuthService } from "@/lib/services/auth.service";
-import type { LoginRequestDTO, ErrorResponseDTO } from "@/types";
+import type { RegisterRequestDTO, ErrorResponseDTO } from "@/types";
 import { ZodError } from "zod";
 
 export const POST: APIRoute = async ({ request }) => {
   try {
     // Parse request body
-    const body = (await request.json()) as LoginRequestDTO;
+    const body = (await request.json()) as RegisterRequestDTO;
 
     // Initialize auth service
     const authService = new AuthService(supabaseClient);
 
-    // Attempt login
-    const result = await authService.login(body);
+    // Attempt registration
+    const result = await authService.register(body);
 
     return new Response(JSON.stringify(result), {
-      status: 200,
+      status: 201,
       headers: {
         "Content-Type": "application/json",
         "X-Content-Type-Options": "nosniff",
@@ -57,38 +57,17 @@ export const POST: APIRoute = async ({ request }) => {
 
     const message = (err as Error).message;
 
-    // Handle authentication errors
-    if (message.includes("Invalid credentials")) {
+    // Handle email already exists
+    if (message.includes("already exists") || message.includes("already registered")) {
       return new Response(
         JSON.stringify({
           error: {
-            code: "INVALID_CREDENTIALS",
-            message: "Invalid email or password",
+            code: "EMAIL_EXISTS",
+            message: "Użytkownik z tym adresem email już istnieje",
           },
         } as ErrorResponseDTO),
         {
-          status: 401,
-          headers: {
-            "Content-Type": "application/json",
-            "X-Content-Type-Options": "nosniff",
-            "X-Frame-Options": "DENY",
-            "X-XSS-Protection": "1; mode=block",
-          },
-        }
-      );
-    }
-
-    // Handle unconfirmed email
-    if (message.includes("Email not confirmed")) {
-      return new Response(
-        JSON.stringify({
-          error: {
-            code: "EMAIL_NOT_CONFIRMED",
-            message: "Please confirm your email address before logging in",
-          },
-        } as ErrorResponseDTO),
-        {
-          status: 401, // Zmiana z 403 na 401 zgodnie z dokumentacją API
+          status: 409,
           headers: {
             "Content-Type": "application/json",
             "X-Content-Type-Options": "nosniff",
@@ -105,7 +84,7 @@ export const POST: APIRoute = async ({ request }) => {
         JSON.stringify({
           error: {
             code: "TOO_MANY_REQUESTS",
-            message: "Too many login attempts. Please try again later",
+            message: "Zbyt wiele prób rejestracji. Spróbuj ponownie później",
             details: {
               retry_after: 900, // 15 minutes
             },
@@ -124,16 +103,12 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    // Log error for debugging (but don't expose to client)
-    // TODO: Replace with proper logging service
-    // console.error("Login endpoint error:", err);
-
     // Generic server error
     return new Response(
       JSON.stringify({
         error: {
           code: "INTERNAL_ERROR",
-          message: "Authentication service temporarily unavailable",
+          message: "Usługa rejestracji tymczasowo niedostępna",
         },
       } as ErrorResponseDTO),
       {
