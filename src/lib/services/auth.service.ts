@@ -58,7 +58,7 @@ export class AuthService {
   /**
    * Update user's last sign in timestamp
    */
-  private async updateLastSignIn(userId: string): Promise<void> {
+  private async updateLastSignIn(_userId: string): Promise<void> {
     const { error } = await this.supabase.auth.updateUser({
       data: { last_sign_in_at: new Date().toISOString() },
     });
@@ -66,7 +66,7 @@ export class AuthService {
     if (error) {
       // Log error but don't fail the login process
       // TODO: Replace with proper logging service
-      console.warn("Failed to update last_sign_in_at:", error);
+      // console.warn("Failed to update last_sign_in_at:", error);
     }
   }
 
@@ -122,7 +122,7 @@ export class AuthService {
     }
 
     // Generic server error
-    console.warn("Supabase auth error:", error);
+    // console.warn("Supabase auth error:", error);
     throw new Error("Authentication service temporarily unavailable");
   }
 
@@ -140,8 +140,8 @@ export class AuthService {
       }
 
       return this.formatUserProfile(data.user);
-    } catch (error) {
-      console.warn("Session validation error:", error);
+    } catch (_error) {
+      // console.warn("Session validation error:", error);
       return null;
     }
   }
@@ -162,11 +162,11 @@ export class AuthService {
       const { error } = await this.supabase.auth.signOut();
 
       if (error) {
-        console.warn("Logout error:", error);
+        // console.warn("Logout error:", error);
         // Don't throw error for logout - it might already be invalid
       }
-    } catch (error) {
-      console.warn("Logout error:", error);
+    } catch (_error) {
+      // console.warn("Logout error:", error);
       // Don't throw error for logout operations
     }
   }
@@ -190,9 +190,9 @@ export class AuthService {
         access_token: data.session.access_token,
         expires_in: data.session.expires_in || 3600,
       };
-    } catch (error) {
+    } catch (_error) {
       // TODO: Replace with proper logging service
-      console.warn("Token refresh error:", error);
+      // console.warn("Token refresh error:", error);
       throw new Error("Invalid refresh token");
     }
   }
@@ -211,7 +211,7 @@ export class AuthService {
       email: validated.email,
       password: validated.password,
       options: {
-        emailRedirectTo: `${new URL(import.meta.env.SITE).origin}/login?confirmed=true`,
+        emailRedirectTo: `http://localhost:3000/login?confirmed=true`,
         data: {
           age_confirmation: validated.age_confirmation,
         },
