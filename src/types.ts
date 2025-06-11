@@ -1,165 +1,150 @@
 import type { Tables, TablesInsert, TablesUpdate, Enums } from "./db/database.types";
 
 // =============================================================================
-// COMMON UTILITY TYPES
+// COMMON TYPES
 // =============================================================================
 
 /**
- * Standard pagination information used across all paginated API responses
+ * Standard pagination metadata for list responses
  */
-export interface PaginationInfo {
-  page: number;
-  limit: number;
+export interface PaginationDTO {
   total: number;
-  total_pages: number;
+  limit: number;
+  offset: number;
+  has_more: boolean;
 }
 
 /**
- * Standardized error response structure for API errors
+ * Standard error response format
  */
-export interface ErrorResponse {
-  error: string;
-  message?: string;
-  details?: unknown;
-}
-
-/**
- * String representations of database enums for API responses
- */
-export type FlashcardStatus = Enums<"flashcard_status_enum">;
-export type LeitnerBox = Enums<"leitner_box_enum">;
-
-// =============================================================================
-// AUTHENTICATION DTO TYPES
-// =============================================================================
-
-/**
- * Request body for user registration
- */
-export interface SignupRequest {
-  email: string;
-  password: string;
-  age_verification: boolean;
-}
-
-/**
- * Response from successful user registration
- */
-export interface SignupResponse {
-  user: {
-    id: string;
-    email: string;
-    email_confirmed_at: string | null;
+export interface ErrorResponseDTO {
+  error: {
+    code: string;
+    message: string;
+    details?: Record<string, unknown>;
   };
+}
+
+/**
+ * Standard success message response
+ */
+export interface SuccessMessageResponseDTO {
   message: string;
 }
 
-/**
- * Request body for user authentication
- */
-export interface SigninRequest {
-  email: string;
-  password: string;
-}
-
-/**
- * Response from successful user authentication
- */
-export interface SigninResponse {
-  access_token: string;
-  refresh_token: string;
-  user: {
-    id: string;
-    email: string;
-  };
-}
-
 // =============================================================================
-// DECK DTO TYPES
+// DECK RESOURCE DTO
 // =============================================================================
 
 /**
- * Deck item for list views - derived from decks table with aggregated flashcard counts
+ * Extended deck data with computed fields for list responses
  */
-export interface DeckListItem
-  extends Pick<Tables<"decks">, "id" | "slug" | "name" | "description" | "created_at" | "updated_at"> {
+export interface DeckWithCounts extends Tables<"decks"> {
   flashcard_count: number;
   pending_count: number;
 }
 
 /**
- * Paginated response for deck listings
+ * Response DTO for GET /api/decks
  */
-export interface DeckListResponse {
-  data: DeckListItem[];
-  pagination: PaginationInfo;
+export interface DeckListResponseDTO {
+  data: DeckWithCounts[];
+  pagination: PaginationDTO;
 }
 
 /**
- * Request body for creating a new deck - only user-provided fields from decks table
+ * Response DTO for GET /api/decks/{slug}
  */
-export interface CreateDeckRequest extends Pick<TablesInsert<"decks">, "name" | "slug"> {
-  description?: string;
+export interface DeckDetailResponseDTO {
+  data: DeckWithCounts;
 }
 
 /**
- * Detailed deck response with additional aggregated data
+ * Request DTO for POST /api/decks
  */
-export interface DeckResponse
-  extends Pick<Tables<"decks">, "id" | "slug" | "name" | "description" | "created_at" | "updated_at"> {
-  flashcard_count: number;
-  pending_count: number;
-  accepted_count: number;
-  rejected_count: number;
+export type CreateDeckRequestDTO = Pick<TablesInsert<"decks">, "slug" | "name" | "description">;
+
+/**
+ * Response DTO for POST /api/decks
+ */
+export interface CreateDeckResponseDTO {
+  data: DeckWithCounts;
 }
 
 /**
- * Request body for updating deck information - only editable fields
+ * Request DTO for PUT /api/decks/{slug}
  */
-export type UpdateDeckRequest = Partial<Pick<Tables<"decks">, "name" | "description">>;
+export type UpdateDeckRequestDTO = Partial<Pick<TablesUpdate<"decks">, "name" | "description">>;
+
+/**
+ * Response DTO for DELETE /api/decks/{slug}
+ */
+export type DeleteDeckResponseDTO = SuccessMessageResponseDTO;
 
 // =============================================================================
-// FLASHCARD DTO TYPES
+// FLASHCARD RESOURCE DTO
 // =============================================================================
 
 /**
- * Flashcard item for list views - derived from flashcards table with enum conversion to strings
+ * Extended flashcard data for responses
  */
-export interface FlashcardListItem
-  extends Pick<
-    Tables<"flashcards">,
-    "id" | "question" | "answer" | "next_due_date" | "model" | "tokens_used" | "price_usd" | "created_at"
-  > {
-  status: FlashcardStatus;
-  box: LeitnerBox;
+export type FlashcardResponseData = Tables<"flashcards">;
+
+/**
+ * Minimal flashcard data returned from INSERT operations
+ */
+export interface FlashcardListItem {
+  id: string;
+  question: string;
+  answer: string;
+  status: Enums<"flashcard_status_enum">;
+  box: Enums<"leitner_box_enum">;
+  next_due_date: string;
+  model: string | null;
+  tokens_used: number | null;
+  price_usd: number | null;
+  created_at: string;
 }
 
 /**
- * Paginated response for flashcard listings
+ * Response DTO for GET /api/decks/{slug}/flashcards
  */
-export interface FlashcardListResponse {
-  data: FlashcardListItem[];
-  pagination: PaginationInfo;
+export interface FlashcardListResponseDTO {
+  data: FlashcardResponseData[];
+  pagination: PaginationDTO;
 }
 
 /**
- * Request body for manually creating a flashcard - only essential user-provided fields
+ * Response DTO for GET /api/flashcards/{id}
  */
-export type CreateFlashcardRequest = Pick<TablesInsert<"flashcards">, "question" | "answer">;
+export interface FlashcardDetailResponseDTO {
+  data: FlashcardResponseData;
+}
 
 /**
- * Request body for AI flashcard generation - not directly mapped to database table
+ * Request DTO for POST /api/flashcards/generate
  */
-export interface GenerateFlashcardsRequest {
+export interface GenerateFlashcardsRequestDTO {
   deck_id: string;
   input_text: string;
-  max_flashcards: number;
+  max_cards?: number;
+  difficulty?: "beginner" | "intermediate" | "advanced";
 }
 
 /**
- * Response from AI flashcard generation with generated cards and metadata
+ * AI generation metadata
  */
-export interface GenerateFlashcardsResponse {
+export interface AIGenerationMetadata {
+  total_tokens: number;
+  total_cost_usd: number;
+  model_used: string;
+  generation_time_ms: number;
+}
+
+/**
+ * Response DTO for POST /api/flashcards/generate
+ */
+export interface GenerateFlashcardsResponseDTO {
   generated_flashcards: FlashcardListItem[];
   generation_summary: {
     total_generated: number;
@@ -170,205 +155,374 @@ export interface GenerateFlashcardsResponse {
 }
 
 /**
- * Individual flashcard response - same structure as list item
+ * Request DTO for POST /api/flashcards
  */
-export type FlashcardResponse = FlashcardListItem;
+export type CreateFlashcardRequestDTO = Pick<TablesInsert<"flashcards">, "deck_id" | "question" | "answer">;
 
 /**
- * Request body for updating flashcard content - only editable content fields
+ * Request DTO for PUT /api/flashcards/{id}
  */
-export type UpdateFlashcardRequest = Pick<TablesUpdate<"flashcards">, "question" | "answer">;
+export type UpdateFlashcardRequestDTO = Partial<Pick<TablesUpdate<"flashcards">, "question" | "answer">>;
 
 /**
- * Response from accepting a pending flashcard with updated scheduling
+ * Request DTO for PATCH /api/flashcards/{id}/status
  */
-export interface AcceptFlashcardResponse extends Pick<Tables<"flashcards">, "id" | "next_due_date"> {
-  status: FlashcardStatus;
-  box: LeitnerBox;
+export interface UpdateFlashcardStatusRequestDTO {
+  status: Enums<"flashcard_status_enum">;
 }
 
 /**
- * Response from rejecting a pending flashcard
+ * Response DTO for DELETE /api/flashcards/{id}
  */
-export interface RejectFlashcardResponse extends Pick<Tables<"flashcards">, "id"> {
-  status: FlashcardStatus;
-}
+export type DeleteFlashcardResponseDTO = SuccessMessageResponseDTO;
 
 // =============================================================================
-// REVIEW SESSION DTO TYPES
+// STUDY SESSION RESOURCE DTO
 // =============================================================================
 
 /**
- * Flashcard item for review sessions - simplified view for study
+ * Flashcard data for study sessions (simplified view)
  */
-export interface ReviewSessionFlashcard extends Pick<Tables<"flashcards">, "id" | "question" | "next_due_date"> {
-  deck_name: string;
-  box: LeitnerBox;
-}
-
-/**
- * Review session response with flashcards due for review and session metadata
- */
-export interface ReviewSessionResponse {
-  session_id: string;
-  flashcards: ReviewSessionFlashcard[];
-  session_info: {
-    total_due: number;
-    daily_limit_remaining: number;
-    catchup_available: number;
-  };
-}
-
-/**
- * Request body for submitting a review answer - core fields from reviews table
- */
-export type SubmitReviewRequest = Pick<TablesInsert<"reviews">, "flashcard_id" | "is_correct" | "response_time_ms">;
-
-/**
- * Response from submitting a review with updated flashcard scheduling and session progress
- */
-export interface SubmitReviewResponse {
-  review_id: string;
-  flashcard: {
-    id: string;
-    new_box: LeitnerBox;
-    next_due_date: string;
-  };
-  session_progress: {
-    completed: number;
-    remaining: number;
-    daily_limit_remaining: number;
-  };
-}
-
-/**
- * Review statistics response with aggregated performance data
- */
-export interface ReviewStatsResponse {
-  period: "daily" | "weekly" | "monthly";
-  stats: {
-    reviews_completed: number;
-    accuracy_rate: number;
-    average_response_time_ms: number;
-    streak_days: number;
-    flashcards_graduated: number;
-  };
-  daily_breakdown: {
-    date: string;
-    reviews: number;
-    accuracy: number;
-  }[];
-}
-
-// =============================================================================
-// USER MANAGEMENT DTO TYPES
-// =============================================================================
-
-/**
- * User profile response with aggregated statistics
- */
-export interface UserProfileResponse {
+export interface StudyFlashcardData {
   id: string;
-  email: string;
-  created_at: string;
-  stats: {
-    total_decks: number;
-    total_flashcards: number;
-    total_reviews: number;
+  question: string;
+  deck_name: string;
+  box: Enums<"leitner_box_enum">;
+  due_date: string;
+}
+
+/**
+ * Study session metadata
+ */
+export interface StudySessionMetadata {
+  total_due: number;
+  session_limit: number;
+  catchup_available: number;
+  daily_reviews_completed: number;
+  daily_limit: number;
+}
+
+/**
+ * Response DTO for GET /api/study/session
+ */
+export interface StudySessionResponseDTO {
+  data: {
+    session_id: string;
+    flashcards: StudyFlashcardData[];
+    metadata: StudySessionMetadata;
+  };
+}
+
+// =============================================================================
+// REVIEW RESOURCE DTO
+// =============================================================================
+
+/**
+ * Request DTO for POST /api/reviews
+ */
+export type SubmitReviewRequestDTO = Pick<TablesInsert<"reviews">, "flashcard_id" | "is_correct" | "response_time_ms">;
+
+/**
+ * Next review information after submission
+ */
+export interface NextReviewInfo {
+  box: Enums<"leitner_box_enum">;
+  next_due_date: string;
+}
+
+/**
+ * Response DTO for POST /api/reviews
+ */
+export interface SubmitReviewResponseDTO {
+  data: Tables<"reviews"> & {
+    next_review: NextReviewInfo;
   };
 }
 
 /**
- * Complete user data export response - contains all user's data from all tables
+ * Review data with related flashcard info for history
  */
-export interface UserExportResponse {
-  export_date: string;
-  user: Pick<UserProfileResponse, "id" | "email">;
+export interface ReviewWithFlashcard extends Tables<"reviews"> {
+  flashcard: {
+    question: string;
+    deck_name: string;
+  };
+}
+
+/**
+ * Response DTO for GET /api/reviews
+ */
+export interface ReviewHistoryResponseDTO {
+  data: ReviewWithFlashcard[];
+  pagination: PaginationDTO;
+}
+
+// =============================================================================
+// USER DATA RESOURCE DTO
+// =============================================================================
+
+/**
+ * User statistics for export
+ */
+export interface UserStatistics {
+  total_flashcards: number;
+  total_reviews: number;
+  accuracy_rate: number;
+  streak_days: number;
+}
+
+/**
+ * Response DTO for GET /api/user/export
+ */
+export interface UserExportResponseDTO {
+  export_timestamp: string;
+  user_id: string;
   decks: Tables<"decks">[];
   flashcards: Tables<"flashcards">[];
   reviews: Tables<"reviews">[];
+  statistics: UserStatistics;
+}
+
+/**
+ * Request DTO for DELETE /api/user/account
+ */
+export interface DeleteAccountRequestDTO {
+  confirmation: "DELETE_MY_ACCOUNT";
 }
 
 // =============================================================================
-// ADMIN DTO TYPES
+// BUDGET RESOURCE DTO
 // =============================================================================
 
 /**
- * Admin budget monitoring response - derived from budget_events table with aggregation
+ * Budget status data for admin panel
  */
-export interface AdminBudgetResponse {
-  current_month: {
-    spent_usd: number;
-    budget_usd: number;
-    percentage_used: number;
-    alert_triggered: boolean;
+export interface BudgetStatusData {
+  current_month: string;
+  budget_limit_usd: number;
+  current_usage_usd: number;
+  usage_percentage: number;
+  threshold_80_reached: boolean;
+  threshold_100_reached: boolean;
+  generation_blocked: boolean;
+  last_updated: string;
+}
+
+/**
+ * Response DTO for GET /api/admin/budget/status
+ */
+export interface BudgetStatusResponseDTO {
+  data: BudgetStatusData;
+}
+
+// =============================================================================
+// AUTHENTICATION RESOURCE DTO
+// =============================================================================
+
+/**
+ * User profile data
+ */
+export interface UserProfile {
+  id: string;
+  email: string;
+  email_confirmed_at: string | null;
+  created_at: string;
+  last_sign_in_at?: string;
+}
+
+/**
+ * Request DTO for POST /api/auth/register
+ */
+export interface RegisterRequestDTO {
+  email: string;
+  password: string;
+  age_confirmation: boolean;
+}
+
+/**
+ * Response DTO for POST /api/auth/register
+ */
+export interface RegisterResponseDTO {
+  data: {
+    user: UserProfile;
+    message: string;
   };
-  recent_events: Tables<"budget_events">[];
 }
 
 /**
- * Admin KPI metrics response - derived from kpi_daily or kpi_monthly tables
+ * Request DTO for POST /api/auth/login
  */
-export interface AdminKPIResponse {
-  period: "daily" | "monthly";
-  metrics: (
-    | Pick<
-        Tables<"kpi_daily">,
-        "date" | "accepted_count" | "rejected_count" | "accepted_pct" | "active_users" | "cost_usd"
-      >
-    | Pick<
-        Tables<"kpi_monthly">,
-        "year_month" | "accepted_count" | "rejected_count" | "accepted_pct" | "mau" | "cost_usd"
-      >
-  )[];
+export interface LoginRequestDTO {
+  email: string;
+  password: string;
 }
+
+/**
+ * Auth tokens data
+ */
+export interface AuthTokens {
+  access_token: string;
+  refresh_token: string;
+  expires_in: number;
+}
+
+/**
+ * Response DTO for POST /api/auth/login
+ */
+export interface LoginResponseDTO {
+  data: AuthTokens & {
+    user: UserProfile;
+  };
+}
+
+/**
+ * Request DTO for POST /api/auth/refresh
+ */
+export interface RefreshTokenRequestDTO {
+  refresh_token: string;
+}
+
+/**
+ * Response DTO for POST /api/auth/refresh
+ */
+export interface RefreshTokenResponseDTO {
+  data: Pick<AuthTokens, "access_token" | "expires_in">;
+}
+
+/**
+ * Response DTO for GET /api/auth/me
+ */
+export interface UserProfileResponseDTO {
+  data: UserProfile;
+}
+
+/**
+ * Request DTO for POST /api/auth/password/reset
+ */
+export interface PasswordResetRequestDTO {
+  email: string;
+}
+
+/**
+ * Request DTO for POST /api/auth/password/update
+ */
+export interface PasswordUpdateRequestDTO {
+  token: string;
+  password: string;
+}
+
+/**
+ * Response DTO for POST /api/auth/logout
+ */
+export type LogoutResponseDTO = SuccessMessageResponseDTO;
+
+/**
+ * Response DTO for POST /api/auth/password/reset
+ */
+export type PasswordResetResponseDTO = SuccessMessageResponseDTO;
 
 // =============================================================================
-// QUERY PARAMETER TYPES
+// COMMAND MODELS (for business logic operations)
 // =============================================================================
 
 /**
- * Common pagination query parameters
+ * Command for creating a new deck
  */
-export interface PaginationParams {
-  page?: number;
-  limit?: number;
+export interface CreateDeckCommand extends CreateDeckRequestDTO {
+  owner_id: string;
 }
 
 /**
- * Query parameters for deck listing
+ * Command for updating a deck
  */
-export interface DeckListParams extends PaginationParams {
-  search?: string;
+export interface UpdateDeckCommand extends UpdateDeckRequestDTO {
+  slug: string;
+  owner_id: string;
 }
 
 /**
- * Query parameters for flashcard listing
+ * Command for generating flashcards with AI
  */
-export interface FlashcardListParams extends PaginationParams {
-  status?: FlashcardStatus;
+export interface GenerateFlashcardsCommand extends GenerateFlashcardsRequestDTO {
+  user_id: string;
 }
 
 /**
- * Query parameters for review session
+ * Command for creating a manual flashcard
  */
-export interface ReviewSessionParams {
-  limit?: number;
+export interface CreateFlashcardCommand extends CreateFlashcardRequestDTO {
+  user_id?: string;
+}
+
+/**
+ * Command for submitting a review
+ */
+export interface SubmitReviewCommand extends SubmitReviewRequestDTO {
+  user_id: string;
+}
+
+/**
+ * Command for updating flashcard status
+ */
+export interface UpdateFlashcardStatusCommand extends UpdateFlashcardStatusRequestDTO {
+  flashcard_id: string;
+  user_id: string;
+}
+
+/**
+ * Command for starting a study session
+ */
+export interface StartStudySessionCommand {
+  user_id: string;
   include_catchup?: boolean;
+  deck_slug?: string;
 }
 
 /**
- * Query parameters for review stats
+ * Command for deleting a deck
  */
-export interface ReviewStatsParams {
-  period?: "daily" | "weekly" | "monthly";
+export interface DeleteDeckCommand {
+  slug: string;
+  owner_id: string;
 }
 
 /**
- * Query parameters for admin KPI
+ * Command for updating a flashcard
  */
-export interface AdminKPIParams {
-  period?: "daily" | "monthly";
-  start_date?: string;
-  end_date?: string;
+export interface UpdateFlashcardCommand extends UpdateFlashcardRequestDTO {
+  flashcard_id: string;
+  user_id: string;
 }
+
+/**
+ * Command for deleting a flashcard
+ */
+export interface DeleteFlashcardCommand {
+  flashcard_id: string;
+  user_id: string;
+}
+
+/**
+ * Command for user data export
+ */
+export interface ExportUserDataCommand {
+  user_id: string;
+}
+
+/**
+ * Command for user account deletion
+ */
+export interface DeleteUserAccountCommand extends DeleteAccountRequestDTO {
+  user_id: string;
+}
+
+// =============================================================================
+// TYPE ALIASES FOR BACKWARD COMPATIBILITY
+// =============================================================================
+
+/**
+ * Compatibility aliases for existing service code
+ */
+export type GenerateFlashcardsRequest = GenerateFlashcardsRequestDTO;
+export type GenerateFlashcardsResponse = GenerateFlashcardsResponseDTO;
+export type ErrorResponse = ErrorResponseDTO;

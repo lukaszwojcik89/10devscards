@@ -97,20 +97,18 @@ export class FlashcardsService {
    * Call AI service to generate flashcards (placeholder implementation)
    */
   private async callAI(
-    inputText: string,
-    maxFlashcards: number
+    _inputText: string,
+    _maxFlashcards: number
   ): Promise<{
     flashcards: { question: string; answer: string }[];
     metadata: { tokens_used: number; cost_usd: number; model: string };
   }> {
     // TODO: Implement actual AI service call (OpenRouter/GPT-4o-mini)
-    // Placeholder uses inputText and maxFlashcards for future integration
-    // Example: log or send to AI
-    // console.debug(`callAI with text=${inputText.slice(0,50)}..., count=${maxFlashcards}`);
+    // Placeholder implementation: ignore inputText and _maxFlashcards
 
     return {
-      flashcards: Array(maxFlashcards).fill({ question: "Sample question from AI", answer: "Sample answer from AI" }),
-      metadata: { tokens_used: 85 * maxFlashcards, cost_usd: 0.000025 * maxFlashcards, model: "gpt-4o-mini" },
+      flashcards: Array(_maxFlashcards).fill({ question: "Sample question from AI", answer: "Sample answer from AI" }),
+      metadata: { tokens_used: 85 * _maxFlashcards, cost_usd: 0.000025 * _maxFlashcards, model: "gpt-4o-mini" },
     };
   }
 
@@ -122,6 +120,10 @@ export class FlashcardsService {
     deckId: string,
     metadata: { tokens_used: number; cost_usd: number; model: string }
   ): Promise<FlashcardListItem[]> {
+    if (flashcards.length === 0) {
+      throw new Error("No flashcards generated to save");
+    }
+    const count = flashcards.length;
     const flashcardsToInsert = flashcards.map((flashcard) => ({
       deck_id: deckId,
       question: flashcard.question,
@@ -130,7 +132,7 @@ export class FlashcardsService {
       box: "box1" as const,
       model: metadata.model,
       tokens_used: metadata.tokens_used,
-      price_usd: metadata.cost_usd / flashcards.length, // Distribute cost among flashcards
+      price_usd: parseFloat((metadata.cost_usd / count).toFixed(8)), // Distribute cost and round
     }));
 
     const { data: savedFlashcards, error } = await this.supabase
