@@ -9,11 +9,18 @@ export const generateFlashcardsRequestSchema = z.object({
 
   input_text: z.string().min(1, "input_text is required").max(2000, "input_text too long").trim(),
 
-  max_flashcards: z
+  max_cards: z
     .number()
-    .int("max_flashcards must be an integer")
-    .min(1, "max_flashcards must be at least 1")
-    .max(10, "max_flashcards cannot exceed 10"),
+    .int("max_cards must be an integer")
+    .min(1, "max_cards must be at least 1")
+    .max(10, "max_cards cannot exceed 10")
+    .default(5),
+
+  difficulty: z
+    .enum(["beginner", "intermediate", "advanced"], {
+      errorMap: () => ({ message: "difficulty must be one of: beginner, intermediate, advanced" }),
+    })
+    .default("intermediate"),
 });
 
 export type GenerateFlashcardsRequestSchema = z.infer<typeof generateFlashcardsRequestSchema>;
