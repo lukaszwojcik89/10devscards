@@ -2,386 +2,382 @@
 
 ## 1. Resources
 
-| Resource      | Database Table             | Description                                                  |
-| ------------- | -------------------------- | ------------------------------------------------------------ |
-| Decks         | `decks`                    | Collections of flashcards organized by topic                 |
-| Flashcards    | `flashcards`               | Individual question-answer pairs with AI generation metadata |
-| Reviews       | `reviews`                  | User's study session records and performance data            |
-| Budget Events | `budget_events`            | AI generation cost tracking (admin only)                     |
-| KPI           | `kpi_daily`, `kpi_monthly` | Analytics and metrics (admin only)                           |
+| Resource | Database Table | Description |
+|----------|---------------|-------------|
+| Decks | `decks` | User-owned collections of flashcards |
+| Flashcards | `flashcards` | Individual learning cards within decks |
+| Reviews | `reviews` | Study session records and answers |
+| Study Sessions | Virtual resource | Active learning sessions |
+| User Data | Multiple tables | User profile and export functionality |
+| Budget | `budget_events` | AI cost tracking and limits |
 
 ## 2. Endpoints
 
-### 2.1 Authentication
+### 2.1 Decks Resource
 
-#### POST /auth/signup
+#### Get User's Decks
 
-- **Description**: Create new user account with age verification
-- **Request Body**:
-
-```json
-{
-  "email": "user@example.com",
-  "password": "SecurePass123#",
-  "age_verification": true
-}
-```
-
-- **Response**: `201 Created`
-
-```json
-{
-  "user": {
-    "id": "uuid",
-    "email": "user@example.com",
-    "email_confirmed_at": null
-  },
-  "message": "Verification email sent"
-}
-```
-
-- **Error Codes**:
-  - `400 Bad Request`: Invalid email/password format or missing age verification
-  - `409 Conflict`: Email already exists
-
-#### POST /auth/signin
-
-- **Description**: Authenticate existing user
-- **Request Body**:
-
-```json
-{
-  "email": "user@example.com",
-  "password": "SecurePass123#"
-}
-```
-
-- **Response**: `200 OK`
-
-```json
-{
-  "access_token": "jwt_token",
-  "refresh_token": "refresh_token",
-  "user": {
-    "id": "uuid",
-    "email": "user@example.com"
-  }
-}
-```
-
-- **Error Codes**:
-  - `400 Bad Request`: Invalid credentials
-  - `401 Unauthorized`: Account not verified
-
-#### POST /auth/signout
-
-- **Description**: Invalidate user session
-- **Response**: `200 OK`
-
-### 2.2 Decks
-
-#### GET /api/decks
-
-- **Description**: List user's decks with pagination
+- **Method**: GET
+- **Path**: `/api/decks`
+- **Description**: Retrieve all decks for authenticated user
 - **Query Parameters**:
-  - `page`: Page number (default: 1)
-  - `limit`: Items per page (default: 20, max: 50)
-  - `search`: Filter by deck name (optional)
-- **Response**: `200 OK`
+  - `limit` (optional): Number of results (default: 20, max: 100)
+  - `offset` (optional): Pagination offset (default: 0)
+  - `include_deleted` (optional): Include soft-deleted decks (default: false)
+- **Response**:
 
 ```json
 {
   "data": [
     {
       "id": "uuid",
-      "slug": "javascript-basics",
-      "name": "JavaScript Basics",
-      "description": "Core JavaScript concepts",
+      "slug": "python-basics",
+      "name": "Python Basics",
+      "description": "Fundamental Python concepts",
+      "created_at": "2025-06-11T10:00:00Z",
+      "updated_at": "2025-06-11T10:00:00Z",
       "flashcard_count": 25,
-      "pending_count": 3,
-      "created_at": "2024-01-01T00:00:00Z",
-      "updated_at": "2024-01-02T00:00:00Z"
+      "pending_count": 3
     }
   ],
   "pagination": {
-    "page": 1,
-    "limit": 20,
     "total": 5,
-    "total_pages": 1
+    "limit": 20,
+    "offset": 0,
+    "has_more": false
   }
 }
 ```
 
-#### POST /api/decks
+- **Success**: 200 OK
+- **Errors**: 401 Unauthorized, 500 Internal Server Error
 
-- **Description**: Create new deck
+#### Get Single Deck
+
+- **Method**: GET
+- **Path**: `/api/decks/{slug}`
+- **Description**: Retrieve specific deck by slug
+- **Response**:
+
+```json
+{
+  "data": {
+    "id": "uuid",
+    "slug": "python-basics",
+    "name": "Python Basics",
+    "description": "Fundamental Python concepts",
+    "created_at": "2025-06-11T10:00:00Z",
+    "updated_at": "2025-06-11T10:00:00Z",
+    "flashcard_count": 25,
+    "pending_count": 3
+  }
+}
+```
+
+- **Success**: 200 OK
+- **Errors**: 401 Unauthorized, 404 Not Found, 500 Internal Server Error
+
+#### Create Deck
+
+- **Method**: POST
+- **Path**: `/api/decks`
+- **Description**: Create new flashcard deck
 - **Request Body**:
 
 ```json
 {
-  "name": "Python Advanced",
-  "slug": "python-advanced",
-  "description": "Advanced Python concepts"
+  "slug": "javascript-advanced",
+  "name": "Advanced JavaScript",
+  "description": "ES6+ features and patterns"
 }
 ```
 
-- **Response**: `201 Created`
+- **Response**:
 
 ```json
 {
-  "id": "uuid",
-  "slug": "python-advanced",
-  "name": "Python Advanced",
-  "description": "Advanced Python concepts",
-  "flashcard_count": 0,
-  "pending_count": 0,
-  "created_at": "2024-01-01T00:00:00Z",
-  "updated_at": "2024-01-01T00:00:00Z"
+  "data": {
+    "id": "uuid",
+    "slug": "javascript-advanced",
+    "name": "Advanced JavaScript",
+    "description": "ES6+ features and patterns",
+    "created_at": "2025-06-11T10:00:00Z",
+    "updated_at": "2025-06-11T10:00:00Z",
+    "flashcard_count": 0,
+    "pending_count": 0
+  }
 }
 ```
 
-- **Error Codes**:
-  - `400 Bad Request`: Invalid name/slug format or duplicate slug
-  - `422 Unprocessable Entity`: Validation errors
+- **Success**: 201 Created
+- **Errors**: 400 Bad Request, 401 Unauthorized, 409 Conflict (slug exists), 500 Internal Server Error
 
-#### GET /api/decks/{id}
+#### Update Deck
 
-- **Description**: Get specific deck details
-- **Response**: `200 OK`
-
-```json
-{
-  "id": "uuid",
-  "slug": "javascript-basics",
-  "name": "JavaScript Basics",
-  "description": "Core JavaScript concepts",
-  "flashcard_count": 25,
-  "pending_count": 3,
-  "accepted_count": 20,
-  "rejected_count": 2,
-  "created_at": "2024-01-01T00:00:00Z",
-  "updated_at": "2024-01-02T00:00:00Z"
-}
-```
-
-- **Error Codes**:
-  - `404 Not Found`: Deck doesn't exist or not owned by user
-
-#### PUT /api/decks/{id}
-
+- **Method**: PUT
+- **Path**: `/api/decks/{slug}`
 - **Description**: Update deck information
 - **Request Body**:
 
 ```json
 {
-  "name": "JavaScript Fundamentals",
+  "name": "Updated Deck Name",
   "description": "Updated description"
 }
 ```
 
-- **Response**: `200 OK` (same structure as GET)
-- **Error Codes**:
-  - `400 Bad Request`: Invalid data format
-  - `404 Not Found`: Deck not found
+- **Response**: Same as Get Single Deck
+- **Success**: 200 OK
+- **Errors**: 400 Bad Request, 401 Unauthorized, 404 Not Found, 500 Internal Server Error
 
-#### DELETE /api/decks/{id}
+#### Delete Deck
 
+- **Method**: DELETE
+- **Path**: `/api/decks/{slug}`
 - **Description**: Soft delete deck and all flashcards
-- **Response**: `204 No Content`
-- **Error Codes**:
-  - `404 Not Found`: Deck not found
+- **Response**:
 
-### 2.3 Flashcards
+```json
+{
+  "message": "Deck deleted successfully"
+}
+```
 
-#### GET /api/decks/{deck_id}/flashcards
+- **Success**: 200 OK
+- **Errors**: 401 Unauthorized, 404 Not Found, 500 Internal Server Error
 
-- **Description**: List flashcards in a deck
+### 2.2 Flashcards Resource
+
+#### Get Deck Flashcards
+
+- **Method**: GET
+- **Path**: `/api/decks/{slug}/flashcards`
+- **Description**: Retrieve flashcards for specific deck
 - **Query Parameters**:
-  - `status`: Filter by status (pending, accepted, rejected)
-  - `page`: Page number (default: 1)
-  - `limit`: Items per page (default: 20, max: 50)
-- **Response**: `200 OK`
+  - `status` (optional): Filter by status ('pending', 'accepted', 'rejected')
+  - `box` (optional): Filter by Leitner box ('box1', 'box2', 'box3', 'graduated')
+  - `limit` (optional): Number of results (default: 20, max: 100)
+  - `offset` (optional): Pagination offset (default: 0)
+- **Response**:
 
 ```json
 {
   "data": [
     {
       "id": "uuid",
-      "question": "What is closure in JavaScript?",
-      "answer": "A function that has access to variables in its outer scope",
+      "question": "What is a closure in JavaScript?",
+      "answer": "A closure is a function that has access to variables from its outer scope",
       "status": "accepted",
       "box": "box2",
-      "next_due_date": "2024-01-05T00:00:00Z",
+      "next_due_date": "2025-06-14T10:00:00Z",
+      "created_at": "2025-06-11T10:00:00Z",
+      "updated_at": "2025-06-11T10:00:00Z",
       "model": "gpt-4o-mini",
-      "tokens_used": 85,
-      "price_usd": 0.000025,
-      "created_at": "2024-01-01T00:00:00Z"
+      "tokens_used": 95
     }
   ],
   "pagination": {
-    "page": 1,
-    "limit": 20,
     "total": 25,
-    "total_pages": 2
+    "limit": 20,
+    "offset": 0,
+    "has_more": true
   }
 }
 ```
 
-#### POST /api/decks/{deck_id}/flashcards
+- **Success**: 200 OK
+- **Errors**: 401 Unauthorized, 404 Not Found (deck), 500 Internal Server Error
 
-- **Description**: Manually create flashcard
-- **Request Body**:
+#### Get Single Flashcard
 
-```json
-{
-  "question": "What is a Promise in JavaScript?",
-  "answer": "An object representing eventual completion of an async operation"
-}
-```
-
-- **Response**: `201 Created`
+- **Method**: GET
+- **Path**: `/api/flashcards/{id}`
+- **Description**: Retrieve specific flashcard
+- **Response**:
 
 ```json
 {
-  "id": "uuid",
-  "question": "What is a Promise in JavaScript?",
-  "answer": "An object representing eventual completion of an async operation",
-  "status": "accepted",
-  "box": "box1",
-  "next_due_date": "2024-01-02T00:00:00Z",
-  "created_at": "2024-01-01T00:00:00Z"
+  "data": {
+    "id": "uuid",
+    "deck_id": "uuid",
+    "question": "What is a closure in JavaScript?",
+    "answer": "A closure is a function that has access to variables from its outer scope",
+    "status": "accepted",
+    "box": "box2",
+    "next_due_date": "2025-06-14T10:00:00Z",
+    "created_at": "2025-06-11T10:00:00Z",
+    "updated_at": "2025-06-11T10:00:00Z",
+    "model": "gpt-4o-mini",
+    "tokens_used": 95
+  }
 }
 ```
 
-- **Error Codes**:
-  - `400 Bad Request`: Question/answer too long or empty
-  - `404 Not Found`: Deck not found
+- **Success**: 200 OK
+- **Errors**: 401 Unauthorized, 404 Not Found, 500 Internal Server Error
 
-#### POST /api/flashcards/generate
+#### Generate Flashcards with AI
 
-- **Description**: Generate flashcards using AI
+- **Method**: POST
+- **Path**: `/api/flashcards/generate`
+- **Description**: Generate flashcards from text using AI
 - **Request Body**:
 
 ```json
 {
   "deck_id": "uuid",
-  "input_text": "JavaScript closures are functions that have access to variables in their outer scope...",
-  "max_flashcards": 5
+  "input_text": "JavaScript closures are functions that retain access to their lexical scope...",
+  "max_cards": 5,
+  "difficulty": "intermediate"
 }
 ```
 
-- **Response**: `201 Created`
+- **Response**:
 
 ```json
 {
-  "generated_flashcards": [
+  "data": [
     {
       "id": "uuid",
       "question": "What is a closure in JavaScript?",
-      "answer": "A function that has access to variables in its outer scope",
+      "answer": "A closure is a function that has access to variables from its outer scope",
       "status": "pending",
+      "box": "box1",
+      "next_due_date": "2025-06-11T10:00:00Z",
+      "created_at": "2025-06-11T10:00:00Z",
       "model": "gpt-4o-mini",
-      "tokens_used": 85,
-      "price_usd": 0.000025
+      "tokens_used": 95,
+      "price_usd": 0.000285
     }
   ],
-  "generation_summary": {
-    "total_generated": 3,
-    "total_tokens": 255,
-    "total_cost_usd": 0.000075,
-    "model_used": "gpt-4o-mini"
+  "metadata": {
+    "total_tokens": 450,
+    "total_cost_usd": 0.00135,
+    "model_used": "gpt-4o-mini",
+    "generation_time_ms": 2340
   }
 }
 ```
 
-- **Error Codes**:
-  - `400 Bad Request`: Input text too long (>2000 chars) or empty
-  - `402 Payment Required`: Budget limit reached
-  - `429 Too Many Requests`: Rate limit exceeded
+- **Success**: 201 Created
+- **Errors**: 400 Bad Request (text too long, budget exceeded), 401 Unauthorized, 404 Not Found (deck), 429 Too Many Requests, 500 Internal Server Error, 503 Service Unavailable (budget limit reached)
 
-#### GET /api/flashcards/{id}
+#### Create Manual Flashcard
 
-- **Description**: Get specific flashcard
-- **Response**: `200 OK` (same structure as list item)
+- **Method**: POST
+- **Path**: `/api/flashcards`
+- **Description**: Create flashcard manually
+- **Request Body**:
 
-#### PUT /api/flashcards/{id}
+```json
+{
+  "deck_id": "uuid",
+  "question": "What is the difference between let and var?",
+  "answer": "let has block scope while var has function scope"
+}
+```
 
+- **Response**: Same as Get Single Flashcard
+- **Success**: 201 Created
+- **Errors**: 400 Bad Request, 401 Unauthorized, 404 Not Found (deck), 500 Internal Server Error
+
+#### Update Flashcard
+
+- **Method**: PUT
+- **Path**: `/api/flashcards/{id}`
 - **Description**: Update flashcard content
 - **Request Body**:
 
 ```json
 {
-  "question": "Updated question",
+  "question": "Updated question?",
   "answer": "Updated answer"
 }
 ```
 
-- **Response**: `200 OK` (same structure as GET)
+- **Response**: Same as Get Single Flashcard
+- **Success**: 200 OK
+- **Errors**: 400 Bad Request, 401 Unauthorized, 404 Not Found, 500 Internal Server Error
 
-#### DELETE /api/flashcards/{id}
+#### Update Flashcard Status
 
+- **Method**: PATCH
+- **Path**: `/api/flashcards/{id}/status`
+- **Description**: Accept or reject pending flashcard
+- **Request Body**:
+
+```json
+{
+  "status": "accepted"
+}
+```
+
+- **Response**: Same as Get Single Flashcard
+- **Success**: 200 OK
+- **Errors**: 400 Bad Request, 401 Unauthorized, 404 Not Found, 500 Internal Server Error
+
+#### Delete Flashcard
+
+- **Method**: DELETE
+- **Path**: `/api/flashcards/{id}`
 - **Description**: Delete flashcard
-- **Response**: `204 No Content`
-
-#### POST /api/flashcards/{id}/accept
-
-- **Description**: Accept AI-generated flashcard
-- **Response**: `200 OK`
+- **Response**:
 
 ```json
 {
-  "id": "uuid",
-  "status": "accepted",
-  "box": "box1",
-  "next_due_date": "2024-01-02T00:00:00Z"
+  "message": "Flashcard deleted successfully"
 }
 ```
 
-#### POST /api/flashcards/{id}/reject
+- **Success**: 200 OK
+- **Errors**: 401 Unauthorized, 404 Not Found, 500 Internal Server Error
 
-- **Description**: Reject AI-generated flashcard
-- **Response**: `200 OK`
+### 2.3 Study Sessions Resource
 
-```json
-{
-  "id": "uuid",
-  "status": "rejected"
-}
-```
+#### Get Study Session
 
-### 2.4 Review Sessions
-
-#### GET /api/reviews/session
-
-- **Description**: Get flashcards due for review
+- **Method**: GET
+- **Path**: `/api/study/session`
+- **Description**: Get flashcards for current study session
 - **Query Parameters**:
-  - `limit`: Max flashcards to review (default: 50, max: 70 with catch-up)
-  - `include_catchup`: Include overdue flashcards (boolean)
-- **Response**: `200 OK`
+  - `include_catchup` (optional): Include overdue cards (default: false)
+  - `deck_slug` (optional): Limit to specific deck
+- **Response**:
 
 ```json
 {
-  "session_id": "uuid",
-  "flashcards": [
-    {
-      "id": "uuid",
-      "question": "What is closure in JavaScript?",
-      "deck_name": "JavaScript Basics",
-      "box": "box2",
-      "due_date": "2024-01-01T00:00:00Z"
+  "data": {
+    "session_id": "uuid",
+    "flashcards": [
+      {
+        "id": "uuid",
+        "question": "What is a closure in JavaScript?",
+        "deck_name": "JavaScript Basics",
+        "box": "box1",
+        "due_date": "2025-06-11T10:00:00Z"
+      }
+    ],
+    "metadata": {
+      "total_due": 15,
+      "session_limit": 50,
+      "catchup_available": 5,
+      "daily_reviews_completed": 23,
+      "daily_limit": 50
     }
-  ],
-  "session_info": {
-    "total_due": 15,
-    "daily_limit_remaining": 35,
-    "catchup_available": 5
   }
 }
 ```
 
-#### POST /api/reviews
+- **Success**: 200 OK
+- **Errors**: 401 Unauthorized, 429 Too Many Requests (daily limit), 500 Internal Server Error
 
-- **Description**: Submit review answer
+### 2.4 Reviews Resource
+
+#### Submit Review
+
+- **Method**: POST
+- **Path**: `/api/reviews`
+- **Description**: Submit answer for flashcard
 - **Request Body**:
 
 ```json
@@ -392,217 +388,466 @@
 }
 ```
 
-- **Response**: `201 Created`
+- **Response**:
 
 ```json
 {
-  "review_id": "uuid",
-  "flashcard": {
+  "data": {
     "id": "uuid",
-    "new_box": "box3",
-    "next_due_date": "2024-01-08T00:00:00Z"
-  },
-  "session_progress": {
-    "completed": 5,
-    "remaining": 10,
-    "daily_limit_remaining": 30
-  }
-}
-```
-
-- **Error Codes**:
-  - `400 Bad Request`: Invalid response data
-  - `429 Too Many Requests`: Daily review limit exceeded
-
-#### GET /api/reviews/stats
-
-- **Description**: Get user's review statistics
-- **Query Parameters**:
-  - `period`: daily, weekly, monthly (default: daily)
-- **Response**: `200 OK`
-
-```json
-{
-  "period": "daily",
-  "stats": {
-    "reviews_completed": 25,
-    "accuracy_rate": 0.84,
-    "average_response_time_ms": 4200,
-    "streak_days": 7,
-    "flashcards_graduated": 3
-  },
-  "daily_breakdown": [
-    {
-      "date": "2024-01-01",
-      "reviews": 15,
-      "accuracy": 0.87
+    "flashcard_id": "uuid",
+    "is_correct": true,
+    "response_time_ms": 3500,
+    "created_at": "2025-06-11T10:00:00Z",
+    "next_review": {
+      "box": "box2",
+      "next_due_date": "2025-06-14T10:00:00Z"
     }
-  ]
-}
-```
-
-### 2.5 User Management
-
-#### GET /api/users/profile
-
-- **Description**: Get current user profile
-- **Response**: `200 OK`
-
-```json
-{
-  "id": "uuid",
-  "email": "user@example.com",
-  "created_at": "2024-01-01T00:00:00Z",
-  "stats": {
-    "total_decks": 3,
-    "total_flashcards": 75,
-    "total_reviews": 250
   }
 }
 ```
 
-#### GET /api/users/export
+- **Success**: 201 Created
+- **Errors**: 400 Bad Request, 401 Unauthorized, 404 Not Found (flashcard), 429 Too Many Requests (daily limit), 500 Internal Server Error
 
-- **Description**: Export all user data
-- **Response**: `200 OK`
+#### Get Review History
+
+- **Method**: GET
+- **Path**: `/api/reviews`
+- **Description**: Get user's review history
+- **Query Parameters**:
+  - `flashcard_id` (optional): Filter by specific flashcard
+  - `from_date` (optional): Start date filter
+  - `to_date` (optional): End date filter
+  - `limit` (optional): Number of results (default: 50, max: 500)
+  - `offset` (optional): Pagination offset
+- **Response**:
 
 ```json
 {
-  "export_date": "2024-01-01T00:00:00Z",
-  "user": {
-    "id": "uuid",
-    "email": "user@example.com"
-  },
+  "data": [
+    {
+      "id": "uuid",
+      "flashcard_id": "uuid",
+      "is_correct": true,
+      "response_time_ms": 3500,
+      "created_at": "2025-06-11T10:00:00Z",
+      "flashcard": {
+        "question": "What is a closure?",
+        "deck_name": "JavaScript Basics"
+      }
+    }
+  ],
+  "pagination": {
+    "total": 125,
+    "limit": 50,
+    "offset": 0,
+    "has_more": true
+  }
+}
+```
+
+- **Success**: 200 OK
+- **Errors**: 401 Unauthorized, 500 Internal Server Error
+
+### 2.5 User Data Resource
+
+#### Export User Data
+
+- **Method**: GET
+- **Path**: `/api/user/export`
+- **Description**: Export all user data as JSON
+- **Response**:
+
+```json
+{
+  "export_timestamp": "2025-06-11T10:00:00Z",
+  "user_id": "uuid",
   "decks": [...],
   "flashcards": [...],
-  "reviews": [...]
+  "reviews": [...],
+  "statistics": {
+    "total_flashcards": 150,
+    "total_reviews": 1250,
+    "accuracy_rate": 0.76,
+    "streak_days": 15
+  }
 }
 ```
 
-#### DELETE /api/users/account
+- **Success**: 200 OK
+- **Errors**: 401 Unauthorized, 500 Internal Server Error
 
+#### Delete User Account
+
+- **Method**: DELETE
+- **Path**: `/api/user/account`
 - **Description**: Permanently delete user account and all data
-- **Response**: `204 No Content`
-- **Error Codes**:
-  - `400 Bad Request`: Account deletion confirmation required
-
-### 2.6 Admin Endpoints
-
-#### GET /api/admin/budget
-
-- **Description**: Get budget usage and alerts
-- **Response**: `200 OK`
+- **Request Body**:
 
 ```json
 {
-  "current_month": {
-    "spent_usd": 8.50,
-    "budget_usd": 10.00,
-    "percentage_used": 85.0,
-    "alert_triggered": true
-  },
-  "recent_events": [...]
+  "confirmation": "DELETE_MY_ACCOUNT"
 }
 ```
 
-#### GET /api/admin/kpi
-
-- **Description**: Get KPI metrics
-- **Query Parameters**:
-  - `period`: daily, monthly
-  - `start_date`, `end_date`: Date range
-- **Response**: `200 OK`
+- **Response**:
 
 ```json
 {
-  "period": "daily",
-  "metrics": [
-    {
-      "date": "2024-01-01",
-      "accepted_count": 150,
-      "rejected_count": 25,
-      "accepted_pct": 85.7,
-      "active_users": 45,
-      "cost_usd": 0.75
+  "message": "Account deleted successfully"
+}
+```
+
+- **Success**: 200 OK
+- **Errors**: 400 Bad Request (invalid confirmation), 401 Unauthorized, 500 Internal Server Error
+
+### 2.6 Budget Resource (Admin Only)
+
+#### Get Budget Status
+
+- **Method**: GET
+- **Path**: `/api/admin/budget/status`
+- **Description**: Get current budget usage and alerts
+- **Response**:
+
+```json
+{
+  "data": {
+    "current_month": "2025-06",
+    "budget_limit_usd": 10.00,
+    "current_usage_usd": 7.85,
+    "usage_percentage": 78.5,
+    "threshold_80_reached": false,
+    "threshold_100_reached": false,
+    "generation_blocked": false,
+    "last_updated": "2025-06-11T10:00:00Z"
+  }
+}
+```
+
+- **Success**: 200 OK
+- **Errors**: 401 Unauthorized, 403 Forbidden (not admin), 500 Internal Server Error
+
+### 2.7 Authentication Resource
+
+#### Register User
+
+- **Method**: POST
+- **Path**: `/api/auth/register`
+- **Description**: Register new user account
+- **Request Body**:
+
+```json
+{
+  "email": "user@example.com",
+  "password": "SecurePassword123!",
+  "age_confirmation": true
+}
+```
+
+- **Response**:
+
+```json
+{
+  "data": {
+    "user": {
+      "id": "uuid",
+      "email": "user@example.com",
+      "email_confirmed_at": null,
+      "created_at": "2025-06-11T10:00:00Z"
+    },
+    "message": "Please check your email to confirm your account"
+  }
+}
+```
+
+- **Success**: 201 Created
+- **Errors**: 400 Bad Request (invalid email/password, age confirmation missing), 409 Conflict (email exists), 500 Internal Server Error
+
+#### Login User
+
+- **Method**: POST
+- **Path**: `/api/auth/login`
+- **Description**: Authenticate user and return JWT tokens
+- **Request Body**:
+
+```json
+{
+  "email": "user@example.com",
+  "password": "SecurePassword123!"
+}
+```
+
+- **Response**:
+
+```json
+{
+  "data": {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "expires_in": 3600,
+    "user": {
+      "id": "uuid",
+      "email": "user@example.com",
+      "email_confirmed_at": "2025-06-11T10:00:00Z"
     }
-  ]
+  }
 }
 ```
+
+- **Success**: 200 OK
+- **Errors**: 400 Bad Request (invalid credentials), 401 Unauthorized (unconfirmed email), 429 Too Many Requests, 500 Internal Server Error
+
+#### Logout User
+
+- **Method**: POST
+- **Path**: `/api/auth/logout`
+- **Description**: Invalidate current session
+- **Headers**: `Authorization: Bearer <access_token>`
+- **Response**:
+
+```json
+{
+  "message": "Logged out successfully"
+}
+```
+
+- **Success**: 200 OK
+- **Errors**: 401 Unauthorized, 500 Internal Server Error
+
+#### Refresh Token
+
+- **Method**: POST
+- **Path**: `/api/auth/refresh`
+- **Description**: Get new access token using refresh token
+- **Request Body**:
+
+```json
+{
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+- **Response**:
+
+```json
+{
+  "data": {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "expires_in": 3600
+  }
+}
+```
+
+- **Success**: 200 OK
+- **Errors**: 400 Bad Request (invalid refresh token), 401 Unauthorized, 500 Internal Server Error
+
+#### Get Current User
+
+- **Method**: GET
+- **Path**: `/api/auth/me`
+- **Description**: Get current authenticated user profile
+- **Headers**: `Authorization: Bearer <access_token>`
+- **Response**:
+
+```json
+{
+  "data": {
+    "id": "uuid",
+    "email": "user@example.com",
+    "email_confirmed_at": "2025-06-11T10:00:00Z",
+    "created_at": "2025-06-11T10:00:00Z",
+    "last_sign_in_at": "2025-06-11T09:30:00Z"
+  }
+}
+```
+
+- **Success**: 200 OK
+- **Errors**: 401 Unauthorized, 500 Internal Server Error
+
+#### Password Reset Request
+
+- **Method**: POST
+- **Path**: `/api/auth/password/reset`
+- **Description**: Send password reset email
+- **Request Body**:
+
+```json
+{
+  "email": "user@example.com"
+}
+```
+
+- **Response**:
+
+```json
+{
+  "message": "If an account with this email exists, you will receive password reset instructions"
+}
+```
+
+- **Success**: 200 OK
+- **Errors**: 429 Too Many Requests, 500 Internal Server Error
+
+#### Password Reset Confirm
+
+- **Method**: POST
+- **Path**: `/api/auth/password/update`
+- **Description**: Update password with reset token
+- **Request Body**:
+
+```json
+{
+  "token": "reset_token_from_email",
+  "password": "NewSecurePassword123!"
+}
+```
+
+- **Response**:
+
+```json
+{
+  "message": "Password updated successfully"
+}
+```
+
+- **Success**: 200 OK
+- **Errors**: 400 Bad Request (invalid token/password), 500 Internal Server Error
 
 ## 3. Authentication and Authorization
 
-### Authentication
+### 3.1 Authentication Method
 
-- **Method**: Supabase Auth with JWT tokens
-- **Session Management**: 30-minute token expiry with refresh tokens
-- **Password Requirements**: Minimum 12 characters with uppercase, lowercase, number, and special character
-- **Email Verification**: Required before account activation
+- **Supabase Auth Integration**: All endpoints require valid JWT token from Supabase Auth
+- **Token Location**: Authorization header: `Bearer <jwt_token>`
+- **Session Management**: 30-minute inactivity timeout
+- **Token Refresh**: Automatic refresh handled by Supabase client
 
-### Authorization
+### 3.2 Authorization Rules
 
-- **Row Level Security (RLS)**: Implemented at database level
-- **User Access**: Users can only access their own decks, flashcards, and reviews
-- **Admin Access**: Special role required for budget and KPI endpoints
+- **User Resources**: Users can only access their own decks, flashcards, and reviews (enforced by RLS)
+- **Admin Resources**: Budget endpoints require `service_role` JWT claim
 - **Rate Limiting**:
-  - AI generation: Budget-based limiting
-  - Reviews: 50 per day + 20 catch-up
+  - Study sessions: 50 reviews per day + 20 catch-up
+  - AI generation: Limited by budget constraints
   - General API: 1000 requests per hour per user
+
+### 3.3 Security Headers
+
+- All responses include:
+  - `X-Content-Type-Options: nosniff`
+  - `X-Frame-Options: DENY`
+  - `X-XSS-Protection: 1; mode=block`
 
 ## 4. Validation and Business Logic
 
-### Validation Rules
+### 4.1 Validation Rules
 
 #### Decks
 
-- **Name**: 1-100 characters, required
-- **Slug**: Lowercase letters, numbers, hyphens only; unique per user
-- **Description**: Optional, max 500 characters
+- `name`: Required, 1-100 characters
+- `slug`: Required, lowercase alphanumeric with hyphens, unique per user
+- `description`: Optional, max 500 characters
 
 #### Flashcards
 
-- **Question**: Required, max 256 characters
-- **Answer**: Required, max 512 characters
-- **Status**: Must be 'pending', 'accepted', or 'rejected'
-- **Box**: Must be 'box1', 'box2', 'box3', or 'graduated'
+- `question`: Required, max 256 characters
+- `answer`: Required, max 512 characters
+- `status`: Must be 'pending', 'accepted', or 'rejected'
+- `box`: Must be 'box1', 'box2', 'box3', or 'graduated'
 
 #### Reviews
 
-- **Response Time**: Positive integer (milliseconds)
-- **Is Correct**: Boolean, required
-- **Daily Limit**: Max 50 reviews + 20 catch-up per day
+- `is_correct`: Required boolean
+- `response_time_ms`: Required positive integer
+- `flashcard_id`: Must reference existing flashcard owned by user
 
 #### AI Generation
 
-- **Input Text**: Required, max 2000 characters
-- **Max Flashcards**: 1-10 per request
-- **Budget Check**: Verify available budget before generation
+- `input_text`: Required, max 2000 characters
+- `max_cards`: Optional, 1-10 (default: 5)
+- `deck_id`: Must reference existing deck owned by user
 
-### Business Logic Implementation
+### 4.2 Business Logic Implementation
 
-#### Leitner Box System
+#### Leitner System Progression
 
-1. **Correct Answer**: Advance to next box (box1→box2→box3→graduated)
-2. **Incorrect Answer**: Reset to box1
-3. **Due Date Calculation**:
-   - Box1: +1 day
-   - Box2: +3 days
-   - Box3: +7 days
-   - Graduated: +30 days
+- Correct answer: Advance to next box with scheduled intervals
+  - box1 → box2 (3 days)
+  - box2 → box3 (7 days)
+  - box3 → graduated (30 days)
+- Incorrect answer: Reset to box1 (1 day)
+- Implemented via database triggers on review insertion
 
-#### Auto-Acceptance
+#### Auto-acceptance Logic
 
-- Flashcards with 'pending' status automatically become 'accepted' after 5 days
-- Implemented via background Edge Function (not API endpoint)
+- Flashcards with status 'pending' for >5 days automatically become 'accepted'
+- Implemented via Edge Function cron job (runs every 12 hours)
 
 #### Budget Management
 
-- Track all AI generation costs in `budget_events` table
-- Alert at 80% of monthly budget
-- Block generation at 100% of budget
-- Monthly reset of budget calculations
+- Real-time cost tracking in `budget_events` table
+- 80% threshold triggers warning alerts
+- 100% threshold blocks AI generation until next month
+- Cumulative cost calculation with monthly reset
 
-#### Session Management
+#### Daily Limits
 
-- Cache review sessions in Supabase KV with 12-hour TTL
-- Validate daily review limits before creating sessions
-- Update flashcard scheduling after each review submission
+- Study sessions limited to 50 reviews + 20 catch-up per day
+- Catch-up option only available once per day
+- Limits reset at midnight UTC
+
+#### Rate Limiting
+
+- Per-user API rate limits enforced at Edge Function level
+- Study session limits enforced in application logic
+- Budget limits enforced before AI API calls
+
+### 4.3 Error Handling
+
+#### Standard Error Response Format
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Question text exceeds maximum length of 256 characters",
+    "details": {
+      "field": "question",
+      "received_length": 312,
+      "max_length": 256
+    }
+  }
+}
+```
+
+#### Error Codes
+
+- `VALIDATION_ERROR`: Request validation failed
+- `UNAUTHORIZED`: Invalid or missing authentication
+- `FORBIDDEN`: Insufficient permissions
+- `NOT_FOUND`: Requested resource not found
+- `RATE_LIMITED`: Too many requests
+- `BUDGET_EXCEEDED`: AI budget limit reached
+- `DAILY_LIMIT_EXCEEDED`: Study session limit reached
+- `INTERNAL_ERROR`: Server error
+
+### 4.4 Performance Considerations
+
+#### Caching Strategy
+
+- Study session results cached in Supabase KV (12-hour TTL)
+- Budget status cached for 5 minutes
+- User deck lists cached for 1 hour
+
+#### Database Optimization
+
+- Indexes on frequently queried fields (due dates, user IDs, deck IDs)
+- Partitioned reviews table for large datasets
+- Connection pooling for database queries
+
+#### Response Optimization
+
+- Pagination for all list endpoints
+- Selective field loading for large responses
+- Compressed responses for large exports
