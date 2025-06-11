@@ -76,24 +76,28 @@ Endpoint służy do autentykacji użytkowników w aplikacji AI Flashcards. Jest 
 ## 6. Względy bezpieczeństwa
 
 ### Walidacja i sanityzacja
+
 - **Email validation**: RFC 5322 compliant regex, max 254 characters
 - **Password requirements**: Min 8 characters, max 128 characters, brak dodatkowych wymagań (delegacja do Supabase)
 - **Input sanitization**: Trimowanie whitespace, normalizacja email (lowercase)
 - **SQL injection protection**: Użycie Supabase ORM/prepared statements
 
 ### Rate limiting
+
 - **Per IP**: Max 10 prób logowania na 15 minut
 - **Per email**: Max 5 prób logowania na 15 minut  
 - **Global**: Max 1000 prób logowania na minutę dla całej aplikacji
 - **Exponential backoff**: Zwiększanie opóźnienia po nieudanych próbach
 
 ### Sesje i tokeny
+
 - **Access token**: Krótki czas życia (1 godzina), zawiera user_id i podstawowe uprawnienia
 - **Refresh token**: Długi czas życia (30 dni), stored securely, używany do odnawiania access tokens
 - **Token rotation**: Nowy refresh token przy każdym odświeżeniu
 - **Secure storage**: HttpOnly cookies dla refresh tokens (opcjonalnie)
 
 ### Auditing i monitoring
+
 - **Successful logins**: Log z user_id, IP, timestamp, user agent
 - **Failed attempts**: Log z email (hashed), IP, reason, timestamp
 - **Suspicious activity**: Alert przy wykryciu anomalii (multiple IPs, brute force)
@@ -166,18 +170,21 @@ Endpoint służy do autentykacji użytkowników w aplikacji AI Flashcards. Jest 
 ## 8. Rozważania dotyczące wydajności
 
 ### Optymalizacje bazy danych
+
 - **Connection pooling**: Efektywne zarządzanie połączeniami z Supabase
 - **Query optimization**: Minimalizacja zapytań przez batching operacji
 - **Caching**: Redis cache dla rate limiting counters
 - **Indexing**: Upewnienie się o indeksach na email w tabeli users
 
 ### Response times
+
 - **Target**: < 200ms dla 95% żądań
 - **Timeout**: Max 5s dla całego procesu logowania
 - **Monitoring**: Śledzenie czasów odpowiedzi per endpoint
 - **Alerting**: Alert przy degradacji wydajności
 
 ### Skalowalność
+
 - **Horizontal scaling**: Load balancer dla wielu instancji aplikacji
 - **Session storage**: Centralized redis dla rate limiting
 - **CDN integration**: Cache statycznych zasobów auth UI
@@ -186,6 +193,7 @@ Endpoint służy do autentykacji użytkowników w aplikacji AI Flashcards. Jest 
 ## 9. Monitoring i metryki
 
 ### Kluczowe metryki
+
 - **Login success rate**: % udanych logowań vs. wszystkich prób
 - **Average response time**: Średni czas odpowiedzi endpoint'a
 - **Failed login attempts**: Liczba nieudanych prób per godzina/dzień
@@ -193,12 +201,14 @@ Endpoint służy do autentykacji użytkowników w aplikacji AI Flashcards. Jest 
 - **Token usage patterns**: Analiza użycia access vs refresh tokens
 
 ### Alerty i notifikacje
+
 - **High failure rate**: > 30% nieudanych logowań w ciągu 15 minut
 - **Spike in login attempts**: > 1000 prób w ciągu minuty
 - **Service availability**: Downtime > 1 minuta
 - **Suspicious activity**: Brute force patterns, unusual geographic distribution
 
 ### Logging strategia
+
 - **Structured logging**: JSON format z korrelacja ID
 - **Log levels**: INFO dla udanych logowań, WARN dla nieudanych, ERROR dla błędów serwera
 - **PII protection**: Hashowanie email addresses, brak logowania haseł
@@ -207,24 +217,28 @@ Endpoint służy do autentykacji użytkowników w aplikacji AI Flashcards. Jest 
 ## 10. Testowanie
 
 ### Unit testy
+
 - **Walidacja input data**: Test wszystkich scenariuszy walidacji Zod
 - **Supabase integration**: Mock auth service responses
 - **Error handling**: Test wszystkich typów błędów
 - **Rate limiting logic**: Test mechanizmów ograniczania żądań
 
 ### Integration testy
+
 - **End-to-end login flow**: Pełny cykl od request do response
 - **Database interactions**: Test operacji na prawdziwej bazie danych
 - **External services**: Test integracji z Supabase Auth
 - **Security scenarios**: Test scenariuszy bezpieczeństwa
 
 ### Performance testy
+
 - **Load testing**: 1000 równoczesnych żądań logowania
 - **Stress testing**: Określenie punktu załamania systemu
 - **Rate limiting validation**: Test skuteczności mechanizmów rate limiting
 - **Memory leaks**: Sprawdzenie stabilności przy długotrwałych testach
 
 ### Security testy
+
 - **Input validation**: Fuzzing, injection attacks, malformed requests
 - **Authentication bypass**: Próby ominięcia mechanizmów auth
 - **Rate limiting bypass**: Test obejścia ograniczeń
@@ -233,6 +247,7 @@ Endpoint służy do autentykacji użytkowników w aplikacji AI Flashcards. Jest 
 ## 11. Etapy wdrożenia
 
 ### Faza 1: Podstawowa infrastruktura (2-3 dni)
+
 1. **Zod schema implementation**
    - Stworzenie `loginRequestSchema` w `auth.zod.ts`
    - Walidacja email (RFC 5322) i password (długość)
@@ -250,6 +265,7 @@ Endpoint służy do autentykacji użytkowników w aplikacji AI Flashcards. Jest 
    - Basic response formatting
 
 ### Faza 2: Supabase integration (2-3 dni)
+
 1. **Authentication logic**
    - Integracja z `supabase.auth.signInWithPassword()`
    - Obsługa różnych typów błędów Supabase
@@ -266,6 +282,7 @@ Endpoint służy do autentykacji użytkowników w aplikacji AI Flashcards. Jest 
    - Secure token handling
 
 ### Faza 3: Security & Rate limiting (3-4 dni)
+
 1. **Rate limiting implementation**
    - Redis integration dla counters
    - IP-based i email-based limiting
@@ -285,6 +302,7 @@ Endpoint służy do autentykacji użytkowników w aplikacji AI Flashcards. Jest 
    - Security headers
 
 ### Faza 4: Testing & Monitoring (2-3 dni)
+
 1. **Comprehensive testing**
    - Unit tests (>90% coverage)
    - Integration tests
@@ -304,6 +322,7 @@ Endpoint służy do autentykacji użytkowników w aplikacji AI Flashcards. Jest 
    - Error response catalog
 
 ### Faza 5: Deployment & Optimization (1-2 dni)
+
 1. **Staging deployment**
    - Feature flags setup
    - Environment configuration
@@ -325,18 +344,21 @@ Endpoint służy do autentykacji użytkowników w aplikacji AI Flashcards. Jest 
 ## 12. Dependencies i Prerequisites
 
 ### Environment setup
+
 - **Supabase configuration**: Upewnienie się o poprawnej konfiguracji auth w Supabase
 - **Redis setup**: Dla rate limiting (development może używać in-memory)
 - **Environment variables**: SUPABASE_URL, SUPABASE_ANON_KEY, REDIS_URL
 - **Database access**: Uprawnienia do tabeli users i auth
 
 ### Code dependencies
+
 - **Existing types**: `LoginRequestDTO`, `LoginResponseDTO`, `UserProfile`
 - **Supabase client**: Istniejący `supabaseClient` from `@/db/supabase.client`
 - **Error types**: `ErrorResponseDTO` i związane typy
 - **Utility functions**: Email validation, password hashing helpers
 
 ### External services
+
 - **Supabase Auth**: Główny provider autentykacji
 - **Redis**: Cache dla rate limiting (opcjonalnie, może być in-memory na starcie)
 - **Monitoring service**: Dla metryk i alertów (np. DataDog, New Relic)
@@ -345,18 +367,21 @@ Endpoint służy do autentykacji użytkowników w aplikacji AI Flashcards. Jest 
 ## 13. Risk mitigation
 
 ### Security risks
+
 - **Brute force attacks**: Rate limiting + account lockout
 - **Credential stuffing**: Monitoring anomalii + CAPTCHA po wielu próbach
 - **Session hijacking**: Secure token handling + token rotation
 - **Data leaks**: Proper error messages + audit logging
 
 ### Performance risks
+
 - **High load**: Horizontal scaling + caching
 - **Database bottlenecks**: Connection pooling + read replicas
 - **External service downtime**: Circuit breakers + fallback mechanisms
 - **Memory leaks**: Proper cleanup + monitoring
 
 ### Operational risks
+
 - **Configuration errors**: Infrastructure as code + validation
 - **Deployment issues**: Feature flags + gradual rollout
 - **Monitoring gaps**: Comprehensive metrics + alerting
@@ -365,6 +390,7 @@ Endpoint służy do autentykacji użytkowników w aplikacji AI Flashcards. Jest 
 ## 14. Success criteria
 
 ### Functional requirements
+
 - ✅ User może się zalogować przy użyciu poprawnych danych
 - ✅ System zwraca proper error messages dla niepoprawnych danych
 - ✅ Rate limiting skutecznie blokuje brute force attacks
@@ -372,18 +398,21 @@ Endpoint służy do autentykacji użytkowników w aplikacji AI Flashcards. Jest 
 - ✅ Unverified accounts nie mogą się logować
 
 ### Performance requirements
+
 - ✅ 95% żądań < 200ms response time
 - ✅ 99.9% uptime dla endpoint'a
 - ✅ Obsługa 1000 równoczesnych logowań
 - ✅ Rate limiting nie wpływa negatywnie na legitimate users
 
 ### Security requirements
+
 - ✅ Brak successful brute force attacks w testach
 - ✅ Proper audit trail dla wszystkich login events
 - ✅ Tokens są secure i nie leakują sensitive data
 - ✅ OWASP Top 10 compliance dla auth endpoint
 
 ### Monitoring requirements
+
 - ✅ Real-time metrics dla login success/failure rates
 - ✅ Alerting działa poprawnie dla anomalii
 - ✅ Comprehensive logging bez PII leaks
