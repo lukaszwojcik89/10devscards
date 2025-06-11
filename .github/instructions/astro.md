@@ -4,7 +4,7 @@ globs: *.astro
 alwaysApply: false
 ---
 
-### Guidelines for Astro
+# Guidelines for Astro
 
 - Leverage View Transitions API for smooth page transitions (use ClientRouter)
 - Use content collections with type safety for blog posts, documentation, etc.

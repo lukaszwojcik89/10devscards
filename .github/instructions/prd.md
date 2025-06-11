@@ -2,9 +2,9 @@
 applyTo: "**"
 ---
 
-Coding standards, domain knowledge, and preferences that AI should follow.
+# Coding standards, domain knowledge, and preferences that AI should follow
 
-# Dokument wymagań produktu (PRD) - AI Flashcards
+## Dokument wymagań produktu (PRD) - AI Flashcards
 
 ## 1. Przegląd produktu
 

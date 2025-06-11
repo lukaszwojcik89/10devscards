@@ -4,7 +4,7 @@ globs: src/db/*.ts,src/middleware/*.ts,src/lib/*.ts
 alwaysApply: false
 ---
 
-### Backend and Database
+# Backend and Database
 
 - Use Supabase for backend services, including authentication and database interactions.
 - Follow Supabase guidelines for security and performance.
