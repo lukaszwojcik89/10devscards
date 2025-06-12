@@ -2,11 +2,9 @@ import type { APIRoute } from "astro";
 import { supabaseClient } from "@/db/supabase.client";
 import { AuthService } from "@/lib/services/auth.service";
 import { DeckService } from "@/lib/services/deck.service";
-import type { DeckListResponseDTO, ErrorResponseDTO, CreateDeckResponseDTO } from "@/types";
-import { deckListQuerySchema } from "@/lib/services/deck.zod";
-import { ZodError } from "zod";
+import type { DeckDetailResponseDTO, ErrorResponseDTO } from "@/types";
 
-export const GET: APIRoute = async ({ request, url }) => {
+export const GET: APIRoute = async ({ params, request }) => {
   try {
     // Extract Bearer token from Authorization header
     const authHeader = request.headers.get("Authorization");
@@ -31,47 +29,14 @@ export const GET: APIRoute = async ({ request, url }) => {
     }
 
     const token = authHeader.substring(7); // Remove "Bearer " prefix
+    const { slug } = params;
 
-    // Validate user session and get user profile
-    const authService = new AuthService(supabaseClient);
-    const userProfile = await authService.getCurrentUser(token);
-
-    // Parse query parameters
-    const searchParams = Object.fromEntries(url.searchParams.entries());
-    const validated = deckListQuerySchema.parse(searchParams);
-
-    // Initialize deck service and fetch decks
-    const deckService = new DeckService(supabaseClient);
-    const result = await deckService.listUserDecks(userProfile.id, validated);
-
-    const response: DeckListResponseDTO = result;
-
-    return new Response(JSON.stringify(response), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-        "X-Content-Type-Options": "nosniff",
-        "X-Frame-Options": "DENY",
-        "X-XSS-Protection": "1; mode=block",
-      },
-    });
-  } catch (err) {
-    // Handle validation errors
-    if (err instanceof ZodError) {
-      const details = err.errors.reduce(
-        (acc, e) => ({
-          ...acc,
-          [e.path.join(".")]: e.message,
-        }),
-        {}
-      );
-
+    if (!slug) {
       return new Response(
         JSON.stringify({
           error: {
-            code: "VALIDATION_ERROR",
-            message: "Invalid query parameters",
-            details,
+            code: "MISSING_SLUG",
+            message: "Deck slug is required",
           },
         } as ErrorResponseDTO),
         {
@@ -86,6 +51,26 @@ export const GET: APIRoute = async ({ request, url }) => {
       );
     }
 
+    // Validate user session and get user profile
+    const authService = new AuthService(supabaseClient);
+    const userProfile = await authService.getCurrentUser(token);
+
+    // Initialize deck service and fetch deck
+    const deckService = new DeckService(supabaseClient);
+    const result = await deckService.getDeckBySlug(slug, userProfile.id);
+
+    const response: DeckDetailResponseDTO = result;
+
+    return new Response(JSON.stringify(response), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "X-XSS-Protection": "1; mode=block",
+      },
+    });
+  } catch (err) {
     // Handle authentication errors
     const error = err as Error;
 
@@ -109,12 +94,32 @@ export const GET: APIRoute = async ({ request, url }) => {
       );
     }
 
+    if (error.message.includes("not found")) {
+      return new Response(
+        JSON.stringify({
+          error: {
+            code: "DECK_NOT_FOUND",
+            message: "Deck not found or you don't have access to it",
+          },
+        } as ErrorResponseDTO),
+        {
+          status: 404,
+          headers: {
+            "Content-Type": "application/json",
+            "X-Content-Type-Options": "nosniff",
+            "X-Frame-Options": "DENY",
+            "X-XSS-Protection": "1; mode=block",
+          },
+        }
+      );
+    }
+
     // Handle other errors
     return new Response(
       JSON.stringify({
         error: {
           code: "INTERNAL_SERVER_ERROR",
-          message: "An unexpected error occurred while fetching decks",
+          message: "An unexpected error occurred while fetching deck",
         },
       } as ErrorResponseDTO),
       {
@@ -130,7 +135,7 @@ export const GET: APIRoute = async ({ request, url }) => {
   }
 };
 
-export const POST: APIRoute = async ({ request }) => {
+export const PUT: APIRoute = async ({ params, request }) => {
   try {
     // Extract Bearer token from Authorization header
     const authHeader = request.headers.get("Authorization");
@@ -155,49 +160,14 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const token = authHeader.substring(7); // Remove "Bearer " prefix
+    const { slug } = params;
 
-    // Validate user session and get user profile
-    const authService = new AuthService(supabaseClient);
-    const userProfile = await authService.getCurrentUser(token);
-
-    // Parse request body
-    const body = await request.json();
-
-    // Initialize deck service and create deck
-    const deckService = new DeckService(supabaseClient);
-    const result = await deckService.createDeck({
-      ...body,
-      owner_id: userProfile.id,
-    });
-
-    const response: CreateDeckResponseDTO = result;
-
-    return new Response(JSON.stringify(response), {
-      status: 201,
-      headers: {
-        "Content-Type": "application/json",
-        "X-Content-Type-Options": "nosniff",
-        "X-Frame-Options": "DENY",
-        "X-XSS-Protection": "1; mode=block",
-      },
-    });
-  } catch (err) {
-    // Handle validation errors
-    if (err instanceof ZodError) {
-      const details = err.errors.reduce(
-        (acc, e) => ({
-          ...acc,
-          [e.path.join(".")]: e.message,
-        }),
-        {}
-      );
-
+    if (!slug) {
       return new Response(
         JSON.stringify({
           error: {
-            code: "VALIDATION_ERROR",
-            message: "Invalid request data",
-            details,
+            code: "MISSING_SLUG",
+            message: "Deck slug is required",
           },
         } as ErrorResponseDTO),
         {
@@ -212,7 +182,34 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    // Handle business logic errors
+    // Validate user session and get user profile
+    const authService = new AuthService(supabaseClient);
+    const userProfile = await authService.getCurrentUser(token);
+
+    // Parse request body
+    const body = await request.json();
+
+    // Initialize deck service and update deck
+    const deckService = new DeckService(supabaseClient);
+    const result = await deckService.updateDeck({
+      ...body,
+      slug: slug,
+      owner_id: userProfile.id,
+    });
+
+    const response: DeckDetailResponseDTO = result;
+
+    return new Response(JSON.stringify(response), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "X-XSS-Protection": "1; mode=block",
+      },
+    });
+  } catch (err) {
+    // Handle authentication errors
     const error = err as Error;
 
     if (error.message.includes("Invalid or expired token")) {
@@ -235,16 +232,16 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    if (error.message.includes("already exists")) {
+    if (error.message.includes("not found")) {
       return new Response(
         JSON.stringify({
           error: {
-            code: "DUPLICATE_SLUG",
-            message: "A deck with this slug already exists",
+            code: "DECK_NOT_FOUND",
+            message: "Deck not found or you don't have access to it",
           },
         } as ErrorResponseDTO),
         {
-          status: 409,
+          status: 404,
           headers: {
             "Content-Type": "application/json",
             "X-Content-Type-Options": "nosniff",
@@ -260,7 +257,7 @@ export const POST: APIRoute = async ({ request }) => {
       JSON.stringify({
         error: {
           code: "INTERNAL_SERVER_ERROR",
-          message: "An unexpected error occurred while creating deck",
+          message: "An unexpected error occurred while updating deck",
         },
       } as ErrorResponseDTO),
       {
