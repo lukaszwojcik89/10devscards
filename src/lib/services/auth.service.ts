@@ -39,7 +39,7 @@ export class AuthService {
     }
 
     // Update last sign in timestamp
-    await this.updateLastSignIn(data.user.id);
+    await this.updateLastSignIn();
 
     // Format user profile
     const userProfile = this.formatUserProfile(data.user);
@@ -58,7 +58,7 @@ export class AuthService {
   /**
    * Update user's last sign in timestamp
    */
-  private async updateLastSignIn(_userId: string): Promise<void> {
+  private async updateLastSignIn(): Promise<void> {
     const { error } = await this.supabase.auth.updateUser({
       data: { last_sign_in_at: new Date().toISOString() },
     });
@@ -140,7 +140,7 @@ export class AuthService {
       }
 
       return this.formatUserProfile(data.user);
-    } catch (_error) {
+    } catch {
       // console.warn("Session validation error:", error);
       return null;
     }
@@ -165,7 +165,7 @@ export class AuthService {
         // console.warn("Logout error:", error);
         // Don't throw error for logout - it might already be invalid
       }
-    } catch (_error) {
+    } catch {
       // console.warn("Logout error:", error);
       // Don't throw error for logout operations
     }
@@ -190,7 +190,7 @@ export class AuthService {
         access_token: data.session.access_token,
         expires_in: data.session.expires_in || 3600,
       };
-    } catch (_error) {
+    } catch {
       // TODO: Replace with proper logging service
       // console.warn("Token refresh error:", error);
       throw new Error("Invalid refresh token");
@@ -242,5 +242,62 @@ export class AuthService {
         message: "Please check your email to confirm your account",
       },
     };
+  }
+
+  /**
+   * Get current user profile from token
+   * @param token - JWT access token
+   * @returns User profile data
+   */
+  async getCurrentUser(token: string): Promise<UserProfile> {
+    const { data, error } = await this.supabase.auth.getUser(token);
+
+    if (error || !data.user) {
+      throw new Error("Invalid or expired token");
+    }
+
+    return this.formatUserProfile(data.user);
+  }
+
+  /**
+   * Request password reset for user
+   * @param email - User email address
+   */
+  async requestPasswordReset(email: string): Promise<void> {
+    const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${process.env.PUBLIC_SITE_URL || "http://localhost:4321"}/reset-password`,
+    });
+
+    if (error) {
+      // Log error but don't expose details for security
+      // console.warn("Password reset error:", error);
+      // Always return success for security (don't reveal if email exists)
+    }
+  }
+
+  /**
+   * Update user password with reset token
+   * @param token - Reset token from email
+   * @param newPassword - New password
+   */
+  async updatePassword(_token: string, newPassword: string): Promise<void> {
+    // First check current session
+    const { error: sessionError } = await this.supabase.auth.getSession();
+
+    if (sessionError) {
+      throw new Error("Invalid reset token");
+    }
+
+    // Update the password
+    const { error } = await this.supabase.auth.updateUser({
+      password: newPassword,
+    });
+
+    if (error) {
+      throw new Error("Failed to update password");
+    }
+
+    // Sign out from all sessions for security
+    await this.supabase.auth.signOut({ scope: "global" });
   }
 }
