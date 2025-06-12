@@ -1,38 +1,5 @@
 # API Endpoint Implementation Plan: Authentication Endpoints (Register & Login)
 
-<analysis>
-Analiza specyfikacji API i wymagań:
-
-1. **Kluczowe punkty specyfikacji**:
-   - POST /api/auth/register: 201 Created, obsługa age_confirmation, email verification
-   - POST /api/auth/login: 200 OK, zwracanie JWT tokens, walidacja potwierdzonego emaila
-   - Oba endpointy wymagają walidacji Zod, obsługi błędów Supabase, nagłówków bezpieczeństwa
-
-2. **Wymagane i opcjonalne parametry**:
-   - Register: email (req), password (req), age_confirmation (req)
-   - Login: email (req), password (req)
-
-3. **Niezbędne typy DTO**:
-   - RegisterRequestDTO, RegisterResponseDTO, LoginRequestDTO, LoginResponseDTO
-   - ErrorResponseDTO, UserProfile, AuthTokens
-
-4. **Logika w serwisach**:
-   - AuthService już istnieje z metodami register() i login()
-   - Integracja z Supabase Auth, obsługa błędów, formatowanie odpowiedzi
-
-5. **Walidacja danych**:
-   - Zod schemas: registerRequestSchema, loginRequestSchema
-   - Email format (RFC 5322), password length (8-128), age confirmation boolean
-
-6. **Potencjalne zagrożenia bezpieczeństwa**:
-   - Brute force attacks, credential stuffing, session hijacking
-   - Rate limiting, secure headers, input validation
-
-7. **Scenariusze błędów**:
-   - 400: Invalid input, 401: Invalid credentials/unconfirmed email
-   - 409: Email already exists, 429: Rate limiting, 500: Server errors
-</analysis>
-
 ## 1. Przegląd punktów końcowych
 
 ### POST /api/auth/register
