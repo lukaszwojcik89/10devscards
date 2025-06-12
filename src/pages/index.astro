@@ -5,16 +5,40 @@ import Layout from "../layouts/Layout.astro";
 <Layout>
   <main class="container mx-auto px-4 py-8 min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50">
     <div class="max-w-6xl mx-auto">
-      <!-- Header -->
-      <header class="text-center mb-12">
+      <!-- Welcome message for logged in users -->
+      <div id="user-welcome" class="text-center mb-8 hidden">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Witaj ponownie! 👋</h1>
+        <p class="text-lg text-gray-600">Gotowy na kolejną sesję nauki?</p>
+      </div>
+
+      <!-- Header for guest users -->
+      <header id="guest-header" class="text-center mb-12">
         <h1 class="text-4xl font-bold text-gray-800 mb-4">🧠 AI Flashcards</h1>
         <p class="text-lg text-gray-600">Ucz się efektywnie z fiszkami generowanymi przez sztuczną inteligencję</p>
+        
+        <!-- Call to action for guests -->
+        <div class="mt-6 flex gap-4 justify-center">
+          <a 
+            href="/register" 
+            class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+          >
+            Rozpocznij za darmo
+          </a>
+          <a 
+            href="/login" 
+            class="px-6 py-3 border border-indigo-600 text-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors font-medium"
+          >
+            Mam już konto
+          </a>
+        </div>
       </header>
 
-      <!-- Main Content -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <!-- Deck Creation Card -->
-        <div class="bg-white rounded-lg shadow-lg p-6 border border-gray-100">
+      <!-- Content for logged in users -->
+      <div id="authenticated-content" class="hidden">
+        <!-- Main Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <!-- Deck Creation Card -->
+          <div class="bg-white rounded-lg shadow-lg p-6 border border-gray-100">
           <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
             <span class="text-2xl">📚</span>
             Utwórz nową talię
@@ -170,6 +194,40 @@ import Layout from "../layouts/Layout.astro";
         }
       });
     });
+
+    // Authentication state management
+    async function checkAuthState() {
+      const token = localStorage.getItem("access_token");
+      
+      if (token) {
+        try {
+          const response = await fetch("/api/auth/me", {
+            method: "GET",
+            headers: {
+              "Authorization": `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (response.ok) {
+            // User is authenticated - no additional UI changes needed here
+            // UserNav component already handles the top navigation
+            console.log("User authenticated");
+          } else {
+            // Token is invalid
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
+          }
+        } catch (error) {
+          console.warn("Auth check failed:", error);
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
+        }
+      }
+    }
+
+    // Initialize authentication check
+    checkAuthState();
 
     async function loadDecks() {
       try {
