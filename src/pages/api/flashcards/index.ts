@@ -47,8 +47,8 @@ export const GET: APIRoute = async ({ request, url }) => {
     // Parse query parameters
     const searchParams = url.searchParams;
     const deckId = searchParams.get("deck_id") || undefined;
-    const status = searchParams.get("status") || undefined;
-    const box = searchParams.get("box") || undefined;
+    const status = searchParams.get("status") as "pending" | "accepted" | "rejected" | undefined;
+    const box = searchParams.get("box") as "box1" | "box2" | "box3" | "graduated" | undefined;
     const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 100);
     const offset = Math.max(parseInt(searchParams.get("offset") || "0"), 0);
 

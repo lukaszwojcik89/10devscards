@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database, Tables } from "@/db/database.types";
+import type { Database, Tables, TablesUpdate } from "@/db/database.types";
 import type {
   GenerateFlashcardsRequest,
   GenerateFlashcardsResponse,
@@ -8,6 +8,8 @@ import type {
   FlashcardDetailResponseDTO,
   CreateFlashcardRequestDTO,
   FlashcardResponseData,
+  UpdateFlashcardRequestDTO,
+  DeleteFlashcardResponseDTO,
 } from "@/types";
 import { generateFlashcardsRequestSchema } from "./flashcards.zod";
 
@@ -303,8 +305,8 @@ Generate exactly ${maxFlashcards} flashcards. Each question should be self-conta
     userId: string,
     filters: {
       deckId?: string;
-      status?: string;
-      box?: string;
+      status?: "pending" | "accepted" | "rejected";
+      box?: "box1" | "box2" | "box3" | "graduated";
       limit: number;
       offset: number;
     }
@@ -329,7 +331,17 @@ Generate exactly ${maxFlashcards} flashcards. Each question should be self-conta
     }
 
     // Get total count for pagination
-    const { count } = await query.select("*", { count: "exact", head: true });
+    const countQuery = this.supabase.from("flashcards").select("*", { count: "exact", head: true });
+    if (filters.deckId) {
+      countQuery.eq("deck_id", filters.deckId);
+    }
+    if (filters.status) {
+      countQuery.eq("status", filters.status);
+    }
+    if (filters.box) {
+      countQuery.eq("box", filters.box);
+    }
+    const { count } = await countQuery;
     const total = count || 0;
 
     // Get paginated results
@@ -427,6 +439,96 @@ Generate exactly ${maxFlashcards} flashcards. Each question should be self-conta
 
     return {
       data: flashcard as FlashcardResponseData,
+    };
+  }
+
+  /**
+   * Update flashcard content (question and/or answer)
+   */
+  async updateFlashcard(
+    flashcardId: string,
+    request: UpdateFlashcardRequestDTO,
+    userId: string
+  ): Promise<FlashcardDetailResponseDTO> {
+    // Verify flashcard ownership through deck ownership
+    const { data: existingFlashcard } = await this.supabase
+      .from("flashcards")
+      .select(
+        `id,
+        decks!inner(owner_id)`
+      )
+      .eq("id", flashcardId)
+      .eq("decks.owner_id", userId)
+      .single();
+
+    if (!existingFlashcard) {
+      throw new Error("Flashcard not found or access denied");
+    }
+
+    // Validate input lengths
+    if (request.question && request.question.length > 256) {
+      throw new Error("Question text exceeds maximum length of 256 characters");
+    }
+    if (request.answer && request.answer.length > 512) {
+      throw new Error("Answer text exceeds maximum length of 512 characters");
+    }
+
+    // Update flashcard
+    const updateData: Partial<TablesUpdate<"flashcards">> = {
+      updated_at: new Date().toISOString(),
+    };
+
+    if (request.question !== undefined) {
+      updateData.question = request.question;
+    }
+    if (request.answer !== undefined) {
+      updateData.answer = request.answer;
+    }
+
+    const { data: updatedFlashcard, error } = await this.supabase
+      .from("flashcards")
+      .update(updateData)
+      .eq("id", flashcardId)
+      .select()
+      .single();
+
+    if (error || !updatedFlashcard) {
+      throw new Error(`Failed to update flashcard: ${error?.message}`);
+    }
+
+    return {
+      data: updatedFlashcard as FlashcardResponseData,
+    };
+  }
+
+  /**
+   * Delete flashcard permanently
+   */
+  async deleteFlashcard(flashcardId: string, userId: string): Promise<DeleteFlashcardResponseDTO> {
+    // Verify flashcard ownership through deck ownership
+    const { data: existingFlashcard } = await this.supabase
+      .from("flashcards")
+      .select(
+        `id,
+        decks!inner(owner_id)`
+      )
+      .eq("id", flashcardId)
+      .eq("decks.owner_id", userId)
+      .single();
+
+    if (!existingFlashcard) {
+      throw new Error("Flashcard not found or access denied");
+    }
+
+    // Delete flashcard (reviews will be cascade deleted by foreign key constraint)
+    const { error } = await this.supabase.from("flashcards").delete().eq("id", flashcardId);
+
+    if (error) {
+      throw new Error(`Failed to delete flashcard: ${error.message}`);
+    }
+
+    return {
+      message: "Flashcard deleted successfully",
     };
   }
 }
