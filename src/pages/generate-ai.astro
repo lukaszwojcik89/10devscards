@@ -157,7 +157,7 @@ import Layout from "../layouts/Layout.astro";
       const formData = new FormData(e.target);
       const data = {
         topic: formData.get('topic'),
-        count: parseInt(formData.get('count')),
+        count: parseInt(String(formData.get('count')), 10),
         difficulty: formData.get('difficulty'),
         language: formData.get('language'),
         context: formData.get('context') || undefined
