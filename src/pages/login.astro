@@ -118,8 +118,8 @@ import { Button } from "../components/ui/button";
         localStorage.setItem("access_token", data.data.access_token);
         localStorage.setItem("refresh_token", data.data.refresh_token);
 
-        // Redirect to dashboard or home page
-        window.location.href = "/";
+        // Redirect to dashboard
+        window.location.href = "/dashboard";
       } catch {
         if (errorMessage) {
           errorMessage.textContent = "Wystąpił błąd podczas połączenia z serwerem";

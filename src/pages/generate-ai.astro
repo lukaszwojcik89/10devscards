@@ -1,0 +1,209 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Generuj fiszki AI | 10DevCards">
+  <main class="container mx-auto px-4 py-8 min-h-screen">
+    <div class="max-w-2xl mx-auto">
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Generuj fiszki AI</h1>
+        <p class="text-gray-600">Stwórz fiszki automatycznie używając sztucznej inteligencji</p>
+      </div>
+
+      <!-- Form -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <form id="generate-form">
+          <div class="mb-6">
+            <label for="topic" class="block text-sm font-medium text-gray-700 mb-2">
+              Temat <span class="text-red-500">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="topic" 
+              name="topic"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="np. Czasowniki nieregularne w języku angielskim"
+            />
+            <p class="mt-1 text-sm text-gray-500">Opisz czego mają dotyczyć fiszki</p>
+          </div>
+
+          <div class="mb-6">
+            <label for="count" class="block text-sm font-medium text-gray-700 mb-2">
+              Liczba fiszek <span class="text-red-500">*</span>
+            </label>
+            <select 
+              id="count" 
+              name="count"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="5">5 fiszek</option>
+              <option value="10" selected>10 fiszek</option>
+              <option value="15">15 fiszek</option>
+              <option value="20">20 fiszek</option>
+              <option value="25">25 fiszek</option>
+            </select>
+          </div>
+
+          <div class="mb-6">
+            <label for="difficulty" class="block text-sm font-medium text-gray-700 mb-2">
+              Poziom trudności
+            </label>
+            <select 
+              id="difficulty" 
+              name="difficulty"
+              class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="beginner">Początkujący</option>
+              <option value="intermediate" selected>Średniozaawansowany</option>
+              <option value="advanced">Zaawansowany</option>
+            </select>
+          </div>
+
+          <div class="mb-6">
+            <label for="language" class="block text-sm font-medium text-gray-700 mb-2">
+              Język
+            </label>
+            <select 
+              id="language" 
+              name="language"
+              class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="pl" selected>Polski</option>
+              <option value="en">Angielski</option>
+              <option value="de">Niemiecki</option>
+              <option value="fr">Francuski</option>
+              <option value="es">Hiszpański</option>
+              <option value="it">Włoski</option>
+            </select>
+            <p class="mt-1 text-sm text-gray-500">Język w jakim mają być generowane fiszki</p>
+          </div>
+
+          <div class="mb-6">
+            <label for="context" class="block text-sm font-medium text-gray-700 mb-2">
+              Dodatkowy kontekst (opcjonalnie)
+            </label>
+            <textarea 
+              id="context" 
+              name="context"
+              rows="4"
+              class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Dodatkowe informacje lub wymagania dotyczące fiszek..."
+            ></textarea>
+          </div>
+
+          <div class="flex gap-3 justify-end">
+            <a href="/decks" class="px-6 py-2 text-gray-600 hover:text-gray-800">
+              Anuluj
+            </a>
+            <button 
+              type="submit" 
+              id="submit-btn"
+              class="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            >
+              <span id="submit-text">Generuj fiszki</span>
+              <span id="submit-loading" class="hidden">
+                <svg class="animate-spin h-4 w-4 inline-block mr-2" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                  <path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Generowanie...
+              </span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Cost info -->
+      <div class="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <div class="flex">
+          <div class="text-yellow-400 mr-3">⚠️</div>
+          <div>
+            <h3 class="text-sm font-medium text-yellow-800">Informacja o kosztach</h3>
+            <p class="mt-1 text-sm text-yellow-700">
+              Generowanie fiszek wykorzystuje AI i może wiązać się z kosztami. 
+              Sprawdź swój miesięczny limit w dashboard przed kontynuowaniem.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("generate-form");
+    const submitBtn = document.getElementById("submit-btn");
+    const submitText = document.getElementById("submit-text");
+    const submitLoading = document.getElementById("submit-loading");
+
+    // Check if user is logged in
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      window.location.href = "/login";
+      return;
+    }
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      // Disable form
+      submitBtn.disabled = true;
+      submitText?.classList.add("hidden");
+      submitLoading?.classList.remove("hidden");
+
+      const formData = new FormData(e.target);
+      const data = {
+        topic: formData.get('topic'),
+        count: parseInt(String(formData.get('count')), 10),
+        difficulty: formData.get('difficulty'),
+        language: formData.get('language'),
+        context: formData.get('context') || undefined
+      };
+
+      try {
+        const response = await fetch("/api/flashcards/generate", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
+            window.location.href = "/login";
+            return;
+          }
+          
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error?.message || `HTTP ${response.status}`);
+        }
+
+        const result = await response.json();
+        
+        // Success - redirect to the deck that contains the new flashcards
+        if (result.data?.deck_slug) {
+          window.location.href = `/decks/${result.data.deck_slug}?generated=true`;
+        } else {
+          // Fallback to decks list
+          window.location.href = "/decks?generated=true";
+        }
+
+      } catch (error) {
+        // Re-enable form
+        submitBtn.disabled = false;
+        submitText?.classList.remove("hidden");
+        submitLoading?.classList.add("hidden");
+
+        // Show error
+        alert(`Nie udało się wygenerować fiszek: ${error.message}`);
+      }
+    });
+  });
+</script>

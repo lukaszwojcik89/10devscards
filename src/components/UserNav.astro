@@ -1,125 +1,250 @@
 ---
-// Component for user navigation/profile panel
+// Modern user navigation component with dropdown
 ---
 
-<div id="user-nav" class="hidden">
-  <div class="flex items-center justify-between w-full">
-    <!-- User info -->
-    <div class="flex items-center gap-3">
-      <div class="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center text-white text-sm font-semibold">
-        <span id="user-avatar">U</span>
-      </div>
-      <div>
-        <p id="user-email" class="text-sm text-gray-700 font-medium">user@example.com</p>
-        <p class="text-xs text-gray-500">Zalogowany</p>
+<!-- Logged-in user navigation -->
+<div id="user-nav" class="relative hidden">
+  <!-- Avatar trigger -->
+  <button 
+    id="avatar-trigger"
+    class="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100/50 transition-colors group"
+    type="button"
+  >
+    <div class="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-lg ring-2 ring-white/20">
+      <span id="user-avatar">?</span>
+    </div>
+    <svg class="w-4 h-4 text-gray-600 group-hover:text-gray-800 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"></path>
+    </svg>
+  </button>
+
+  <!-- Dropdown menu -->
+  <div 
+    id="user-dropdown" 
+    class="absolute right-0 top-full mt-2 w-64 sm:w-72 bg-white/95 backdrop-blur-lg border border-gray-200/50 rounded-xl shadow-xl py-2 z-50 hidden transform transition-all duration-200 ease-in-out opacity-0 scale-95"
+  >
+    <!-- User info header -->
+    <div class="px-4 py-3 border-b border-gray-100">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
+          <span id="dropdown-avatar">?</span>
+        </div>
+        <div class="min-w-0 flex-1">
+          <p id="user-name" class="text-sm font-medium text-gray-900 truncate">Ładowanie...</p>
+          <p id="user-email" class="text-xs text-gray-500 truncate">email@example.com</p>
+        </div>
       </div>
     </div>
 
-    <!-- User actions -->
-    <div class="flex items-center gap-2">
-      <button
-        id="logout-btn"
-        type="button"
-        class="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
+    <!-- Navigation links -->
+    <div class="py-2">
+      <a 
+        href="/dashboard" 
+        class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors"
       >
-        Wyloguj
-      </button>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+        </svg>
+        Dashboard
+      </a>
+      
+      <a 
+        href="/decks" 
+        class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+        </svg>
+        Moje talie
+      </a>
+      
+      <a 
+        href="/generate-ai" 
+        class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        Generuj AI
+      </a>
     </div>
+
+    <!-- Divider -->
+    <div class="border-t border-gray-100 my-2"></div>
+
+    <!-- Logout -->
+    <button 
+      id="logout-btn"
+      type="button" 
+      class="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+    >
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+      </svg>
+      Wyloguj się
+    </button>
   </div>
 </div>
 
 <!-- Guest navigation (for non-logged users) -->
-<div id="guest-nav" class="flex items-center gap-4">
-  <a href="/login" class="px-4 py-2 text-sm text-indigo-600 hover:text-indigo-700 font-medium"> Logowanie </a>
-  <a
-    href="/register"
-    class="px-4 py-2 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+<div id="guest-nav" class="flex items-center gap-3">
+  <a href="/login" class="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 font-medium transition-colors">
+    Logowanie
+  </a>
+  <a 
+    href="/register" 
+    class="px-4 py-2 text-sm bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg"
   >
-    Rejestracja
+    Zarejestruj się
   </a>
 </div>
 
-<script>
+<script is:inline>
   document.addEventListener("DOMContentLoaded", async () => {
     const userNav = document.getElementById("user-nav");
     const guestNav = document.getElementById("guest-nav");
     const userEmail = document.getElementById("user-email");
+    const userName = document.getElementById("user-name");
     const userAvatar = document.getElementById("user-avatar");
+    const dropdownAvatar = document.getElementById("dropdown-avatar");
     const logoutBtn = document.getElementById("logout-btn");
+    const avatarTrigger = document.getElementById("avatar-trigger");
+    const userDropdown = document.getElementById("user-dropdown");
+
+    // Dropdown functionality
+    let isDropdownOpen = false;
+
+    function toggleDropdown(e) {
+      e.stopPropagation(); // Prevent event bubbling
+      isDropdownOpen = !isDropdownOpen;
+      
+      if (isDropdownOpen) {
+        userDropdown?.classList.remove("hidden");
+        // Trigger animation
+        setTimeout(() => {
+          userDropdown?.classList.remove("opacity-0", "scale-95");
+          userDropdown?.classList.add("opacity-100", "scale-100");
+        }, 10);
+      } else {
+        closeDropdown();
+      }
+    }
+
+    function closeDropdown() {
+      if (!isDropdownOpen) return;
+      
+      // Start closing animation
+      userDropdown?.classList.remove("opacity-100", "scale-100");
+      userDropdown?.classList.add("opacity-0", "scale-95");
+      
+      // Hide after animation
+      setTimeout(() => {
+        userDropdown?.classList.add("hidden");
+        isDropdownOpen = false;
+      }, 200);
+    }
+
+    // Event listeners for dropdown
+    avatarTrigger?.addEventListener('click', toggleDropdown);
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      // Check if click is outside the dropdown and avatar trigger
+      if (userDropdown && !userDropdown.contains(e.target) && !avatarTrigger?.contains(e.target)) {
+        closeDropdown();
+      }
+    });
+
+    // Close dropdown on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeDropdown();
+      }
+    });
+
+    // Function to generate name from email
+    function generateNameFromEmail(email) {
+      const username = email.split('@')[0];
+      // Capitalize first letter and replace dots/underscores with spaces
+      return username
+        .replace(/[._-]/g, ' ')
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
+    }
 
     // Check if user is logged in
     const token = localStorage.getItem("access_token");
 
     if (token) {
       try {
-        // Get current user profile
+        // Fetch user info
         const response = await fetch("/api/auth/me", {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${token}`,
+            "Authorization": `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         });
 
         if (response.ok) {
-          const result = await response.json();
-          const user = result.data;
+          const data = await response.json();
+          const user = data.data;
+          
+          // Update user info
+          if (userEmail) userEmail.textContent = user.email;
+          
+          // Generate and display user name
+          const generatedName = generateNameFromEmail(user.email);
+          if (userName) userName.textContent = generatedName;
+          
+          // Set avatar initials from generated name
+          const initials = generatedName.split(' ').map(word => word.charAt(0)).join('').substring(0, 2);
+          if (userAvatar) userAvatar.textContent = initials;
+          if (dropdownAvatar) dropdownAvatar.textContent = initials;
 
-          // Show user navigation
-          if (userNav && guestNav && userEmail && userAvatar) {
-            userNav.classList.remove("hidden");
-            guestNav.classList.add("hidden");
-
-            userEmail.textContent = user.email;
-            userAvatar.textContent = user.email.charAt(0).toUpperCase();
-          }
+          // Show user nav, hide guest nav
+          userNav?.classList.remove("hidden");
+          guestNav?.classList.add("hidden");
         } else {
-          // Token is invalid, remove it and show guest nav
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("refresh_token");
-          showGuestNav();
+          throw new Error("Failed to fetch user");
         }
       } catch {
-        // console.warn("Auth check failed:", error);
+        // Token invalid or error occurred
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
-        showGuestNav();
+        
+        // Show guest nav, hide user nav
+        userNav?.classList.add("hidden");
+        guestNav?.classList.remove("hidden");
       }
     } else {
-      showGuestNav();
+      // No token, show guest nav
+      userNav?.classList.add("hidden");
+      guestNav?.classList.remove("hidden");
     }
 
-    function showGuestNav() {
-      if (userNav && guestNav) {
-        userNav.classList.add("hidden");
-        guestNav.classList.remove("hidden");
-      }
-    }
-
-    // Handle logout
+    // Logout functionality
     logoutBtn?.addEventListener("click", async () => {
-      const token = localStorage.getItem("access_token");
-
-      if (token) {
-        try {
+      try {
+        const logoutToken = localStorage.getItem("access_token");
+        if (logoutToken) {
           await fetch("/api/auth/logout", {
             method: "POST",
             headers: {
-              Authorization: `Bearer ${token}`,
+              "Authorization": `Bearer ${logoutToken}`,
               "Content-Type": "application/json",
             },
           });
-        } catch {
-          // console.warn("Logout request failed:", error);
         }
+      } catch {
+        // Ignore logout errors
+      } finally {
+        // Clear local storage and redirect
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        window.location.href = "/";
       }
-
-      // Clear tokens regardless of API response
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-
-      // Redirect to home page
-      window.location.href = "/";
     });
   });
 </script>

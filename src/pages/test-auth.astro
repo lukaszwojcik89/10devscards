@@ -1,0 +1,133 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Test Autoryzacji">
+  <main class="container mx-auto max-w-4xl p-6">
+    <h1 class="text-3xl font-bold mb-6">Test Autoryzacji</h1>
+    
+    <div class="space-y-4">
+      <div>
+        <button id="test-login" class="px-4 py-2 bg-blue-500 text-white rounded">
+          Test Login
+        </button>
+        <div id="login-result" class="mt-2 p-2 bg-gray-100 rounded font-mono text-sm"></div>
+      </div>
+      
+      <div>
+        <button id="test-me" class="px-4 py-2 bg-green-500 text-white rounded">
+          Test /api/auth/me
+        </button>
+        <div id="me-result" class="mt-2 p-2 bg-gray-100 rounded font-mono text-sm"></div>
+      </div>
+      
+      <div>
+        <button id="test-dashboard" class="px-4 py-2 bg-purple-500 text-white rounded">
+          Test /api/dashboard
+        </button>
+        <div id="dashboard-result" class="mt-2 p-2 bg-gray-100 rounded font-mono text-sm"></div>
+      </div>
+      
+      <div>
+        <button id="check-token" class="px-4 py-2 bg-orange-500 text-white rounded">
+          Sprawdź token w localStorage
+        </button>
+        <div id="token-result" class="mt-2 p-2 bg-gray-100 rounded font-mono text-sm"></div>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script type="module">
+  document.addEventListener("DOMContentLoaded", () => {
+    const testLogin = document.getElementById("test-login");
+    const testMe = document.getElementById("test-me");
+    const testDashboard = document.getElementById("test-dashboard");
+    const checkToken = document.getElementById("check-token");
+    
+    const loginResult = document.getElementById("login-result");
+    const meResult = document.getElementById("me-result");
+    const dashboardResult = document.getElementById("dashboard-result");
+    const tokenResult = document.getElementById("token-result");
+    
+    testLogin?.addEventListener("click", async () => {
+      try {
+        const response = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: "test2@example.com",
+            password: "testpassword123"
+          })
+        });
+        
+        const data = await response.json();
+        if (loginResult) {
+          loginResult.textContent = `Status: ${response.status}\n` + JSON.stringify(data, null, 2);
+        }
+        
+        if (response.ok && data.data?.access_token) {
+          localStorage.setItem("access_token", data.data.access_token);
+          localStorage.setItem("refresh_token", data.data.refresh_token);
+        }
+      } catch (error) {
+        if (loginResult) {
+          loginResult.textContent = `Error: ${error}`;
+        }
+      }
+    });
+    
+    testMe?.addEventListener("click", async () => {
+      const token = localStorage.getItem("access_token");
+      try {
+        const response = await fetch("/api/auth/me", {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          }
+        });
+        
+        const data = await response.json();
+        if (meResult) {
+          meResult.textContent = `Status: ${response.status}\nToken: ${token?.substring(0, 20)}...\n` + JSON.stringify(data, null, 2);
+        }
+      } catch (error) {
+        if (meResult) {
+          meResult.textContent = `Error: ${error}`;
+        }
+      }
+    });
+    
+    testDashboard?.addEventListener("click", async () => {
+      const token = localStorage.getItem("access_token");
+      try {
+        const response = await fetch("/api/dashboard", {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          }
+        });
+        
+        const data = await response.json();
+        if (dashboardResult) {
+          dashboardResult.textContent = `Status: ${response.status}\nToken: ${token?.substring(0, 20)}...\n` + JSON.stringify(data, null, 2);
+        }
+      } catch (error) {
+        if (dashboardResult) {
+          dashboardResult.textContent = `Error: ${error}`;
+        }
+      }
+    });
+    
+    checkToken?.addEventListener("click", () => {
+      const accessToken = localStorage.getItem("access_token");
+      const refreshToken = localStorage.getItem("refresh_token");
+      
+      if (tokenResult) {
+        tokenResult.textContent = `Access Token: ${accessToken ? accessToken.substring(0, 50) + "..." : "brak"}\nRefresh Token: ${refreshToken ? refreshToken.substring(0, 20) + "..." : "brak"}`;
+      }
+    });
+  });
+</script>
