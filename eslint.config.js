@@ -20,6 +20,8 @@ const baseConfig = tseslint.config({
   rules: {
     "no-console": "warn",
     "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+    "@typescript-eslint/no-explicit-any": "warn",
   },
 });
 
@@ -62,5 +64,13 @@ export default tseslint.config(
   jsxA11yConfig,
   reactConfig,
   eslintPluginAstro.configs["flat/recommended"],
-  eslintPluginPrettier
+  eslintPluginPrettier,
+  {
+    files: ["**/*.astro"],
+    rules: {
+      "prettier/prettier": "off", // Disable prettier for Astro files due to parser issues
+      "@typescript-eslint/no-unused-vars": "off", // Astro components often have unused props
+      "no-console": "off", // Allow console in Astro script tags for debugging
+    },
+  }
 );
