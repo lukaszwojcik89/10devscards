@@ -1,8 +1,11 @@
 import type { APIRoute } from "astro";
+import { createClient } from "@supabase/supabase-js";
+import { ZodError } from "zod";
 import { supabaseClient } from "@/db/supabase.client";
 import { AuthService } from "@/lib/services/auth.service";
 import { DeckService } from "@/lib/services/deck.service";
-import type { DeckDetailResponseDTO, ErrorResponseDTO } from "@/types";
+import { updateDeckRequestSchema } from "@/lib/services/deck.zod";
+import type { DeckDetailResponseDTO, ErrorResponseDTO, UpdateDeckRequestDTO, DeleteDeckResponseDTO } from "@/types";
 
 export const GET: APIRoute = async ({ params, request }) => {
   try {
@@ -55,8 +58,17 @@ export const GET: APIRoute = async ({ params, request }) => {
     const authService = new AuthService(supabaseClient);
     const userProfile = await authService.getCurrentUser(token);
 
+    // Create authenticated supabase client
+    const authenticatedClient = createClient(import.meta.env.SUPABASE_URL, import.meta.env.SUPABASE_KEY, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    });
+
     // Initialize deck service and fetch deck
-    const deckService = new DeckService(supabaseClient);
+    const deckService = new DeckService(authenticatedClient);
     const result = await deckService.getDeckBySlug(slug, userProfile.id);
 
     const response: DeckDetailResponseDTO = result;
@@ -164,19 +176,28 @@ export const PUT: APIRoute = async ({ params, request }) => {
     const authService = new AuthService(supabaseClient);
     const userProfile = await authService.getCurrentUser(token);
 
+    // Create authenticated supabase client
+    const authenticatedClient = createClient(import.meta.env.SUPABASE_URL, import.meta.env.SUPABASE_KEY, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    });
+
     // Parse and validate request body
     const body = (await request.json()) as UpdateDeckRequestDTO;
     const validated = updateDeckRequestSchema.parse(body);
 
     // Update deck
-    const deckService = new DeckService(supabaseClient);
+    const deckService = new DeckService(authenticatedClient);
     const result = await deckService.updateDeck({
-      slug: params.slug!,
+      slug: params.slug || "",
       owner_id: userProfile.id,
       ...validated,
     });
 
-    const response: DeckDetailResponseDTO = result;
+    const response: DeckDetailResponseDTO = { data: result };
     return new Response(JSON.stringify(response), {
       status: 200,
       headers: {
@@ -277,9 +298,18 @@ export const DELETE: APIRoute = async ({ params, request }) => {
     const authService = new AuthService(supabaseClient);
     const userProfile = await authService.getCurrentUser(token);
 
+    // Create authenticated supabase client
+    const authenticatedClient = createClient(import.meta.env.SUPABASE_URL, import.meta.env.SUPABASE_KEY, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    });
+
     // Delete deck
-    const deckService = new DeckService(supabaseClient);
-    await deckService.deleteDeck({ slug: params.slug!, owner_id: userProfile.id });
+    const deckService = new DeckService(authenticatedClient);
+    await deckService.deleteDeck({ slug: params.slug || "", owner_id: userProfile.id });
 
     const response: DeleteDeckResponseDTO = { message: "Deck deleted successfully" };
     return new Response(JSON.stringify(response), {
