@@ -218,10 +218,13 @@ import Layout from "../layouts/Layout.astro";
             localStorage.removeItem("refresh_token");
           }
         } catch (error) {
-          // eslint-disable-next-line no-console
-          console.error("Auth check failed:", error);
+          logError("Auth check failed:", error);
           localStorage.removeItem("access_token");
           localStorage.removeItem("refresh_token");
+        }
+
+        function logError(message: string, error: unknown) {
+          console.error(`[Error] ${message}`, error);
         }
       }
     }
