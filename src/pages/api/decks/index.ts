@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { createClient } from "@supabase/supabase-js";
 import { supabaseClient } from "@/db/supabase.client";
 import { AuthService } from "@/lib/services/auth.service";
 import { DeckService } from "@/lib/services/deck.service";
@@ -36,12 +37,21 @@ export const GET: APIRoute = async ({ request, url }) => {
     const authService = new AuthService(supabaseClient);
     const userProfile = await authService.getCurrentUser(token);
 
+    // Create authenticated supabase client
+    const authenticatedClient = createClient(import.meta.env.SUPABASE_URL, import.meta.env.SUPABASE_KEY, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    });
+
     // Parse query parameters
     const searchParams = Object.fromEntries(url.searchParams.entries());
     const validated = deckListQuerySchema.parse(searchParams);
 
     // Initialize deck service and fetch decks
-    const deckService = new DeckService(supabaseClient);
+    const deckService = new DeckService(authenticatedClient);
     const result = await deckService.listUserDecks(userProfile.id, validated);
 
     const response: DeckListResponseDTO = result;
@@ -110,11 +120,13 @@ export const GET: APIRoute = async ({ request, url }) => {
     }
 
     // Handle other errors
+    const errorMessage = error.message || "Unknown error";
     return new Response(
       JSON.stringify({
         error: {
           code: "INTERNAL_SERVER_ERROR",
           message: "An unexpected error occurred while fetching decks",
+          details: { error: errorMessage },
         },
       } as ErrorResponseDTO),
       {
@@ -160,14 +172,25 @@ export const POST: APIRoute = async ({ request }) => {
     const authService = new AuthService(supabaseClient);
     const userProfile = await authService.getCurrentUser(token);
 
+    // Create authenticated supabase client
+    const authenticatedClient = createClient(import.meta.env.SUPABASE_URL, import.meta.env.SUPABASE_KEY, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    });
+
     // Parse and validate request body
     const body = await request.json();
     const validated = createDeckRequestSchema.parse(body);
 
     // Initialize deck service and create deck
-    const deckService = new DeckService(supabaseClient);
+    const deckService = new DeckService(authenticatedClient);
     const result = await deckService.createDeck({
-      ...validated,
+      name: validated.name,
+      description: validated.description,
+      slug: validated.slug,
       owner_id: userProfile.id,
     });
 
@@ -240,11 +263,13 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // Handle other errors
+    const errorMessage = error.message || "Unknown error";
     return new Response(
       JSON.stringify({
         error: {
           code: "INTERNAL_SERVER_ERROR",
           message: "An unexpected error occurred while creating deck",
+          details: { error: errorMessage },
         },
       } as ErrorResponseDTO),
       {
