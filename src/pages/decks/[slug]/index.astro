@@ -664,9 +664,8 @@
             const error = await response.json();
             showError(error.error?.message || "Nie udało się wygenerować fiszek");
           }
-        } catch (err) {
+        } catch {
           // Error handling - alert user
-          void err; // Suppress unused variable warning
           showError("Błąd podczas generowania fiszek");
         }
       }
