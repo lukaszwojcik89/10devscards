@@ -56,7 +56,7 @@ export class DeckService {
         { count: "exact" }
       )
       .eq("owner_id", userId)
-      .eq("deleted_at", null)
+      .is("deleted_at", null)
       .order("created_at", { ascending: false });
 
     // Polyfill dla metod range i or, gdy nie istnieją (np. w mocku)
@@ -129,7 +129,7 @@ export class DeckService {
       )
       .eq("slug", slug)
       .eq("owner_id", userId)
-      .eq("deleted_at", null)
+      .is("deleted_at", null)
       .single();
 
     if (error) {
@@ -170,13 +170,16 @@ export class DeckService {
     // Validate input data
     const validated = createDeckRequestSchema.parse(command);
 
+    // Generate slug if not provided
+    const slug = validated.slug || (await this.generateUniqueSlug(validated.name, command.owner_id));
+
     // Check if slug already exists for this user
     const { data: existingDeck, error: checkError } = await (this.supabase as any) // eslint-disable-line @typescript-eslint/no-explicit-any
       .from("decks")
       .select("id")
-      .eq("slug", validated.slug)
+      .eq("slug", slug)
       .eq("owner_id", command.owner_id)
-      .eq("deleted_at", null)
+      .is("deleted_at", null)
       .single();
 
     if (checkError && checkError.code !== "PGRST116") {
@@ -191,7 +194,9 @@ export class DeckService {
     const { data, error } = await (this.supabase as any) // eslint-disable-line @typescript-eslint/no-explicit-any
       .from("decks")
       .insert({
-        ...validated,
+        slug: slug,
+        name: validated.name,
+        description: validated.description,
         owner_id: command.owner_id,
       })
       .select(
@@ -251,7 +256,7 @@ export class DeckService {
       .update(validated)
       .eq("slug", command.slug)
       .eq("owner_id", command.owner_id)
-      .eq("deleted_at", null)
+      .is("deleted_at", null)
       .select(
         `
         *,
@@ -309,7 +314,7 @@ export class DeckService {
       .update({ deleted_at: new Date().toISOString() })
       .eq("slug", command.slug)
       .eq("owner_id", command.owner_id)
-      .eq("deleted_at", null)
+      .is("deleted_at", null)
       .select("*")
       .single();
 
@@ -349,7 +354,7 @@ export class DeckService {
         .select("id")
         .eq("slug", slug)
         .eq("owner_id", userId)
-        .eq("deleted_at", null)
+        .is("deleted_at", null)
         .single();
 
       if (!data) {

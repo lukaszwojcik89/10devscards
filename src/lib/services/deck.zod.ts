@@ -10,7 +10,8 @@ export const createDeckRequestSchema = z.object({
     .min(1, "Slug is required")
     .max(100, "Slug must be less than 100 characters")
     .regex(/^[a-z0-9-]+$/, "Slug must contain only lowercase letters, numbers, and hyphens")
-    .refine((slug) => !slug.startsWith("-") && !slug.endsWith("-"), "Slug cannot start or end with a hyphen"),
+    .refine((slug) => !slug.startsWith("-") && !slug.endsWith("-"), "Slug cannot start or end with a hyphen")
+    .optional(), // Make slug optional
 
   name: z.string().trim().min(1, "Name is required").max(255, "Name must be less than 255 characters"),
 
