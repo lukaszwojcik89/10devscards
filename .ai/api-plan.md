@@ -10,6 +10,7 @@
 | Study Sessions | Virtual resource | Active learning sessions |
 | User Data | Multiple tables | User profile and export functionality |
 | Budget | `budget_events` | AI cost tracking and limits |
+| Dashboard | Multiple tables | User dashboard with aggregated data and quick actions |
 
 ## 2. Endpoints
 
@@ -528,7 +529,71 @@
 - **Success**: 200 OK
 - **Errors**: 401 Unauthorized, 403 Forbidden (not admin), 500 Internal Server Error
 
-### 2.7 Authentication Resource
+### 2.7 Dashboard Resource
+
+#### Get User Dashboard
+
+- **Method**: GET
+- **Path**: `/api/dashboard`
+- **Description**: Get comprehensive dashboard data for authenticated user
+- **Response**:
+
+```json
+{
+  "data": {
+    "user_stats": {
+      "total_decks": 5,
+      "total_flashcards": 127,
+      "pending_flashcards": 8,
+      "accepted_flashcards": 115,
+      "rejected_flashcards": 4
+    },
+    "study_progress": {
+      "today_reviews": 12,
+      "daily_limit": 50,
+      "daily_limit_reached": false,
+      "catchup_available": true,
+      "catchup_count": 7,
+      "streak_days": 5,
+      "longest_streak": 15
+    },
+    "upcoming_sessions": {
+      "due_now": 8,
+      "due_today": 23,
+      "due_tomorrow": 15,
+      "overdue": 3
+    },
+    "recent_decks": [
+      {
+        "id": "uuid",
+        "slug": "javascript-basics",
+        "name": "JavaScript Basics",
+        "flashcard_count": 25,
+        "pending_count": 3,
+        "due_count": 5,
+        "last_studied": "2025-06-11T10:00:00Z"
+      }
+    ],
+    "ai_usage": {
+      "monthly_usage_usd": 3.45,
+      "monthly_limit_usd": 10.00,
+      "usage_percentage": 34.5,
+      "generations_this_month": 15,
+      "tokens_used_this_month": 1250
+    },
+    "quick_actions": {
+      "can_generate_ai": true,
+      "can_start_session": true,
+      "has_pending_reviews": true
+    }
+  }
+}
+```
+
+- **Success**: 200 OK
+- **Errors**: 401 Unauthorized, 500 Internal Server Error
+
+### 2.8 Authentication Resource
 
 #### Register User
 

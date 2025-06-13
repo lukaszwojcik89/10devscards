@@ -526,3 +526,93 @@ export interface DeleteUserAccountCommand extends DeleteAccountRequestDTO {
 export type GenerateFlashcardsRequest = GenerateFlashcardsRequestDTO;
 export type GenerateFlashcardsResponse = GenerateFlashcardsResponseDTO;
 export type ErrorResponse = ErrorResponseDTO;
+
+// =============================================================================
+// DASHBOARD RESOURCE DTO
+// =============================================================================
+
+/**
+ * User statistics for dashboard
+ */
+export interface UserStats {
+  total_decks: number;
+  total_flashcards: number;
+  pending_flashcards: number;
+  accepted_flashcards: number;
+  rejected_flashcards: number;
+}
+
+/**
+ * Study progress information
+ */
+export interface StudyProgress {
+  today_reviews: number;
+  daily_limit: number;
+  daily_limit_reached: boolean;
+  catchup_available: boolean;
+  catchup_count: number;
+  streak_days: number;
+  longest_streak: number;
+}
+
+/**
+ * Upcoming study sessions information
+ */
+export interface UpcomingSessions {
+  due_now: number;
+  due_today: number;
+  due_tomorrow: number;
+  overdue: number;
+}
+
+/**
+ * Recent deck information for dashboard
+ */
+export interface RecentDeck {
+  id: string;
+  slug: string;
+  name: string;
+  flashcard_count: number;
+  pending_count: number;
+  due_count: number;
+  last_studied: string;
+}
+
+/**
+ * AI usage information
+ */
+export interface AIUsage {
+  monthly_usage_usd: number;
+  monthly_limit_usd: number;
+  usage_percentage: number;
+  generations_this_month: number;
+  tokens_used_this_month: number;
+}
+
+/**
+ * Quick actions availability
+ */
+export interface QuickActions {
+  can_generate_ai: boolean;
+  can_start_session: boolean;
+  has_pending_reviews: boolean;
+}
+
+/**
+ * Dashboard data structure
+ */
+export interface DashboardData {
+  user_stats: UserStats;
+  study_progress: StudyProgress;
+  upcoming_sessions: UpcomingSessions;
+  recent_decks: RecentDeck[];
+  ai_usage: AIUsage;
+  quick_actions: QuickActions;
+}
+
+/**
+ * Response DTO for GET /api/dashboard
+ */
+export interface DashboardResponseDTO {
+  data: DashboardData;
+}
