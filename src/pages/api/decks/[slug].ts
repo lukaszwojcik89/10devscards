@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { createClient } from "@supabase/supabase-js";
 import { supabaseClient } from "@/db/supabase.client";
 import { AuthService } from "@/lib/services/auth.service";
 import { DeckService } from "@/lib/services/deck.service";
@@ -55,8 +56,17 @@ export const GET: APIRoute = async ({ params, request }) => {
     const authService = new AuthService(supabaseClient);
     const userProfile = await authService.getCurrentUser(token);
 
+    // Create authenticated supabase client
+    const authenticatedClient = createClient(import.meta.env.SUPABASE_URL, import.meta.env.SUPABASE_KEY, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    });
+
     // Initialize deck service and fetch deck
-    const deckService = new DeckService(supabaseClient);
+    const deckService = new DeckService(authenticatedClient);
     const result = await deckService.getDeckBySlug(slug, userProfile.id);
 
     const response: DeckDetailResponseDTO = result;
