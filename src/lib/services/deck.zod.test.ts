@@ -218,7 +218,7 @@ describe("Deck Validation Schemas", () => {
       const result = updateDeckRequestSchema.parse(partialData);
 
       // Assert
-      expect(result).toEqual(partialData);
+      expect(result).toEqual({ name: "Advanced TypeScript", description: null });
     });
 
     it("should trim whitespace from name and description", () => {

@@ -12,7 +12,7 @@ export const createDeckRequestSchema = z.object({
     .regex(/^[a-z0-9-]+$/, "Slug must contain only lowercase letters, numbers, and hyphens")
     .refine((slug) => !slug.startsWith("-") && !slug.endsWith("-"), "Slug cannot start or end with a hyphen"),
 
-  name: z.string().min(1, "Name is required").max(255, "Name must be less than 255 characters").trim(),
+  name: z.string().trim().min(1, "Name is required").max(255, "Name must be less than 255 characters"),
 
   description: z
     .string()
@@ -26,7 +26,7 @@ export const createDeckRequestSchema = z.object({
  * Validates deck update data (all fields optional)
  */
 export const updateDeckRequestSchema = z.object({
-  name: z.string().min(1, "Name cannot be empty").max(255, "Name must be less than 255 characters").trim().optional(),
+  name: z.string().trim().min(1, "Name cannot be empty").max(255, "Name must be less than 255 characters").optional(),
 
   description: z
     .string()
@@ -53,8 +53,9 @@ export const deckListQuerySchema = z.object({
 
   search: z
     .string()
+    .max(255, "Search must be less than 255 characters")
     .optional()
-    .transform((val) => val?.trim()),
+    .transform((val) => val?.trim() || undefined),
 });
 
 // Export types inferred from schemas
