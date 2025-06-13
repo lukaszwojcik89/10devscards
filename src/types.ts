@@ -428,7 +428,10 @@ export type PasswordResetResponseDTO = SuccessMessageResponseDTO;
 /**
  * Command for creating a new deck
  */
-export interface CreateDeckCommand extends CreateDeckRequestDTO {
+export interface CreateDeckCommand {
+  slug?: string;
+  name: string;
+  description?: string | null;
   owner_id: string;
 }
 
