@@ -124,6 +124,51 @@ import Layout from "../layouts/Layout.astro";
       </div>
       </div>
     </div>
+
+    <!-- Edit Deck Modal -->
+    <div id="edit-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
+      <div class="flex items-center justify-center min-h-screen p-4">
+      <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Edytuj talię</h3>
+        <form id="edit-form">
+          <input type="hidden" id="edit-deck-slug" />
+          <div class="mb-4">
+            <label for="edit-deck-name" class="block text-sm font-medium text-gray-700 mb-2">
+              Nazwa talii
+            </label>
+            <input 
+              type="text" 
+              id="edit-deck-name" 
+              name="name"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="np. Słówka angielskie"
+            />
+          </div>
+          <div class="mb-4">
+            <label for="edit-deck-description" class="block text-sm font-medium text-gray-700 mb-2">
+              Opis (opcjonalnie)
+            </label>
+            <textarea 
+              id="edit-deck-description" 
+              name="description"
+              rows="3"
+              class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Krótki opis talii..."
+            ></textarea>
+          </div>
+          <div class="flex gap-3 justify-end">
+            <button type="button" id="edit-cancel-btn" class="px-4 py-2 text-gray-600 hover:text-gray-800">
+              Anuluj
+            </button>
+            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+              Zapisz zmiany
+            </button>
+          </div>
+        </form>
+      </div>
+      </div>
+    </div>
   </main>
 </Layout>
 
@@ -205,13 +250,22 @@ import Layout from "../layouts/Layout.astro";
           <div class="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-6">
             <div class="flex justify-between items-start mb-4">
               <h3 class="text-lg font-semibold text-gray-800 truncate">${deck.name}</h3>
-              <div class="flex gap-1">
-                <button class="edit-deck-btn text-gray-400 hover:text-indigo-600 p-1" data-slug="${deck.slug}">
-                  ✏️
+              <div class="relative">
+                <button class="deck-menu-btn text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-100" data-slug="${deck.slug}">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <circle cx="8" cy="2" r="1.5"/>
+                    <circle cx="8" cy="8" r="1.5"/>
+                    <circle cx="8" cy="14" r="1.5"/>
+                  </svg>
                 </button>
-                <button class="delete-deck-btn text-gray-400 hover:text-red-600 p-1" data-slug="${deck.slug}">
-                  🗑️
-                </button>
+                <div class="deck-menu hidden absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-10 min-w-40" data-slug="${deck.slug}">
+                  <button class="edit-deck-btn w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-slug="${deck.slug}">
+                    ✏️ Edytuj talię
+                  </button>
+                  <button class="delete-deck-btn w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50" data-slug="${deck.slug}">
+                    🗑️ Usuń talię
+                  </button>
+                </div>
               </div>
             </div>
             
@@ -239,7 +293,92 @@ import Layout from "../layouts/Layout.astro";
       }
 
       updatePagination();
+      
+      // Add event listeners for deck actions
+      attachDeckActionListeners();
     }
+
+    // Attach deck action listeners
+    function attachDeckActionListeners() {
+      // Dropdown menu toggle
+      document.querySelectorAll('.deck-menu-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const slug = btn.dataset.slug;
+          const menu = document.querySelector(`.deck-menu[data-slug="${slug}"]`);
+          
+          // Close all other menus
+          document.querySelectorAll('.deck-menu').forEach(m => {
+            if (m !== menu) m.classList.add('hidden');
+          });
+          
+          // Toggle current menu
+          menu?.classList.toggle('hidden');
+        });
+      });
+
+      // Edit deck buttons
+      document.querySelectorAll('.edit-deck-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const slug = btn.dataset.slug;
+          
+          // Find deck data
+          const deck = allDecks.find(d => d.slug === slug);
+          if (deck) {
+            openEditModal(deck);
+          }
+          
+          // Close menu
+          const menu = document.querySelector(`.deck-menu[data-slug="${slug}"]`);
+          menu?.classList.add('hidden');
+        });
+      });
+
+      // Delete deck buttons
+      document.querySelectorAll('.delete-deck-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const slug = btn.dataset.slug;
+          
+          if (confirm('Czy na pewno chcesz usunąć tę talię? Ta akcja jest nieodwracalna.')) {
+            try {
+              const response = await fetch(`/api/decks/${slug}`, {
+                method: 'DELETE',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                },
+              });
+
+              if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+              }
+
+              // Reload decks
+              await loadDecks();
+            } catch {
+              alert('Nie udało się usunąć talii. Spróbuj ponownie.');
+            }
+          }
+          
+          // Close menu
+          const menu = document.querySelector(`.deck-menu[data-slug="${slug}"]`);
+          menu?.classList.add('hidden');
+        });
+      });
+    }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.deck-menu').forEach(menu => {
+        menu.classList.add('hidden');
+      });
+    });
 
     // Update pagination
     function updatePagination() {
@@ -326,6 +465,8 @@ import Layout from "../layouts/Layout.astro";
     // Modal handling
     const createModal = document.getElementById("create-modal");
     const createForm = document.getElementById("create-form");
+    const editModal = document.getElementById("edit-modal");
+    const editForm = document.getElementById("edit-form");
     
     function openCreateModal() {
       createModal?.classList.remove("hidden");
@@ -336,9 +477,27 @@ import Layout from "../layouts/Layout.astro";
       createForm?.reset();
     }
 
+    function openEditModal(deck) {
+      const slugInput = document.getElementById("edit-deck-slug");
+      const nameInput = document.getElementById("edit-deck-name");
+      const descriptionInput = document.getElementById("edit-deck-description");
+      
+      if (slugInput) slugInput.value = deck.slug;
+      if (nameInput) nameInput.value = deck.name;
+      if (descriptionInput) descriptionInput.value = deck.description || '';
+      
+      editModal?.classList.remove("hidden");
+    }
+
+    function closeEditModal() {
+      editModal?.classList.add("hidden");
+      editForm?.reset();
+    }
+
     document.getElementById("create-deck-btn")?.addEventListener('click', openCreateModal);
     document.querySelector(".create-deck-trigger")?.addEventListener('click', openCreateModal);
     document.getElementById("cancel-btn")?.addEventListener('click', closeCreateModal);
+    document.getElementById("edit-cancel-btn")?.addEventListener('click', closeEditModal);
 
     // Create deck
     createForm?.addEventListener('submit', async (e) => {
@@ -372,6 +531,41 @@ import Layout from "../layouts/Layout.astro";
 
       } catch {
         alert("Nie udało się stworzyć talii. Spróbuj ponownie.");
+      }
+    });
+
+    // Edit deck
+    editForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(e.target);
+      const slug = document.getElementById("edit-deck-slug").value;
+      const data = {
+        name: formData.get('name'),
+        description: formData.get('description') || null
+      };
+
+      try {
+        const response = await fetch(`/api/decks/${slug}`, {
+          method: "PUT",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        closeEditModal();
+        
+        // Reload decks to show updated data
+        await loadDecks();
+
+      } catch {
+        alert("Nie udało się zaktualizować talii. Spróbuj ponownie.");
       }
     });
 

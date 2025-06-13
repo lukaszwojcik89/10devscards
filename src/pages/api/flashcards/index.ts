@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { createClient } from "@supabase/supabase-js";
 import { supabaseClient } from "@/db/supabase.client";
 import { FlashcardsService } from "@/lib/services/flashcards.service";
 import type { CreateFlashcardRequestDTO, ErrorResponseDTO } from "@/types";
@@ -44,6 +45,15 @@ export const GET: APIRoute = async ({ request, url }) => {
   const userId = user.id;
 
   try {
+    // Create authenticated supabase client
+    const authenticatedClient = createClient(import.meta.env.SUPABASE_URL, import.meta.env.SUPABASE_KEY, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    });
+
     // Parse query parameters
     const searchParams = url.searchParams;
     const deckId = searchParams.get("deck_id") || undefined;
@@ -52,7 +62,7 @@ export const GET: APIRoute = async ({ request, url }) => {
     const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 100);
     const offset = Math.max(parseInt(searchParams.get("offset") || "0"), 0);
 
-    const service = new FlashcardsService(supabaseClient);
+    const service = new FlashcardsService(authenticatedClient);
     const result = await service.getFlashcards(userId, {
       deckId,
       status,
@@ -118,8 +128,17 @@ export const POST: APIRoute = async ({ request }) => {
   const userId = user.id;
 
   try {
+    // Create authenticated supabase client
+    const authenticatedClient = createClient(import.meta.env.SUPABASE_URL, import.meta.env.SUPABASE_KEY, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    });
+
     const body = (await request.json()) as CreateFlashcardRequestDTO;
-    const service = new FlashcardsService(supabaseClient);
+    const service = new FlashcardsService(authenticatedClient);
     const result = await service.createFlashcard(body, userId);
 
     return new Response(JSON.stringify(result), {
