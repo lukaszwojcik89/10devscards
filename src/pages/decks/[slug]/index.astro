@@ -609,9 +609,7 @@
             const error = await response.json();
             showError(error.error?.message || "Nie udało się dodać fiszki");
           }
-        } catch (err) {
-          // Suppress unused variable warning
-          void err;
+        } catch {
           showError("Błąd podczas dodawania fiszki");
         }
       }
