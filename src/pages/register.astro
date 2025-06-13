@@ -103,6 +103,7 @@ import { Button } from "../components/ui/button";
         // Successful registration - show success message and redirect to login
         window.location.href = "/login?registered=true";
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error("Registration error:", error);
         if (errorMessage) {
           errorMessage.textContent = "Wystąpił błąd podczas połączenia z serwerem";
