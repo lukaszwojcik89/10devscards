@@ -610,6 +610,8 @@
             showError(error.error?.message || "Nie udało się dodać fiszki");
           }
         } catch (err) {
+          // Suppress unused variable warning
+          void err;
           showError("Błąd podczas dodawania fiszki");
         }
       }
@@ -666,6 +668,7 @@
           }
         } catch (err) {
           // Error handling - alert user
+          void err; // Suppress unused variable warning
           showError("Błąd podczas generowania fiszek");
         }
       }
