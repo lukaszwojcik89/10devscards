@@ -1,10 +1,18 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Tables } from "@/db/database.types";
-import type { GenerateFlashcardsRequest, GenerateFlashcardsResponse, FlashcardListItem } from "@/types";
+import type {
+  GenerateFlashcardsRequest,
+  GenerateFlashcardsResponse,
+  FlashcardListItem,
+  FlashcardListResponseDTO,
+  FlashcardDetailResponseDTO,
+  CreateFlashcardRequestDTO,
+  FlashcardResponseData,
+} from "@/types";
 import { generateFlashcardsRequestSchema } from "./flashcards.zod";
 
 /**
- * Service for handling AI flashcard generation logic
+ * Service for handling flashcard operations including AI generation and CRUD
  * Includes deck validation, budget checking, AI calls, and database operations
  */
 export class FlashcardsService {
@@ -286,5 +294,139 @@ Generate exactly ${maxFlashcards} flashcards. Each question should be self-conta
     if (error) {
       throw new Error("Failed to record budget event");
     }
+  }
+
+  /**
+   * Get flashcards for user with filtering options
+   */
+  async getFlashcards(
+    userId: string,
+    filters: {
+      deckId?: string;
+      status?: string;
+      box?: string;
+      limit: number;
+      offset: number;
+    }
+  ): Promise<FlashcardListResponseDTO> {
+    let query = this.supabase
+      .from("flashcards")
+      .select(
+        `*,
+        decks!inner(owner_id)`
+      )
+      .eq("decks.owner_id", userId);
+
+    // Apply filters
+    if (filters.deckId) {
+      query = query.eq("deck_id", filters.deckId);
+    }
+    if (filters.status) {
+      query = query.eq("status", filters.status);
+    }
+    if (filters.box) {
+      query = query.eq("box", filters.box);
+    }
+
+    // Get total count for pagination
+    const { count } = await query.select("*", { count: "exact", head: true });
+    const total = count || 0;
+
+    // Get paginated results
+    const { data: flashcards, error } = await query
+      .order("created_at", { ascending: false })
+      .range(filters.offset, filters.offset + filters.limit - 1);
+
+    if (error) {
+      throw new Error(`Failed to fetch flashcards: ${error.message}`);
+    }
+
+    // Remove the join data and format response
+    const cleanedFlashcards: FlashcardResponseData[] =
+      flashcards?.map((item) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { decks, ...flashcard } = item;
+        return flashcard;
+      }) || [];
+
+    return {
+      data: cleanedFlashcards,
+      pagination: {
+        total,
+        limit: filters.limit,
+        offset: filters.offset,
+        has_more: filters.offset + filters.limit < total,
+      },
+    };
+  }
+
+  /**
+   * Get single flashcard by ID
+   */
+  async getFlashcardById(flashcardId: string, userId: string): Promise<FlashcardDetailResponseDTO> {
+    const { data: flashcard, error } = await this.supabase
+      .from("flashcards")
+      .select(
+        `*,
+        decks!inner(owner_id)`
+      )
+      .eq("id", flashcardId)
+      .eq("decks.owner_id", userId)
+      .single();
+
+    if (error || !flashcard) {
+      throw new Error("Flashcard not found or access denied");
+    }
+
+    // Remove the join data
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { decks, ...cleanFlashcard } = flashcard;
+
+    return {
+      data: cleanFlashcard as FlashcardResponseData,
+    };
+  }
+
+  /**
+   * Create new flashcard manually
+   */
+  async createFlashcard(request: CreateFlashcardRequestDTO, userId: string): Promise<FlashcardDetailResponseDTO> {
+    // Verify deck ownership
+    await this.verifyDeck(request.deck_id, userId);
+
+    // Check deck flashcard limit (max 1000 per deck)
+    const { count } = await this.supabase
+      .from("flashcards")
+      .select("*", { count: "exact", head: true })
+      .eq("deck_id", request.deck_id);
+
+    if ((count || 0) >= 1000) {
+      throw new Error("Maximum flashcard limit reached for this deck (1000)");
+    }
+
+    // Create flashcard with default values
+    const { data: flashcard, error } = await this.supabase
+      .from("flashcards")
+      .insert({
+        deck_id: request.deck_id,
+        question: request.question,
+        answer: request.answer,
+        status: "accepted", // Manual flashcards are auto-accepted
+        box: "box1",
+        next_due_date: new Date().toISOString(), // Available immediately
+        model: null,
+        tokens_used: null,
+        price_usd: null,
+      })
+      .select()
+      .single();
+
+    if (error || !flashcard) {
+      throw new Error(`Failed to create flashcard: ${error?.message}`);
+    }
+
+    return {
+      data: flashcard as FlashcardResponseData,
+    };
   }
 }
