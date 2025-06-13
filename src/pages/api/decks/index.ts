@@ -3,7 +3,7 @@ import { supabaseClient } from "@/db/supabase.client";
 import { AuthService } from "@/lib/services/auth.service";
 import { DeckService } from "@/lib/services/deck.service";
 import type { DeckListResponseDTO, ErrorResponseDTO, CreateDeckResponseDTO } from "@/types";
-import { deckListQuerySchema } from "@/lib/services/deck.zod";
+import { deckListQuerySchema, createDeckRequestSchema } from "@/lib/services/deck.zod";
 import { ZodError } from "zod";
 
 export const GET: APIRoute = async ({ request, url }) => {
@@ -160,29 +160,26 @@ export const POST: APIRoute = async ({ request }) => {
     const authService = new AuthService(supabaseClient);
     const userProfile = await authService.getCurrentUser(token);
 
-    // Parse request body
+    // Parse and validate request body
     const body = await request.json();
+    const validated = createDeckRequestSchema.parse(body);
 
     // Initialize deck service and create deck
     const deckService = new DeckService(supabaseClient);
     const result = await deckService.createDeck({
-      ...body,
+      ...validated,
       owner_id: userProfile.id,
     });
 
-    const response: CreateDeckResponseDTO = result;
+    const response: CreateDeckResponseDTO = { data: result }; // wrap in data
 
     return new Response(JSON.stringify(response), {
       status: 201,
       headers: {
         "Content-Type": "application/json",
-        "X-Content-Type-Options": "nosniff",
-        "X-Frame-Options": "DENY",
-        "X-XSS-Protection": "1; mode=block",
       },
     });
   } catch (err) {
-    // Handle validation errors
     if (err instanceof ZodError) {
       const details = err.errors.reduce(
         (acc, e) => ({
@@ -191,24 +188,11 @@ export const POST: APIRoute = async ({ request }) => {
         }),
         {}
       );
-
       return new Response(
         JSON.stringify({
-          error: {
-            code: "VALIDATION_ERROR",
-            message: "Invalid request data",
-            details,
-          },
+          error: { code: "VALIDATION_ERROR", message: "Invalid request data", details },
         } as ErrorResponseDTO),
-        {
-          status: 400,
-          headers: {
-            "Content-Type": "application/json",
-            "X-Content-Type-Options": "nosniff",
-            "X-Frame-Options": "DENY",
-            "X-XSS-Protection": "1; mode=block",
-          },
-        }
+        { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
 

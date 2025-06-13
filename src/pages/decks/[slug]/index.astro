@@ -752,5 +752,67 @@
         alert("❌ " + message);
       }
     </script>
+
+    <div> <!-- end of container -->
+
+    <script type="module">
+      (async () => {
+        const token = localStorage.getItem("access_token");
+        if (!token) return window.location.href = "/login";
+        const slug = window.location.pathname.split("/").pop();
+        // Fetch deck details
+        const deckRes = await fetch(`/api/decks/${slug}`, { headers: { Authorization: `Bearer ${token}` } });
+        const deckData = await deckRes.json();
+        const deck = deckData.data;
+        document.getElementById("deck-title").textContent = deck.name;
+        document.getElementById("deck-description").textContent = deck.description || '';
+
+        // Pagination & filters state
+        let currentPage = 1;
+        let limit = parseInt(document.getElementById("limit-filter").value);
+        let status = '';
+        let box = '';
+
+        async function loadFlashcards() {
+          const offset = (currentPage - 1) * limit;
+          const params = new URLSearchParams({ deck_id: deck.id, limit, offset });
+          if (status) params.set("status", status);
+          if (box) params.set("box", box);
+          const res = await fetch(`/api/flashcards?${params}`, { headers: { Authorization: `Bearer ${token}` } });
+          const data = await res.json();
+          const container = document.getElementById("flashcards-container");
+          container.innerHTML = '';
+          data.data.items.forEach(f => {
+            const row = document.createElement('div');
+            row.className = 'p-4 border-b flex justify-between items-center';
+            row.innerHTML = `<span>${f.question}</span><span>${f.status}</span>`;
+            container.append(row);
+          });
+          // Update counts and pagination UI
+          document.getElementById("flashcards-count").textContent = `(${data.data.total})`;
+          const pageUI = document.getElementById("pagination");
+          pageUI.classList.remove('hidden');
+          document.getElementById("prev-page-btn").disabled = currentPage <= 1;
+          document.getElementById("next-page-btn").disabled = (currentPage * limit) >= data.data.total;
+          document.getElementById("showing-from").textContent = (offset + 1).toString();
+          document.getElementById("showing-to").textContent = Math.min(offset + limit, data.data.total).toString();
+          document.getElementById("total-count").textContent = data.data.total;
+        }
+
+        // Event listeners
+        document.getElementById("apply-filters-btn").addEventListener("click", () => {
+          status = document.getElementById("status-filter").value;
+          box = document.getElementById("box-filter").value;
+          limit = parseInt(document.getElementById("limit-filter").value);
+          currentPage = 1;
+          loadFlashcards();
+        });
+        document.getElementById("prev-page-btn").addEventListener("click", () => { currentPage--; loadFlashcards(); });
+        document.getElementById("next-page-btn").addEventListener("click", () => { currentPage++; loadFlashcards(); });
+
+        // Initial load
+        loadFlashcards();
+      })();
+    </script>
   </body>
 </html>

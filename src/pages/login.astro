@@ -58,7 +58,7 @@ import { Button } from "../components/ui/button";
   </main>
 </Layout>
 
-<script lang="ts">
+<script type="module">
   document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("login-form");
     const errorMessage = document.getElementById("error-message");
@@ -86,9 +86,10 @@ import { Button } from "../components/ui/button";
       }
 
       // Get form data
-      const formData = new FormData(e.target as HTMLFormElement);
-      const email = formData.get("email") as string;
-      const password = formData.get("password") as string;
+      const form = /** @type {HTMLFormElement} */ (e.target);
+      const formData = new FormData(form);
+      const email = /** @type {string} */ (formData.get("email"));
+      const password = /** @type {string} */ (formData.get("password"));
 
       try {
         const response = await fetch("/api/auth/login", {

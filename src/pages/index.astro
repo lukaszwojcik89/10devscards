@@ -166,7 +166,7 @@ import Layout from "../layouts/Layout.astro";
     </div>
   </main>
 
-  <script lang="ts">
+  <script type="module">
     // Simple JavaScript for basic functionality
     document.addEventListener("DOMContentLoaded", () => {
       // Load decks on page load
@@ -210,7 +210,17 @@ import Layout from "../layouts/Layout.astro";
           });
 
           if (response.ok) {
-            // User is authenticated - no additional UI changes needed here
+            // User is authenticated - show authenticated UI
+            const guestHeader = document.getElementById("guest-header");
+            const authContent = document.getElementById("authenticated-content");
+            const userWelcome = document.getElementById("user-welcome");
+            if (guestHeader) guestHeader.classList.add("hidden");
+            if (authContent) authContent.classList.remove("hidden");
+            if (userWelcome) userWelcome.classList.remove("hidden");
+
+            // Load decks now that user is authenticated
+            loadDecks();
+
             // UserNav component already handles the top navigation
           } else {
             // Token is invalid
