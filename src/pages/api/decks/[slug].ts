@@ -188,10 +188,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
     });
   } catch (err) {
     if (err instanceof ZodError) {
-      const details = err.errors.reduce(
-        (acc, e) => ({ ...acc, [e.path.join(".")]: e.message }),
-        {}
-      );
+      const details = err.errors.reduce((acc, e) => ({ ...acc, [e.path.join(".")]: e.message }), {});
       return new Response(
         JSON.stringify({
           error: {
