@@ -9,6 +9,7 @@ Widok FAQ/Pomoc stanowi kompleksowy system wsparcia użytkowników aplikacji AI 
 Widok dostępny pod ścieżką `/help` jako strona publiczna (dostępna bez logowania).
 
 Dodatkowe routing patterns:
+
 - `/help#kategoria` - bezpośredni link do kategorii FAQ
 - `/help?search=query` - deep-linkable search results
 - `/help/tutorial/[id]` - dedykowane strony tutoriali (opcjonalne w przyszłości)
@@ -209,6 +210,7 @@ export interface CategoryFilterProps {
 ## 6. Zarządzanie stanem
 
 ### Local State w HelpView:
+
 ```typescript
 const [searchState, setSearchState] = useState<SearchState>({
   query: '',
@@ -228,6 +230,7 @@ const [accordionState, setAccordionState] = useState<{
 ```
 
 ### Custom Hook useSearchFAQ:
+
 ```typescript
 const useSearchFAQ = (faqData: FAQItem[]) => {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -248,6 +251,7 @@ const useSearchFAQ = (faqData: FAQItem[]) => {
 ```
 
 ### Custom Hook useAccordionState:
+
 ```typescript
 const useAccordionState = (itemIds: string[]) => {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
@@ -276,6 +280,7 @@ const useAccordionState = (itemIds: string[]) => {
 Widok FAQ/Pomoc jest głównie statyczny z opcjonalnymi integracjami:
 
 ### Analytics tracking (opcjonalne):
+
 ```typescript
 // Request type
 interface FAQAnalyticsRequest {
@@ -306,6 +311,7 @@ const trackFAQInteraction = async (data: FAQAnalyticsRequest) => {
 ```
 
 ### Feedback submission:
+
 ```typescript
 // Request type
 interface FeedbackSubmissionRequest {
@@ -344,6 +350,7 @@ const submitFeedback = async (data: FeedbackFormData): Promise<FeedbackSubmissio
 ## 8. Interakcje użytkownika
 
 ### Scenariusze wyszukiwania:
+
 1. Użytkownik wpisuje zapytanie w SearchBar
 2. System wykonuje debounced search po 300ms
 3. FAQ items są filtrowane w real-time
@@ -351,6 +358,7 @@ const submitFeedback = async (data: FeedbackFormData): Promise<FeedbackSubmissio
 5. User może wyczyścić search lub wybrać kategorię
 
 ### Scenariusze nawigacji FAQ:
+
 1. User klika na pytanie w accordion
 2. Sekcja się rozwija z smooth animation
 3. Answer jest wyświetlana z rich formatting
@@ -358,6 +366,7 @@ const submitFeedback = async (data: FeedbackFormData): Promise<FeedbackSubmissio
 5. User może skopiować link do konkretnego FAQ
 
 ### Scenariusze tutoriali:
+
 1. User przegląda dostępne tutorials w TutorialSection
 2. Klika na tutorial card żeby zobaczyć szczegóły
 3. Może rozpocząć tutorial z progress tracking
@@ -365,6 +374,7 @@ const submitFeedback = async (data: FeedbackFormData): Promise<FeedbackSubmissio
 5. Progress jest zapisywany w localStorage
 
 ### Scenariusze kontaktu:
+
 1. User wypełnia feedback form w ContactCTA
 2. Wybiera typ problemu i priority
 3. Formularz jest walidowany przed submission
@@ -374,24 +384,28 @@ const submitFeedback = async (data: FeedbackFormData): Promise<FeedbackSubmissio
 ## 9. Warunki i walidacja
 
 ### Search validation:
+
 - **Minimum length**: Zapytanie musi mieć minimum 2 znaki
 - **HTML sanitization**: Usuwanie potencjalnie niebezpiecznych tagów
 - **Rate limiting**: Maksymalnie 10 searches per minute per user
 - **Query normalization**: Trimming whitespace, lowercase conversion
 
 ### Content validation:
+
 - **FAQ structure**: Sprawdzenie czy wszystkie required fields są present
 - **Link validation**: Weryfikacja czy external links są accessible
 - **Image validation**: Sprawdzenie czy media assets są available
 - **Code validation**: Syntax checking dla code examples
 
 ### Form validation w ContactCTA:
+
 - **Email format**: RFC-compliant email validation
 - **Message length**: 10-1000 characters
 - **Title length**: 5-100 characters
 - **Spam protection**: Honeypot field i basic rate limiting
 
 ### Accessibility validation:
+
 - **Heading hierarchy**: Proper h1->h6 structure
 - **Color contrast**: Minimum 4.5:1 ratio dla text
 - **Focus indicators**: Visible focus rings dla keyboard users
@@ -400,6 +414,7 @@ const submitFeedback = async (data: FeedbackFormData): Promise<FeedbackSubmissio
 ## 10. Obsługa błędów
 
 ### Search errors:
+
 ```typescript
 const handleSearchError = (error: Error) => {
   console.warn('Search failed:', error);
@@ -411,6 +426,7 @@ const handleSearchError = (error: Error) => {
 ```
 
 ### Content loading errors:
+
 ```typescript
 const handleContentError = (error: Error) => {
   console.error('FAQ content failed to load:', error);
@@ -424,6 +440,7 @@ const handleContentError = (error: Error) => {
 ```
 
 ### Form submission errors:
+
 ```typescript
 const handleSubmissionError = (error: Error, formData: FeedbackFormData) => {
   console.error('Feedback submission failed:', error);
@@ -438,6 +455,7 @@ const handleSubmissionError = (error: Error, formData: FeedbackFormData) => {
 ```
 
 ### Network connectivity errors:
+
 ```typescript
 const handleOfflineState = () => {
   // Disable form submissions
@@ -450,6 +468,7 @@ const handleOfflineState = () => {
 ```
 
 ### Accessibility errors:
+
 ```typescript
 const handleA11yError = (element: HTMLElement, error: string) => {
   console.warn('Accessibility issue:', error, element);
@@ -631,6 +650,7 @@ const handleA11yError = (element: HTMLElement, error: string) => {
     - Screen reader testing i fixes
 
 ### Post-implementacja:
+
 - Content management system setup dla easy FAQ updates
 - Analytics dashboard dla help page metrics
 - User feedback analysis i content improvements
@@ -639,11 +659,13 @@ const handleA11yError = (element: HTMLElement, error: string) => {
 ## Zależności implementacyjne
 
 ### Zewnętrzne komponenty:
+
 - **Layout.astro** - podstawowy layout aplikacji
 - **shadcn/ui Accordion** - base accordion component
 - **Lucide React icons** - ikony dla categories i actions
 
 ### Techniczne wymagania:
+
 - **Astro 5** - statyczna generacja z React islands
 - **React 19** - component interactivity  
 - **TypeScript 5** - type safety
@@ -654,6 +676,7 @@ const handleA11yError = (element: HTMLElement, error: string) => {
 - **POST /api/support/feedback** - user feedback submission
 
 ### Kolejność implementacji:
+
 1. **Etap 1-2** (struktura + search) może być implemented równolegle
 2. **Etap 3** (accordion) depends on completed search functionality
 3. **Etap 4** (tutorials + contact) może być implemented independently

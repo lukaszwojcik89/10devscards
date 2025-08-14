@@ -7,11 +7,13 @@ Ekrany błędów stanowią system spójnego obsługiwania błędów nawigacji i 
 ## 2. Routing widoku
 
 Widoki dostępne na następujących ścieżkach:
+
 - `/error/403` - błąd braku uprawnień dostępu
 - `/error/404` - błąd nieznalezionej strony/zasobu  
 - `/error/500` - błąd wewnętrzny serwera
 
 Dodatkowo system wspiera automatyczne przekierowania:
+
 - Middleware przekierowuje na odpowiednie error pages
 - React Error Boundary przekierowuje na `/error/500` dla nieobsłużonych wyjątków
 - Invalid error types w URL defaultują do `/error/404`
@@ -155,6 +157,7 @@ export interface ErrorAnalytics {
 Stan zarządzany lokalnie w komponentach bez potrzeby global state management:
 
 ### useState w ErrorActions:
+
 ```typescript
 const [isRetrying, setIsRetrying] = useState(false);
 const [retryAttempts, setRetryAttempts] = useState(0);
@@ -162,6 +165,7 @@ const [lastRetryTime, setLastRetryTime] = useState<Date | null>(null);
 ```
 
 ### Custom hook useErrorPageNavigation:
+
 ```typescript
 const useErrorPageNavigation = () => {
   const navigate = useNavigate();
@@ -188,6 +192,7 @@ const useErrorPageNavigation = () => {
 ```
 
 ### Custom hook useRetryAction:
+
 ```typescript
 const useRetryAction = (config: RetryConfig) => {
   const [isRetrying, setIsRetrying] = useState(false);
@@ -218,6 +223,7 @@ const useRetryAction = (config: RetryConfig) => {
 Error pages są głównie statyczne, ale mogą integrować się z następującymi systemami:
 
 ### Analytics tracking (opcjonalne):
+
 ```typescript
 const trackErrorPageView = async (errorData: ErrorAnalytics) => {
   try {
@@ -234,6 +240,7 @@ const trackErrorPageView = async (errorData: ErrorAnalytics) => {
 ```
 
 ### Health check dla retry (500 errors):
+
 ```typescript
 const checkServerHealth = async (): Promise<boolean> => {
   try {
@@ -255,6 +262,7 @@ const checkServerHealth = async (): Promise<boolean> => {
 ### Scenariusze interakcji dla każdego typu błędu:
 
 **403 Forbidden:**
+
 1. Użytkownik próbuje dostępu do zasobu bez uprawnień
 2. System przekierowuje na `/error/403`
 3. Wyświetla się komunikat z opcjami: "Zaloguj się ponownie", "Powrót", "Dashboard"
@@ -262,12 +270,14 @@ const checkServerHealth = async (): Promise<boolean> => {
 5. Klik "Powrót" → history.back() lub Dashboard jeśli brak historii
 
 **404 Not Found:**
+
 1. Użytkownik wchodzi na nieistniejący URL lub kliknął broken link
 2. System przekierowuje na `/error/404`  
 3. Wyświetla się komunikat z opcjami: "Powrót", "Dashboard", "Pomoc"
 4. Klik "Pomoc" → `/help` z sekcją FAQ o nawigacji
 
 **500 Internal Server Error:**
+
 1. Wystąpił błąd serwera podczas żądania
 2. System przekierowuje na `/error/500`
 3. Wyświetla się komunikat z opcjami: "Spróbuj ponownie", "Powrót", "Dashboard"
@@ -275,6 +285,7 @@ const checkServerHealth = async (): Promise<boolean> => {
 5. Po successful retry → powrót do oryginalnej strony
 
 ### Keyboard Navigation:
+
 - `Tab` - nawigacja między przyciskami akcji
 - `Enter` - aktywacja focused button
 - `Escape` - powrót do Dashboard (safe fallback)
@@ -283,22 +294,26 @@ const checkServerHealth = async (): Promise<boolean> => {
 ## 9. Warunki i walidacja
 
 ### Walidacja URL i parametrów:
+
 - **Error type validation**: Sprawdzenie czy `/error/{type}` zawiera valid type (403/404/500)
 - **Fallback handling**: Invalid error types przekierowują na `/error/404`
 - **Previous URL sanitization**: Sprawdzenie czy previous URL jest safe dla navigation
 
 ### Walidacja dostępu:
+
 - **Public access**: Error pages są dostępne bez authentication
 - **Context preservation**: Zachowanie error context dla lepszego UX
 - **Security validation**: Nie ujawnianie sensitive information w error details
 
 ### Walidacja retry logic:
+
 - **Max attempts limit**: Maksymalnie 3 próby retry dla 500 errors
 - **Debouncing**: Minimum 2 sekundy między retry attempts
 - **Network connectivity**: Sprawdzenie online status przed retry
 - **Server health**: Optional health check przed reload
 
 ### Form validation (nie dotyczy - brak forms w error pages):
+
 - Error pages nie zawierają form inputs
 - Validation występuje tylko dla navigation parameters
 
@@ -307,6 +322,7 @@ const checkServerHealth = async (): Promise<boolean> => {
 ### Scenariusze błędów i recovery:
 
 **Navigation Errors:**
+
 ```typescript
 const handleNavigationError = (error: Error, fallbackUrl: string) => {
   console.warn('Navigation failed:', error);
@@ -316,6 +332,7 @@ const handleNavigationError = (error: Error, fallbackUrl: string) => {
 ```
 
 **Retry Failures:**
+
 ```typescript
 const handleRetryFailure = (attempt: number, maxAttempts: number) => {
   if (attempt >= maxAttempts) {
@@ -328,6 +345,7 @@ const handleRetryFailure = (attempt: number, maxAttempts: number) => {
 ```
 
 **Invalid Error Types:**
+
 ```typescript
 const validateErrorType = (type: string): ErrorType => {
   if (['403', '404', '500'].includes(type)) {
@@ -339,6 +357,7 @@ const validateErrorType = (type: string): ErrorType => {
 ```
 
 **Network Issues:**
+
 ```typescript
 const handleOffline = () => {
   // Disable retry buttons gdy offline
@@ -348,6 +367,7 @@ const handleOffline = () => {
 ```
 
 **Error Loops Prevention:**
+
 ```typescript
 const preventErrorLoop = () => {
   const errorPageCount = sessionStorage.getItem('errorPageCount') || '0';
@@ -568,6 +588,7 @@ const preventErrorLoop = () => {
     - Production deployment i monitoring setup
 
 ### Post-implementacja monitoring:
+
 - Error page analytics review
 - User feedback collection
 - Performance metrics monitoring
@@ -582,17 +603,20 @@ const preventErrorLoop = () => {
 - **Astro middleware** - error catching i routing
 
 ### Techniczne wymagania:
+
 - **Astro 5** - server-side generation z client islands
 - **React 19** - component interactivity
 - **TypeScript 5** - type safety
 - **Tailwind CSS 4** - responsive styling
 
 ### API dependencies:
+
 - **Brak mandatory API endpoints** - error pages są statyczne
 - **Optional /api/health** - dla server health checks
 - **Optional /api/analytics** - dla error tracking
 
 ### Kolejność implementacji:
+
 1. **Etap 1 (struktura)** → **Etap 2 (nawigacja)** → **Etap 3 (retry)**
 2. **Etap 4 (testing)** można przeprowadzić równolegle z Etapem 3
 3. **Monitoring i analytics** mogą być dodane iteracyjnie po MVP
