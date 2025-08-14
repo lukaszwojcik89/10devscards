@@ -179,7 +179,7 @@ import Layout from "../layouts/Layout.astro";
         const decks = data.data || [];
         
         // Clear existing options except the first one
-        deckSelect.innerHTML = '<option value="">Wybierz talię...</option>';
+        deckSelect.innerHTML = '<option value="">Wybierz talię...</option><option value="CREATE_NEW">+ Utwórz nową talię</option>';
         
         // Add deck options
         decks.forEach(deck => {
@@ -191,8 +191,10 @@ import Layout from "../layouts/Layout.astro";
 
         // If no decks exist, show message
         if (decks.length === 0) {
-          // Keep the "Create new deck" option available when no decks exist
-          deckSelect.querySelector('option[value="CREATE_NEW"]').textContent = "+ Utwórz nową talię (brak istniejących talii)";
+          const createNewOption = deckSelect.querySelector('option[value="CREATE_NEW"]');
+          if (createNewOption) {
+            createNewOption.textContent = "+ Utwórz nową talię (brak istniejących talii)";
+          }
         }
       }
     } catch (error) {
