@@ -271,10 +271,16 @@ import Layout from "../layouts/Layout.astro";
 
         if (!response.ok) {
           if (response.status === 401) {
-            localStorage.removeItem("access_token");
-            localStorage.removeItem("refresh_token");
-            window.location.href = "/login";
-            return;
+            // Only logout on specific auth errors, not all 401s
+            const errorData = await response.json().catch(() => ({}));
+            if (errorData.error?.code === "INVALID_TOKEN" || errorData.error?.code === "TOKEN_EXPIRED") {
+              localStorage.removeItem("access_token");
+              localStorage.removeItem("refresh_token");
+              window.location.href = "/login";
+              return;
+            }
+            // For other 401s, just show error without logout
+            throw new Error(errorData.error?.message || "Brak autoryzacji");
           }
           
           const errorData = await response.json().catch(() => ({}));
