@@ -15,7 +15,7 @@ if (!supabaseAnonKey) {
 }
 
 if (!supabaseServiceKey) {
-  throw new Error("Missing SUPABASE_SERVICE_KEY environment variable");
+  console.warn("Missing SUPABASE_SERVICE_KEY environment variable - admin operations will not work");
 }
 
 export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey);
