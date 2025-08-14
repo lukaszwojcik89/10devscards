@@ -119,8 +119,15 @@ export class FlashcardsService {
     const BASE_URL = import.meta.env.OPENROUTER_BASE_URL || "https://openrouter.ai/api/v1";
 
     if (!API_KEY) {
-      throw new Error("OpenRouter API key not configured");
+      throw new Error("OpenRouter API key not configured. Please set OPENROUTER_API_KEY in your environment variables.");
     }
+
+    console.log("OpenRouter config:", { 
+      hasApiKey: !!API_KEY, 
+      model: MODEL, 
+      baseUrl: BASE_URL,
+      apiKeyPrefix: API_KEY ? API_KEY.substring(0, 10) + "..." : "none"
+    });
 
     // Create difficulty-specific prompt
     const difficultyPrompts = {
@@ -146,6 +153,8 @@ IMPORTANT: Respond with ONLY a valid JSON array in this exact format:
 Generate exactly ${maxFlashcards} flashcards. Each question should be self-contained and each answer should be complete but concise.`;
 
     try {
+      console.log("Making request to OpenRouter...");
+      
       const response = await fetch(`${BASE_URL}/chat/completions`, {
         method: "POST",
         headers: {
@@ -171,12 +180,16 @@ Generate exactly ${maxFlashcards} flashcards. Each question should be self-conta
         }),
       });
 
+      console.log("OpenRouter response status:", response.status);
+      
       if (!response.ok) {
         const errorText = await response.text();
+        console.error("OpenRouter API error:", response.status, errorText);
         throw new Error(`OpenRouter API error: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
+      console.log("OpenRouter response data:", data);
 
       if (!data.choices?.[0]?.message?.content) {
         throw new Error("Invalid response from OpenRouter API");
@@ -227,6 +240,7 @@ Generate exactly ${maxFlashcards} flashcards. Each question should be self-conta
       };
     } catch (error) {
       // In production, this should be logged to a proper logging service
+      console.error("AI service error details:", error);
       throw new Error(`AI service failed: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   }
