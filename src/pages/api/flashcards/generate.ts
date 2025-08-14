@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { createClient } from "@supabase/supabase-js";
 import { supabaseClient } from "@/db/supabase.client";
 import { FlashcardsService } from "@/lib/services/flashcards.service";
 import type { GenerateFlashcardsRequest, ErrorResponseDTO } from "@/types";
@@ -39,7 +40,17 @@ export const POST: APIRoute = async ({ request }) => {
 
   try {
     const body = (await request.json()) as GenerateFlashcardsRequest;
-    const service = new FlashcardsService(supabaseClient);
+
+    // Create authenticated supabase client
+    const authenticatedClient = createClient(import.meta.env.SUPABASE_URL, import.meta.env.SUPABASE_KEY, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    });
+
+    const service = new FlashcardsService(authenticatedClient);
     const result = await service.generateFlashcards(body, userId);
 
     return new Response(JSON.stringify(result), {

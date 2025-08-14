@@ -205,17 +205,51 @@ import Layout from "../layouts/Layout.astro";
       e.preventDefault();
       
       // Disable form
-      submitBtn.disabled = true;
+      (submitBtn as HTMLButtonElement).disabled = true;
       submitText?.classList.add("hidden");
       submitLoading?.classList.remove("hidden");
 
       const formData = new FormData(e.target);
+      
+      // Get deck_id from the form
+      const deckId = formData.get('deck_id');
+      if (!deckId) {
+        alert('Proszę wybrać talię docelową');
+        // Re-enable form
+        (submitBtn as HTMLButtonElement).disabled = false;
+        submitText?.classList.remove("hidden");
+        submitLoading?.classList.add("hidden");
+        return;
+      }
+      
+      // Prepare data in the format expected by the backend
+      const topic = formData.get('topic');
+      const context = formData.get('context');
+      
+      // Combine topic and context to create input_text
+      let inputText = String(topic);
+      if (context && context.trim()) {
+        inputText += `\n\nDodatkowy kontekst: ${context}`;
+      }
+      
+      // Add language information to input_text
+      const language = formData.get('language');
+      const languageMap = {
+        'pl': 'polski',
+        'en': 'angielski', 
+        'de': 'niemiecki',
+        'fr': 'francuski',
+        'es': 'hiszpański',
+        'it': 'włoski'
+      };
+      const languageName = languageMap[language] || 'polski';
+      inputText += `\n\nGeneruj fiszki w języku: ${languageName}`;
+      
       const data = {
-        topic: formData.get('topic'),
-        count: parseInt(String(formData.get('count')), 10),
-        difficulty: formData.get('difficulty'),
-        language: formData.get('language'),
-        context: formData.get('context') || undefined
+        deck_id: String(deckId),
+        input_text: inputText,
+        max_cards: parseInt(String(formData.get('count')), 10),
+        difficulty: formData.get('difficulty')
       };
 
       try {
