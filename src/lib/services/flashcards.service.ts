@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Tables, TablesUpdate } from "@/db/database.types";
+import { supabaseAdminClient } from "@/db/supabase.client";
 import type {
   GenerateFlashcardsRequest,
   GenerateFlashcardsResponse,
@@ -298,17 +299,24 @@ Generate exactly ${maxFlashcards} flashcards. Each question should be self-conta
     metadata: { tokens_used: number; cost_usd: number; model: string }
   ): Promise<void> {
     // Get current cumulative cost
-    const { data: lastEvent } = await this.supabase
+    const { data: lastEvent, error: fetchError } = await supabaseAdminClient
       .from("budget_events")
       .select("cumulative_usd")
       .eq("user_id", userId)
       .order("event_time", { ascending: false })
       .limit(1);
 
+    if (fetchError) {
+      console.error("Failed to fetch last budget event:", fetchError);
+      throw new Error(`Failed to fetch budget history: ${fetchError.message}`);
+    }
+
     const previousCumulative = lastEvent?.[0]?.cumulative_usd || 0;
     const newCumulative = previousCumulative + metadata.cost_usd;
 
-    const { error } = await this.supabase.from("budget_events").insert({
+    console.log("Budget calculation:", { previousCumulative, newCumulative, costUsd: metadata.cost_usd });
+
+    const { error } = await supabaseAdminClient.from("budget_events").insert({
       user_id: userId,
       cost_usd: metadata.cost_usd,
       cumulative_usd: newCumulative,
@@ -318,8 +326,11 @@ Generate exactly ${maxFlashcards} flashcards. Each question should be self-conta
     });
 
     if (error) {
+      console.error("Failed to insert budget event:", error);
       throw new Error("Failed to record budget event");
     }
+
+    console.log("Budget event recorded successfully");
   }
 
   /**
