@@ -287,15 +287,7 @@ import Layout from "../layouts/Layout.astro";
         
         // Success - redirect to the deck that contains the new flashcards
         if (result.generated_flashcards && result.generated_flashcards.length > 0) {
-          // Find the deck to redirect to
-          const firstFlashcard = result.generated_flashcards[0];
-          if (firstFlashcard.deck_id) {
-            // Get deck slug from our loaded decks
-            const targetDeck = Array.from(deckSelect.options).find(option => option.value === firstFlashcard.deck_id);
-            if (targetDeck && targetDeck.textContent) {
-              alert(`✅ Wygenerowano ${result.generated_flashcards.length} fiszek w talii "${targetDeck.textContent}"`);
-            }
-          }
+          alert(`✅ Wygenerowano ${result.generated_flashcards.length} fiszek!`);
           window.location.href = "/decks?generated=true";
         } else {
           alert("⚠️ Generowanie zakończone, ale nie utworzono fiszek. Sprawdź szczegóły w konsoli.");

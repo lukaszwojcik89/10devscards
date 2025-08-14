@@ -56,7 +56,7 @@ export class DeckService {
         { count: "exact" }
       )
       .eq("owner_id", userId)
-      .is("deleted_at", null)
+      .eq("is_deleted", false)
       .order("created_at", { ascending: false });
 
     // Polyfill dla metod range i or, gdy nie istnieją (np. w mocku)
@@ -129,7 +129,7 @@ export class DeckService {
       )
       .eq("slug", slug)
       .eq("owner_id", userId)
-      .is("deleted_at", null)
+      .eq("is_deleted", false)
       .single();
 
     if (error) {
@@ -179,7 +179,7 @@ export class DeckService {
       .select("id")
       .eq("slug", slug)
       .eq("owner_id", command.owner_id)
-      .is("deleted_at", null)
+      .eq("is_deleted", false)
       .single();
 
     if (checkError && checkError.code !== "PGRST116") {
@@ -198,6 +198,7 @@ export class DeckService {
         name: validated.name,
         description: validated.description,
         owner_id: command.owner_id,
+        is_deleted: false,
       })
       .select(
         `
@@ -264,7 +265,7 @@ export class DeckService {
       .select("id")
       .eq("slug", command.slug)
       .eq("owner_id", command.owner_id)
-      .is("deleted_at", null)
+      .eq("is_deleted", false)
       .single();
 
     if (findError || !existingDeck) {
@@ -316,10 +317,13 @@ export class DeckService {
   async deleteDeck(command: DeleteDeckCommand): Promise<Record<string, unknown>> {
     const { data, error } = await (this.supabase as any) // eslint-disable-line @typescript-eslint/no-explicit-any
       .from("decks")
-      .update({ deleted_at: new Date().toISOString() })
+      .update({ 
+        is_deleted: true,
+        deleted_at: new Date().toISOString() 
+      })
       .eq("slug", command.slug)
       .eq("owner_id", command.owner_id)
-      .is("deleted_at", null)
+      .eq("is_deleted", false)
       .select("*")
       .single();
 
@@ -359,7 +363,7 @@ export class DeckService {
         .select("id")
         .eq("slug", slug)
         .eq("owner_id", userId)
-        .is("deleted_at", null)
+        .eq("is_deleted", false)
         .single();
 
       if (!data) {
@@ -400,7 +404,7 @@ export class DeckService {
         .select("id")
         .eq("slug", slug)
         .eq("owner_id", userId)
-        .is("deleted_at", null)
+        .eq("is_deleted", false)
         .neq("slug", currentSlug) // Exclude current deck from check
         .single();
 
