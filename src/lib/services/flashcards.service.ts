@@ -38,7 +38,7 @@ export class FlashcardsService {
     await this.checkBudgetLimits(userId);
 
     // Wywołanie AI z difficulty parameter
-    const aiRes = await this.callAI(validated.input_text, validated.max_cards, validated.difficulty);
+    const aiRes = await this.callAI(validated.input_text, validated.max_cards, validated.difficulty, validated.context, validated.language);
 
     // Zapis fiszek
     const saved = await this.saveToDB(aiRes.flashcards, validated.deck_id, aiRes.metadata);
@@ -71,8 +71,6 @@ export class FlashcardsService {
       .eq("owner_id", userId)
       .eq("is_deleted", false)
       .single();
-
-    console.log("Deck verification result:", { deck, error });
 
     if (error || !deck) {
       console.error("Deck verification failed:", { error, deck, deckId, userId });
@@ -115,7 +113,8 @@ export class FlashcardsService {
   private async callAI(
     inputText: string,
     maxFlashcards: number,
-    difficulty: "beginner" | "intermediate" | "advanced" = "intermediate"
+    difficulty: "beginner" | "intermediate" | "advanced" = "intermediate",
+    context?: string
   ): Promise<{
     flashcards: { question: string; answer: string }[];
     metadata: { tokens_used: number; cost_usd: number; model: string };
@@ -135,6 +134,15 @@ export class FlashcardsService {
       apiKeyPrefix: API_KEY ? API_KEY.substring(0, 10) + "..." : "none"
     });
 
+    // Language mapping for clear instructions
+    const languageInstructions = {
+      pl: "WAŻNE: Generuj wszystkie fiszki w języku polskim. Zarówno pytania jak i odpowiedzi muszą być po polsku.",
+      en: "IMPORTANT: Generate all flashcards in English. Both questions and answers must be in English.",
+      de: "WICHTIG: Generiere alle Karteikarten auf Deutsch. Sowohl Fragen als auch Antworten müssen auf Deutsch sein.",
+      fr: "IMPORTANT: Générez toutes les cartes en français. Les questions et réponses doivent être en français.",
+      es: "IMPORTANTE: Genera todas las tarjetas en español. Tanto preguntas como respuestas deben estar en español.",
+      it: "IMPORTANTE: Genera tutte le schede in italiano. Sia domande che risposte devono essere in italiano."
+    };
     // Create difficulty-specific prompt
     const difficultyPrompts = {
       beginner: "Create simple, basic flashcards suitable for beginners. Use clear, straightforward language.",
@@ -146,7 +154,10 @@ export class FlashcardsService {
 
     const systemPrompt = `You are an expert educational content creator. Your task is to generate high-quality flashcards based on the provided text.
 
+${languageInstructions[language as keyof typeof languageInstructions] || languageInstructions.pl}
 ${difficultyPrompts[difficulty]}
+
+${context ? `\nKONTEKST DODATKOWY: ${context}\nTo jest bardzo ważne - fiszki MUSZĄ być związane z tym kontekstem. Ignoruj inne tematy i skup się tylko na tym kontekście.` : ''}
 
 IMPORTANT: Respond with ONLY a valid JSON array in this exact format:
 [
@@ -252,6 +263,12 @@ Generate exactly ${maxFlashcards} flashcards. Each question should be self-conta
         stack: error instanceof Error ? error.stack : undefined,
         name: error instanceof Error ? error.name : undefined
       });
+      
+      // Handle specific network errors
+      if (error instanceof TypeError && error.message === "fetch failed") {
+        throw new Error("Network connection failed. Please check your internet connection and try again.");
+      }
+      
       throw new Error(`AI service failed: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   }

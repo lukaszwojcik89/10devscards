@@ -21,6 +21,18 @@ export const generateFlashcardsRequestSchema = z.object({
       errorMap: () => ({ message: "difficulty must be one of: beginner, intermediate, advanced" }),
     })
     .default("intermediate"),
+
+  context: z
+    .string()
+    .max(500, "context must be less than 500 characters")
+    .optional()
+    .transform((ctx) => ctx?.trim() || undefined),
+
+  language: z
+    .enum(["pl", "en", "de", "fr", "es", "it"], {
+      errorMap: () => ({ message: "language must be one of: pl, en, de, fr, es, it" }),
+    })
+    .default("pl"),
 });
 
 export type GenerateFlashcardsRequestSchema = z.infer<typeof generateFlashcardsRequestSchema>;

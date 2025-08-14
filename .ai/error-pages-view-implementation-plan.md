@@ -156,7 +156,7 @@ export interface ErrorAnalytics {
 
 Stan zarządzany lokalnie w komponentach bez potrzeby global state management:
 
-### useState w ErrorActions
+### useState w ErrorActions:
 
 ```typescript
 const [isRetrying, setIsRetrying] = useState(false);
@@ -164,7 +164,7 @@ const [retryAttempts, setRetryAttempts] = useState(0);
 const [lastRetryTime, setLastRetryTime] = useState<Date | null>(null);
 ```
 
-### Custom hook useErrorPageNavigation
+### Custom hook useErrorPageNavigation:
 
 ```typescript
 const useErrorPageNavigation = () => {
@@ -191,7 +191,7 @@ const useErrorPageNavigation = () => {
 };
 ```
 
-### Custom hook useRetryAction
+### Custom hook useRetryAction:
 
 ```typescript
 const useRetryAction = (config: RetryConfig) => {
@@ -222,7 +222,7 @@ const useRetryAction = (config: RetryConfig) => {
 
 Error pages są głównie statyczne, ale mogą integrować się z następującymi systemami:
 
-### Analytics tracking (opcjonalne)
+### Analytics tracking (opcjonalne):
 
 ```typescript
 const trackErrorPageView = async (errorData: ErrorAnalytics) => {
@@ -239,7 +239,7 @@ const trackErrorPageView = async (errorData: ErrorAnalytics) => {
 };
 ```
 
-### Health check dla retry (500 errors)
+### Health check dla retry (500 errors):
 
 ```typescript
 const checkServerHealth = async (): Promise<boolean> => {
@@ -255,11 +255,11 @@ const checkServerHealth = async (): Promise<boolean> => {
 };
 ```
 
-### Brak dedykowanych error API endpoints - strony są statyczne z client-side enhancement
+### Brak dedykowanych error API endpoints - strony są statyczne z client-side enhancement.
 
 ## 8. Interakcje użytkownika
 
-### Scenariusze interakcji dla każdego typu błędu
+### Scenariusze interakcji dla każdego typu błędu:
 
 **403 Forbidden:**
 
@@ -284,7 +284,7 @@ const checkServerHealth = async (): Promise<boolean> => {
 4. Klik "Spróbuj ponownie" → retry z health check i debouncing
 5. Po successful retry → powrót do oryginalnej strony
 
-### Keyboard Navigation
+### Keyboard Navigation:
 
 - `Tab` - nawigacja między przyciskami akcji
 - `Enter` - aktywacja focused button
@@ -293,33 +293,33 @@ const checkServerHealth = async (): Promise<boolean> => {
 
 ## 9. Warunki i walidacja
 
-### Walidacja URL i parametrów
+### Walidacja URL i parametrów:
 
 - **Error type validation**: Sprawdzenie czy `/error/{type}` zawiera valid type (403/404/500)
 - **Fallback handling**: Invalid error types przekierowują na `/error/404`
 - **Previous URL sanitization**: Sprawdzenie czy previous URL jest safe dla navigation
 
-### Walidacja dostępu
+### Walidacja dostępu:
 
 - **Public access**: Error pages są dostępne bez authentication
 - **Context preservation**: Zachowanie error context dla lepszego UX
 - **Security validation**: Nie ujawnianie sensitive information w error details
 
-### Walidacja retry logic
+### Walidacja retry logic:
 
 - **Max attempts limit**: Maksymalnie 3 próby retry dla 500 errors
 - **Debouncing**: Minimum 2 sekundy między retry attempts
 - **Network connectivity**: Sprawdzenie online status przed retry
 - **Server health**: Optional health check przed reload
 
-### Form validation (nie dotyczy - brak forms w error pages)
+### Form validation (nie dotyczy - brak forms w error pages):
 
 - Error pages nie zawierają form inputs
 - Validation występuje tylko dla navigation parameters
 
 ## 10. Obsługa błędów
 
-### Scenariusze błędów i recovery
+### Scenariusze błędów i recovery:
 
 **Navigation Errors:**
 
@@ -587,7 +587,7 @@ const preventErrorLoop = () => {
     - Implementation guide dla team
     - Production deployment i monitoring setup
 
-### Post-implementacja monitoring
+### Post-implementacja monitoring:
 
 - Error page analytics review
 - User feedback collection
@@ -596,27 +596,26 @@ const preventErrorLoop = () => {
 
 ## Zależności implementacyjne
 
-### Zewnętrzne zależności
-
+### Zewnętrzne zależności:
 - **Layout.astro** - podstawowy layout application
 - **shadcn/ui Button** - consistent button styling
 - **Lucide React** - icons dla różnych error types
 - **Astro middleware** - error catching i routing
 
-### Techniczne wymagania
+### Techniczne wymagania:
 
 - **Astro 5** - server-side generation z client islands
 - **React 19** - component interactivity
 - **TypeScript 5** - type safety
 - **Tailwind CSS 4** - responsive styling
 
-### API dependencies
+### API dependencies:
 
 - **Brak mandatory API endpoints** - error pages są statyczne
 - **Optional /api/health** - dla server health checks
 - **Optional /api/analytics** - dla error tracking
 
-### Kolejność implementacji
+### Kolejność implementacji:
 
 1. **Etap 1 (struktura)** → **Etap 2 (nawigacja)** → **Etap 3 (retry)**
 2. **Etap 4 (testing)** można przeprowadzić równolegle z Etapem 3

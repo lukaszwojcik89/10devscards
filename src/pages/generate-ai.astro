@@ -254,8 +254,10 @@ import Layout from "../layouts/Layout.astro";
       const data = {
         deck_id: deckId,
         input_text: topic,
+        context: formData.get('context') || undefined,
         max_cards: parseInt(String(formData.get('count')), 10),
-        difficulty: formData.get('difficulty')
+        difficulty: formData.get('difficulty'),
+        language: formData.get('language')
       };
 
       try {
@@ -270,10 +272,16 @@ import Layout from "../layouts/Layout.astro";
 
         if (!response.ok) {
           if (response.status === 401) {
-            localStorage.removeItem("access_token");
-            localStorage.removeItem("refresh_token");
-            window.location.href = "/login";
-            return;
+            // Only logout on specific auth errors, not all 401s
+            const errorData = await response.json().catch(() => ({}));
+            if (errorData.error?.code === "INVALID_TOKEN" || errorData.error?.code === "TOKEN_EXPIRED") {
+              localStorage.removeItem("access_token");
+              localStorage.removeItem("refresh_token");
+              window.location.href = "/login";
+              return;
+            }
+            // For other 401s, just show error without logout
+            throw new Error(errorData.error?.message || "Brak autoryzacji");
           }
           
           const errorData = await response.json().catch(() => ({}));
@@ -287,15 +295,7 @@ import Layout from "../layouts/Layout.astro";
         
         // Success - redirect to the deck that contains the new flashcards
         if (result.generated_flashcards && result.generated_flashcards.length > 0) {
-          // Find the deck to redirect to
-          const firstFlashcard = result.generated_flashcards[0];
-          if (firstFlashcard.deck_id) {
-            // Get deck slug from our loaded decks
-            const targetDeck = Array.from(deckSelect.options).find(option => option.value === firstFlashcard.deck_id);
-            if (targetDeck && targetDeck.textContent) {
-              alert(`✅ Wygenerowano ${result.generated_flashcards.length} fiszek w talii "${targetDeck.textContent}"`);
-            }
-          }
+          alert(`✅ Wygenerowano ${result.generated_flashcards.length} fiszek!`);
           window.location.href = "/decks?generated=true";
         } else {
           alert("⚠️ Generowanie zakończone, ale nie utworzono fiszek. Sprawdź szczegóły w konsoli.");
