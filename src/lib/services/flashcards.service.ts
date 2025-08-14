@@ -61,6 +61,8 @@ export class FlashcardsService {
    * Verify that deck exists and belongs to the user
    */
   private async verifyDeck(deckId: string, userId: string): Promise<Tables<"decks">> {
+    console.log("Verifying deck:", { deckId, userId });
+    
     const { data: deck, error } = await this.supabase
       .from("decks")
       .select("*")
@@ -69,8 +71,11 @@ export class FlashcardsService {
       .eq("is_deleted", false)
       .single();
 
+    console.log("Deck verification result:", { deck, error });
+
     if (error || !deck) {
-      throw new Error("Deck not found or not owned by user");
+      console.error("Deck verification failed:", { error, deck, deckId, userId });
+      throw new Error(`Deck not found or not owned by user. Deck ID: ${deckId}, User ID: ${userId}`);
     }
 
     return deck;

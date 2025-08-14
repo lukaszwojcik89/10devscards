@@ -237,6 +237,9 @@ import Layout from "../layouts/Layout.astro";
           const newDeck = await createDeckResponse.json();
           deckId = newDeck.data.id;
           
+          console.log("Created new deck:", newDeck.data);
+          console.log("Using deck ID for generation:", deckId);
+          
         } catch (error) {
           // Re-enable form
           submitBtn.disabled = false;

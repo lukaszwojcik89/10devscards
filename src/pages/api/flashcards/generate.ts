@@ -39,7 +39,11 @@ export const POST: APIRoute = async ({ request }) => {
 
   try {
     const body = (await request.json()) as GenerateFlashcardsRequest;
-    console.log("Generate flashcards request:", body);
+    console.log("Generate flashcards request:", { 
+      ...body, 
+      userId,
+      timestamp: new Date().toISOString() 
+    });
     
     const service = new FlashcardsService(supabaseClient);
     const result = await service.generateFlashcards(body, userId);
@@ -67,12 +71,19 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
     const message = (err as Error).message;
+    console.error("Generate flashcards error:", {
+      message,
+      userId,
+      error: err,
+      stack: err instanceof Error ? err.stack : undefined
+    });
+    
     if (message.includes("Deck not found")) {
       return new Response(
         JSON.stringify({
           error: {
             code: "NOT_FOUND",
-            message: "Not Found",
+            message: `Deck not found: ${message}`,
           },
         } as ErrorResponseDTO),
         { status: 404 }
