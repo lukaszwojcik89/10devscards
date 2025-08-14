@@ -134,47 +134,30 @@ export class FlashcardsService {
       apiKeyPrefix: API_KEY ? API_KEY.substring(0, 10) + "..." : "none"
     });
 
-    // Create comprehensive system prompt
-    const difficultyInstructions = {
-      beginner: "Poziom podstawowy - używaj prostego, jasnego języka. Pytania powinny dotyczyć podstawowych pojęć i definicji.",
-      intermediate: "Poziom średniozaawansowany - uwzględnij ważne koncepcje i relacje między nimi. Pytania mogą wymagać zrozumienia kontekstu.",
-      advanced: "Poziom zaawansowany - twórz pytania testujące głębokie zrozumienie, przypadki brzegowe i niuanse. Wymagaj precyzyjnej wiedzy."
+    // Create difficulty-specific prompt
+    const difficultyPrompts = {
+      beginner: "Create simple, basic flashcards suitable for beginners. Use clear, straightforward language.",
+      intermediate:
+        "Create moderately challenging flashcards with some depth. Include important concepts and relationships.",
+      advanced:
+        "Create challenging flashcards that test deep understanding. Include complex concepts, edge cases, and nuanced details.",
     };
 
-    const systemPrompt = `Jesteś ekspertem w tworzeniu fiszek edukacyjnych. Twoim zadaniem jest wygenerowanie dokładnie określonej liczby fiszek zgodnie z podanymi parametrami.
+    const systemPrompt = `You are an expert educational content creator. Your task is to generate high-quality flashcards based on the provided text.
 
-**WYMAGANIA OBOWIĄZKOWE:**
+${difficultyPrompts[difficulty]}
 
-**Temat:** Wszystkie fiszki MUSZĄ dotyczyć wyłącznie podanego tematu. Nie odchodź od głównego tematu nawet w szczegółach.
+${context ? `\nADDITIONAL CONTEXT: ${context}\nMake sure to incorporate this context into your flashcard generation.` : ''}
 
-**Liczba fiszek:** Wygeneruj dokładnie ${maxFlashcards} fiszek. Nie więcej, nie mniej.
-
-**Poziom trudności:** ${difficulty}
-${difficultyInstructions[difficulty]}
-
-**Język:** Polski - wszystkie fiszki (pytania I odpowiedzi) muszą być napisane po polsku.
-
-${context ? `**Dodatkowy kontekst:** ${context}
-- Uwzględnij te informacje przy tworzeniu fiszek
-- Fiszki powinny być zgodne z tym kontekstem` : ''}
-
-**FORMAT ODPOWIEDZI - WAŻNE:**
-Odpowiedz WYŁĄCZNIE prawidłową tablicą JSON w tym dokładnym formacie:
+IMPORTANT: Respond with ONLY a valid JSON array in this exact format:
 [
   {
-    "question": "Jasne, konkretne pytanie",
-    "answer": "Wyczerpująca ale zwięzła odpowiedź"
+    "question": "Clear, specific question",
+    "answer": "Comprehensive but concise answer"
   }
 ]
 
-**ZASADY TWORZENIA FISZEK:**
-- Każde pytanie powinno być samodzielne i zrozumiałe
-- Każda odpowiedź powinna być kompletna ale zwięzła
-- Unikaj powtarzania podobnych pytań
-- Skupiaj się na kluczowych aspektach tematu
-- Dostosuj poziom szczegółowości do poziomu trudności
-
-Wygeneruj dokładnie ${maxFlashcards} fiszek zgodnie z powyższymi wymaganiami.`;
+Generate exactly ${maxFlashcards} flashcards. Each question should be self-contained and each answer should be complete but concise.`;
 
     try {
       console.log("Making request to OpenRouter...");
@@ -196,7 +179,7 @@ Wygeneruj dokładnie ${maxFlashcards} fiszek zgodnie z powyższymi wymaganiami.`
             },
             {
               role: "user",
-              content: `Wygeneruj fiszki na podstawie tego tematu:\n\n${inputText}`,
+              content: `Generate flashcards from this content:\n\n${inputText}`,
             },
           ],
           max_tokens: 2000,
