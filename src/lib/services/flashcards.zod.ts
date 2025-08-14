@@ -27,6 +27,12 @@ export const generateFlashcardsRequestSchema = z.object({
     .max(500, "context must be less than 500 characters")
     .optional()
     .transform((ctx) => ctx?.trim() || undefined),
+
+  language: z
+    .enum(["pl", "en", "de", "fr", "es", "it"], {
+      errorMap: () => ({ message: "language must be one of: pl, en, de, fr, es, it" }),
+    })
+    .default("pl"),
 });
 
 export type GenerateFlashcardsRequestSchema = z.infer<typeof generateFlashcardsRequestSchema>;

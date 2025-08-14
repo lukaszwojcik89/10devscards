@@ -130,6 +130,7 @@ export interface GenerateFlashcardsRequestDTO {
   max_cards?: number;
   difficulty?: "beginner" | "intermediate" | "advanced";
   context?: string;
+  language?: "pl" | "en" | "de" | "fr" | "es" | "it";
 }
 
 /**

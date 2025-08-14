@@ -256,7 +256,8 @@ import Layout from "../layouts/Layout.astro";
         input_text: topic,
         context: formData.get('context') || undefined,
         max_cards: parseInt(String(formData.get('count')), 10),
-        difficulty: formData.get('difficulty')
+        difficulty: formData.get('difficulty'),
+        language: formData.get('language')
       };
 
       try {

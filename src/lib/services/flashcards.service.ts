@@ -38,7 +38,7 @@ export class FlashcardsService {
     await this.checkBudgetLimits(userId);
 
     // Wywołanie AI z difficulty parameter
-    const aiRes = await this.callAI(validated.input_text, validated.max_cards, validated.difficulty, validated.context);
+    const aiRes = await this.callAI(validated.input_text, validated.max_cards, validated.difficulty, validated.context, validated.language);
 
     // Zapis fiszek
     const saved = await this.saveToDB(aiRes.flashcards, validated.deck_id, aiRes.metadata);
