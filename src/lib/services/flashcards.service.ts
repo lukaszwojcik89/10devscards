@@ -253,6 +253,12 @@ Generate exactly ${maxFlashcards} flashcards. Each question should be self-conta
         stack: error instanceof Error ? error.stack : undefined,
         name: error instanceof Error ? error.name : undefined
       });
+      
+      // Handle specific network errors
+      if (error instanceof TypeError && error.message === "fetch failed") {
+        throw new Error("Network connection failed. Please check your internet connection and try again.");
+      }
+      
       throw new Error(`AI service failed: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   }

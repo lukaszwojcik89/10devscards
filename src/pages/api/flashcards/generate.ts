@@ -104,7 +104,7 @@ export const POST: APIRoute = async ({ request }) => {
       JSON.stringify({
         error: {
           code: "INTERNAL_SERVER_ERROR",
-          message: "Internal Server Error",
+          message: message,
         },
       } as ErrorResponseDTO),
       { status: 500 }
