@@ -104,6 +104,7 @@ import Layout from "../layouts/Layout.astro";
               class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             >
               <option value="">Wybierz talię...</option>
+              <option value="CREATE_NEW">+ Utwórz nową talię</option>
               <!-- Options will be loaded dynamically -->
             </select>
             <p class="mt-1 text-sm text-gray-500">Wybierz talię, do której mają być dodane wygenerowane fiszki</p>
@@ -190,11 +191,8 @@ import Layout from "../layouts/Layout.astro";
 
         // If no decks exist, show message
         if (decks.length === 0) {
-          const option = document.createElement('option');
-          option.value = "";
-          option.textContent = "Brak talii - utwórz najpierw talię";
-          option.disabled = true;
-          deckSelect.appendChild(option);
+          // Keep the "Create new deck" option available when no decks exist
+          deckSelect.querySelector('option[value="CREATE_NEW"]').textContent = "+ Utwórz nową talię (brak istniejących talii)";
         }
       }
     } catch (error) {
@@ -210,12 +208,49 @@ import Layout from "../layouts/Layout.astro";
       submitLoading?.classList.remove("hidden");
 
       const formData = new FormData(e.target);
+      const selectedDeckId = formData.get('deck_id');
+      const topic = formData.get('topic');
+      
+      let deckId = selectedDeckId;
+      
+      // If user selected "CREATE_NEW", create a new deck first
+      if (selectedDeckId === 'CREATE_NEW') {
+        try {
+          const createDeckResponse = await fetch("/api/decks", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              name: topic,
+              description: `Automatycznie utworzona talia dla tematu: ${topic}`
+            })
+          });
+          
+          if (!createDeckResponse.ok) {
+            throw new Error("Nie udało się utworzyć nowej talii");
+          }
+          
+          const newDeck = await createDeckResponse.json();
+          deckId = newDeck.data.id;
+          
+        } catch (error) {
+          // Re-enable form
+          submitBtn.disabled = false;
+          submitText?.classList.remove("hidden");
+          submitLoading?.classList.add("hidden");
+          
+          alert(`Nie udało się utworzyć talii: ${error.message}`);
+          return;
+        }
+      }
+      
       const data = {
-        topic: formData.get('topic'),
-        count: parseInt(String(formData.get('count')), 10),
-        difficulty: formData.get('difficulty'),
-        language: formData.get('language'),
-        context: formData.get('context') || undefined
+        deck_id: deckId,
+        input_text: topic,
+        max_cards: parseInt(String(formData.get('count')), 10),
+        difficulty: formData.get('difficulty')
       };
 
       try {
