@@ -69,7 +69,7 @@ export class FlashcardsService {
       .select("*")
       .eq("id", deckId)
       .eq("owner_id", userId)
-      .eq("is_deleted", false)
+      .is("deleted_at", null)
       .single();
 
     console.log("Deck verification result:", { deck, error });
