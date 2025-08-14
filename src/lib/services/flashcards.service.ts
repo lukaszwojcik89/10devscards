@@ -241,6 +241,11 @@ Generate exactly ${maxFlashcards} flashcards. Each question should be self-conta
     } catch (error) {
       // In production, this should be logged to a proper logging service
       console.error("AI service error details:", error);
+      console.error("Full error object:", {
+        message: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : undefined,
+        name: error instanceof Error ? error.name : undefined
+      });
       throw new Error(`AI service failed: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   }

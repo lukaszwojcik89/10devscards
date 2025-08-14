@@ -279,12 +279,24 @@ import Layout from "../layouts/Layout.astro";
 
         const result = await response.json();
         
+        // Debug: log the result
+        console.log("Generation result:", result);
+        
         // Success - redirect to the deck that contains the new flashcards
-        if (result.data?.deck_slug) {
-          window.location.href = `/decks/${result.data.deck_slug}?generated=true`;
-        } else {
-          // Fallback to decks list
+        if (result.generated_flashcards && result.generated_flashcards.length > 0) {
+          // Find the deck to redirect to
+          const firstFlashcard = result.generated_flashcards[0];
+          if (firstFlashcard.deck_id) {
+            // Get deck slug from our loaded decks
+            const targetDeck = Array.from(deckSelect.options).find(option => option.value === firstFlashcard.deck_id);
+            if (targetDeck && targetDeck.textContent) {
+              alert(`✅ Wygenerowano ${result.generated_flashcards.length} fiszek w talii "${targetDeck.textContent}"`);
+            }
+          }
           window.location.href = "/decks?generated=true";
+        } else {
+          alert("⚠️ Generowanie zakończone, ale nie utworzono fiszek. Sprawdź szczegóły w konsoli.");
+          console.error("No flashcards in result:", result);
         }
 
       } catch (error) {

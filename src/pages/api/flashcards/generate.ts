@@ -39,8 +39,12 @@ export const POST: APIRoute = async ({ request }) => {
 
   try {
     const body = (await request.json()) as GenerateFlashcardsRequest;
+    console.log("Generate flashcards request:", body);
+    
     const service = new FlashcardsService(supabaseClient);
     const result = await service.generateFlashcards(body, userId);
+    
+    console.log("Generate flashcards result:", result);
 
     return new Response(JSON.stringify(result), {
       status: 201,
