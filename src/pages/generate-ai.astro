@@ -254,6 +254,7 @@ import Layout from "../layouts/Layout.astro";
       const data = {
         deck_id: deckId,
         input_text: topic,
+        context: formData.get('context') || undefined,
         max_cards: parseInt(String(formData.get('count')), 10),
         difficulty: formData.get('difficulty')
       };

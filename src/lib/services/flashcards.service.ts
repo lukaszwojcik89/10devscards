@@ -38,7 +38,7 @@ export class FlashcardsService {
     await this.checkBudgetLimits(userId);
 
     // Wywołanie AI z difficulty parameter
-    const aiRes = await this.callAI(validated.input_text, validated.max_cards, validated.difficulty);
+    const aiRes = await this.callAI(validated.input_text, validated.max_cards, validated.difficulty, validated.context);
 
     // Zapis fiszek
     const saved = await this.saveToDB(aiRes.flashcards, validated.deck_id, aiRes.metadata);
@@ -113,7 +113,8 @@ export class FlashcardsService {
   private async callAI(
     inputText: string,
     maxFlashcards: number,
-    difficulty: "beginner" | "intermediate" | "advanced" = "intermediate"
+    difficulty: "beginner" | "intermediate" | "advanced" = "intermediate",
+    context?: string
   ): Promise<{
     flashcards: { question: string; answer: string }[];
     metadata: { tokens_used: number; cost_usd: number; model: string };
@@ -145,6 +146,8 @@ export class FlashcardsService {
     const systemPrompt = `You are an expert educational content creator. Your task is to generate high-quality flashcards based on the provided text.
 
 ${difficultyPrompts[difficulty]}
+
+${context ? `\nADDITIONAL CONTEXT: ${context}\nMake sure to incorporate this context into your flashcard generation.` : ''}
 
 IMPORTANT: Respond with ONLY a valid JSON array in this exact format:
 [

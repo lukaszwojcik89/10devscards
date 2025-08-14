@@ -129,6 +129,7 @@ export interface GenerateFlashcardsRequestDTO {
   input_text: string;
   max_cards?: number;
   difficulty?: "beginner" | "intermediate" | "advanced";
+  context?: string;
 }
 
 /**
