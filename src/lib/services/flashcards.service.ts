@@ -134,6 +134,15 @@ export class FlashcardsService {
       apiKeyPrefix: API_KEY ? API_KEY.substring(0, 10) + "..." : "none"
     });
 
+    // Language mapping for clear instructions
+    const languageInstructions = {
+      pl: "WAŻNE: Generuj wszystkie fiszki w języku polskim. Zarówno pytania jak i odpowiedzi muszą być po polsku.",
+      en: "IMPORTANT: Generate all flashcards in English. Both questions and answers must be in English.",
+      de: "WICHTIG: Generiere alle Karteikarten auf Deutsch. Sowohl Fragen als auch Antworten müssen auf Deutsch sein.",
+      fr: "IMPORTANT: Générez toutes les cartes en français. Les questions et réponses doivent être en français.",
+      es: "IMPORTANTE: Genera todas las tarjetas en español. Tanto preguntas como respuestas deben estar en español.",
+      it: "IMPORTANTE: Genera tutte le schede in italiano. Sia domande che risposte devono essere in italiano."
+    };
     // Create difficulty-specific prompt
     const difficultyPrompts = {
       beginner: "Create simple, basic flashcards suitable for beginners. Use clear, straightforward language.",
@@ -145,9 +154,10 @@ export class FlashcardsService {
 
     const systemPrompt = `You are an expert educational content creator. Your task is to generate high-quality flashcards based on the provided text.
 
+${languageInstructions[language as keyof typeof languageInstructions] || languageInstructions.pl}
 ${difficultyPrompts[difficulty]}
 
-${context ? `\nADDITIONAL CONTEXT: ${context}\nMake sure to incorporate this context into your flashcard generation.` : ''}
+${context ? `\nKONTEKST DODATKOWY: ${context}\nTo jest bardzo ważne - fiszki MUSZĄ być związane z tym kontekstem. Ignoruj inne tematy i skup się tylko na tym kontekście.` : ''}
 
 IMPORTANT: Respond with ONLY a valid JSON array in this exact format:
 [
