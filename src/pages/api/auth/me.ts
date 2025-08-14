@@ -56,7 +56,7 @@ export const GET: APIRoute = async ({ request }) => {
       return new Response(
         JSON.stringify({
           error: {
-            code: "INVALID_TOKEN",
+            code: "INVALID_TOKEN", // This code triggers logout
             message: "The provided access token is invalid or has expired",
           },
         } as ErrorResponseDTO),

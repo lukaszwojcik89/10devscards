@@ -45,7 +45,7 @@ export const GET: APIRoute = async ({ request }) => {
       return new Response(
         JSON.stringify({
           error: {
-            code: "UNAUTHORIZED",
+            code: "INVALID_TOKEN", // This code triggers logout
             message: "Unauthorized",
           },
         } as ErrorResponseDTO),

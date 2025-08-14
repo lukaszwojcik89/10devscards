@@ -98,6 +98,7 @@ export class AuthService {
     const errorData = error as {
       message?: string;
       status?: number;
+      code?: string;
     };
 
     const message = errorData.message?.toLowerCase() || "";
@@ -106,18 +107,28 @@ export class AuthService {
     if (
       message.includes("invalid login credentials") ||
       message.includes("invalid email or password") ||
-      errorData.status === 400
+      errorData.status === 400 ||
+      errorData.code === "invalid_credentials"
     ) {
       throw new Error("Invalid credentials");
     }
 
     // Email not confirmed
-    if (message.includes("email not confirmed") || message.includes("signup not allowed") || errorData.status === 422) {
+    if (
+      message.includes("email not confirmed") || 
+      message.includes("signup not allowed") || 
+      errorData.status === 422 ||
+      errorData.code === "email_not_confirmed"
+    ) {
       throw new Error("Email not confirmed");
     }
 
     // Too many requests
-    if (message.includes("too many requests") || errorData.status === 429) {
+    if (
+      message.includes("too many requests") || 
+      errorData.status === 429 ||
+      errorData.code === "too_many_requests"
+    ) {
       throw new Error("Too many requests");
     }
 
