@@ -1,115 +1,13 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { Button } from "../components/ui/button";
+import { RegisterFormWithToasts } from "../components/auth/AuthFormsWithToasts";
 ---
 
 <Layout title="Rejestracja | 10DevCards">
   <main class="container mx-auto max-w-md p-6">
     <div class="bg-card rounded-lg shadow-lg p-8">
       <h1 class="text-3xl font-bold mb-6 text-center">Utwórz konto</h1>
-
-      <form id="register-form" class="space-y-4">
-        <div>
-          <label for="email" class="block text-sm font-medium mb-1">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-            placeholder="email@example.com"
-            required
-          />
-        </div>
-
-        <div>
-          <label for="password" class="block text-sm font-medium mb-1">Hasło</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-            minlength="8"
-            required
-          />
-          <p class="text-xs text-muted-foreground mt-1">Minimum 8 znaków</p>
-        </div>
-
-        <div class="flex items-start gap-2">
-          <input type="checkbox" id="age_confirmation" name="age_confirmation" class="mt-1" required />
-          <label for="age_confirmation" class="text-sm">
-            Potwierdzam, że mam ukończone 16 lat i akceptuję <a href="/terms" class="text-primary hover:underline"
-              >regulamin</a
-            > i <a href="/privacy" class="text-primary hover:underline">politykę prywatności</a>.
-          </label>
-        </div>
-
-        <div id="error-message" class="text-red-500 text-sm hidden"></div>
-
-        <Button type="submit" className="w-full">Zarejestruj się</Button>
-
-        <div class="text-center text-sm mt-4">
-          <span>Masz już konto? </span>
-          <a href="/login" class="text-primary hover:underline">Zaloguj się</a>
-        </div>
-      </form>
+      <RegisterFormWithToasts client:load />
     </div>
   </main>
 </Layout>
-
-<script lang="ts">
-  document.addEventListener("DOMContentLoaded", () => {
-    const registerForm = document.getElementById("register-form");
-    const errorMessage = document.getElementById("error-message");
-
-    registerForm?.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      // Hide any previous error messages
-      if (errorMessage) {
-        errorMessage.textContent = "";
-        errorMessage.classList.add("hidden");
-      }
-
-      // Get form data
-      const formData = new FormData(e.target as HTMLFormElement);
-      const email = formData.get("email") as string;
-      const password = formData.get("password") as string;
-      const age_confirmation = formData.get("age_confirmation") === "on";
-
-      try {
-        const response = await fetch("/api/auth/register", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email,
-            password,
-            age_confirmation,
-          }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          // Display error message
-          if (errorMessage) {
-            errorMessage.textContent = data.error?.message || "Wystąpił błąd podczas rejestracji";
-            errorMessage.classList.remove("hidden");
-          }
-          return;
-        }
-
-        // Successful registration - show success message and redirect to login
-        window.location.href = "/login?registered=true";
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error("Registration error:", error);
-        if (errorMessage) {
-          errorMessage.textContent = "Wystąpił błąd podczas połączenia z serwerem";
-          errorMessage.classList.remove("hidden");
-        }
-      }
-    });
-  });
-</script>
