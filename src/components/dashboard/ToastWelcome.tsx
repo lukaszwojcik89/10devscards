@@ -7,7 +7,7 @@ import type { ToastWelcomeProps } from "@/types";
  * Jednorazowy toast powitalny wyświetlany po pierwszym logowaniu w sesji
  */
 export const ToastWelcome: React.FC<ToastWelcomeProps> = ({
-  userName,
+  userName: _userName,
   onDismiss,
   autoClose = true,
   duration = 5000,

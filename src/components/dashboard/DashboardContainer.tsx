@@ -1,14 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, Suspense, lazy } from "react";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, AlertCircle } from "lucide-react";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useQuickActions } from "@/hooks/useQuickActions";
-import { KpiSection } from "./KpiSection";
-import { RecentDecksSection } from "./RecentDecksSection";
-import { QuickActionsSection } from "./QuickActionsSection";
-import { ToastWelcome } from "./ToastWelcome";
-import { BannerLimits } from "./BannerLimits";
 import { SkeletonDashboard } from "./SkeletonDashboard";
+
+// Lazy load komponentów dla lepszej wydajności
+const KpiSection = lazy(() => import("./KpiSection").then((module) => ({ default: module.KpiSection })));
+const RecentDecksSection = lazy(() =>
+  import("./RecentDecksSection").then((module) => ({ default: module.RecentDecksSection }))
+);
+const QuickActionsSection = lazy(() =>
+  import("./QuickActionsSection").then((module) => ({ default: module.QuickActionsSection }))
+);
+const ToastWelcome = lazy(() => import("./ToastWelcome").then((module) => ({ default: module.ToastWelcome })));
+const BannerLimits = lazy(() => import("./BannerLimits").then((module) => ({ default: module.BannerLimits })));
 
 /**
  * Główny kontener React zarządzający stanem dashboard, API calls, loading states i error handling
@@ -66,16 +72,22 @@ export const DashboardContainer: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* Welcome Toast */}
-      {showWelcomeToast && <ToastWelcome onDismiss={dismissWelcomeToast} autoClose={true} duration={5000} />}
+      {showWelcomeToast && (
+        <Suspense fallback={null}>
+          <ToastWelcome onDismiss={dismissWelcomeToast} autoClose={true} duration={5000} />
+        </Suspense>
+      )}
 
       {/* AI Usage Banner */}
       {shouldShowBanner && (
-        <BannerLimits
-          aiUsage={dashboardData.ai_usage}
-          type={bannerType}
-          onDismiss={() => setDismissedBanner(true)}
-          onLearnMore={navigateToHelp}
-        />
+        <Suspense fallback={null}>
+          <BannerLimits
+            aiUsage={dashboardData.ai_usage}
+            type={bannerType}
+            onDismiss={() => setDismissedBanner(true)}
+            onLearnMore={navigateToHelp}
+          />
+        </Suspense>
       )}
 
       {/* Error banner for refresh errors */}
