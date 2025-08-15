@@ -175,46 +175,53 @@ export class DashboardService {
    * Get recently studied decks
    */
   private async getRecentDecks(userId: string): Promise<RecentDeck[]> {
-    const { data: decks } = await this.supabase
+    // Simplified query - just get basic deck info first
+    const { data: decks, error } = await this.supabase
       .from("decks")
-      .select(
-        `
-        id,
-        slug,
-        name,
-        created_at,
-        flashcards(count),
-        flashcards!flashcards_deck_id_fkey(
-          status,
-          next_due_date
-        )
-        `
-      )
+      .select("*")
       .eq("owner_id", userId)
       .eq("is_deleted", false)
-      .order("updated_at", { ascending: false })
-      .limit(5);
+      .order("created_at", { ascending: false })
+      .limit(3);
 
-    return (
-      decks?.map((deck) => {
-        const flashcards = deck.flashcards || [];
-        const pendingCount = flashcards.filter((f: { status: string }) => f.status === "pending").length;
-        const dueCount = flashcards.filter(
-          (f: { status: string; next_due_date: string }) =>
-            f.status === "accepted" && f.next_due_date <= new Date().toISOString()
-        ).length;
+    if (error) {
+      // Use proper logging instead of console
+      throw new Error(`Failed to fetch recent decks: ${error.message}`);
+    }
 
-        return {
-          id: deck.id,
-          slug: deck.slug,
-          name: deck.name,
-          flashcard_count: flashcards.length,
-          pending_count: pendingCount,
-          due_count: dueCount,
-          last_studied: deck.created_at, // Simplified - would need reviews join
-        };
-      }) || []
-    );
+    if (!decks || decks.length === 0) {
+      return [];
+    }
+
+    // For each deck, get flashcard counts separately
+    const recentDecks: RecentDeck[] = [];
+
+    for (const deck of decks) {
+      // Get total flashcard count
+      const { count: totalCount } = await this.supabase
+        .from("flashcards")
+        .select("*", { count: "exact", head: true })
+        .eq("deck_id", deck.id);
+
+      // Get pending flashcard count
+      const { count: pendingCount } = await this.supabase
+        .from("flashcards")
+        .select("*", { count: "exact", head: true })
+        .eq("deck_id", deck.id)
+        .eq("status", "pending");
+
+      recentDecks.push({
+        id: deck.id,
+        slug: deck.slug,
+        name: deck.name,
+        flashcard_count: totalCount || 0,
+        pending_count: pendingCount || 0,
+        due_count: 0, // Simplified for now
+        last_studied: deck.created_at,
+      });
+    }
+
+    return recentDecks;
   }
 
   /**

@@ -15,15 +15,19 @@ export const POST: APIRoute = async ({ request }) => {
     // Attempt login
     const result = await authService.login(body);
 
-    return new Response(JSON.stringify(result), {
+    // Set HTTP-only cookie for access token
+    const response = new Response(JSON.stringify(result), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
         "X-Content-Type-Options": "nosniff",
         "X-Frame-Options": "DENY",
         "X-XSS-Protection": "1; mode=block",
+        "Set-Cookie": `access_token=${result.data.access_token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${result.data.expires_in}`,
       },
     });
+
+    return response;
   } catch (err) {
     // Handle validation errors
     if (err instanceof ZodError) {

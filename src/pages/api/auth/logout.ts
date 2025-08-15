@@ -46,6 +46,7 @@ export const POST: APIRoute = async ({ request }) => {
         "X-Content-Type-Options": "nosniff",
         "X-Frame-Options": "DENY",
         "X-XSS-Protection": "1; mode=block",
+        "Set-Cookie": "access_token=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0",
       },
     });
   } catch {
@@ -62,6 +63,7 @@ export const POST: APIRoute = async ({ request }) => {
         "X-Content-Type-Options": "nosniff",
         "X-Frame-Options": "DENY",
         "X-XSS-Protection": "1; mode=block",
+        "Set-Cookie": "access_token=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0",
       },
     });
   }
