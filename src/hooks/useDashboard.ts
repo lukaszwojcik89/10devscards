@@ -56,14 +56,29 @@ export const useDashboard = () => {
     try {
       const data = await fetchDashboardData();
       if (data) {
-        setDashboardState((prev) => ({
-          ...prev,
-          data,
-          isLoading: false,
-          error: null,
-          lastRefresh: new Date(),
-          showWelcomeToast: !prev.lastRefresh, // Show welcome toast only on first load
-        }));
+        // Sprawdź czy toast był już wyświetlony w tej sesji
+        const toastShownKey = `welcome_toast_shown_${new Date().toDateString()}`;
+        const toastAlreadyShown =
+          typeof window !== "undefined" ? localStorage.getItem(toastShownKey) === "true" : false;
+
+        setDashboardState((prev) => {
+          const isFirstLoad = !prev.lastRefresh;
+          const shouldShowToast = isFirstLoad && !toastAlreadyShown;
+
+          // Oznacz toast jako wyświetlony na dziś jeśli ma być pokazany
+          if (shouldShowToast && typeof window !== "undefined") {
+            localStorage.setItem(toastShownKey, "true");
+          }
+
+          return {
+            ...prev,
+            data,
+            isLoading: false,
+            error: null,
+            lastRefresh: new Date(),
+            showWelcomeToast: shouldShowToast,
+          };
+        });
       }
     } catch (error) {
       setDashboardState((prev) => ({
