@@ -60,7 +60,7 @@ export function ResetPasswordForm({ onSuccess, onError }: ResetPasswordFormProps
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setFormData({ email: value });
-    
+
     // Clear email error when user starts typing
     if (errors.email) {
       setErrors((prev) => ({ ...prev, email: undefined }));
@@ -69,7 +69,7 @@ export function ResetPasswordForm({ onSuccess, onError }: ResetPasswordFormProps
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Reset previous errors and success message
     setErrors({});
     setShowSuccessMessage(false);
@@ -102,7 +102,7 @@ export function ResetPasswordForm({ onSuccess, onError }: ResetPasswordFormProps
 
       if (!response.ok) {
         const errorResponse: ErrorResponseDTO = data;
-        
+
         // Handle specific error types
         if (errorResponse.error.code === "VALIDATION_ERROR") {
           // Map validation errors to form fields
@@ -114,9 +114,13 @@ export function ResetPasswordForm({ onSuccess, onError }: ResetPasswordFormProps
               }
             });
           }
-          setErrors(fieldErrors.email ? fieldErrors : {
-            general: errorResponse.error.message,
-          });
+          setErrors(
+            fieldErrors.email
+              ? fieldErrors
+              : {
+                  general: errorResponse.error.message,
+                }
+          );
         } else if (errorResponse.error.code === "TOO_MANY_REQUESTS") {
           setErrors({
             general: "Zbyt wiele prób resetowania hasła. Spróbuj ponownie później.",
@@ -135,7 +139,6 @@ export function ResetPasswordForm({ onSuccess, onError }: ResetPasswordFormProps
       // Success handling
       setShowSuccessMessage(true);
       onSuccess?.(formData.email);
-
     } catch {
       setErrors({
         general: "Wystąpił błąd podczas połączenia z serwerem",
@@ -154,19 +157,14 @@ export function ResetPasswordForm({ onSuccess, onError }: ResetPasswordFormProps
   if (showSuccessMessage) {
     return (
       <div className="w-full space-y-4">
-        <AlertInfo
-          variant="success"
-          message="Instrukcje resetowania hasła zostały wysłane!"
-        >
+        <AlertInfo variant="success" message="Instrukcje resetowania hasła zostały wysłane!">
           <p className="mt-2 text-sm">
-            Jeśli konto z adresem <strong>{formData.email}</strong> istnieje,
-            otrzymasz email z linkiem do resetowania hasła.
+            Jeśli konto z adresem <strong>{formData.email}</strong> istnieje, otrzymasz email z linkiem do resetowania
+            hasła.
           </p>
-          <p className="mt-2 text-sm">
-            Sprawdź swoją skrzynkę pocztową (także folder spam).
-          </p>
+          <p className="mt-2 text-sm">Sprawdź swoją skrzynkę pocztową (także folder spam).</p>
         </AlertInfo>
-        
+
         <div className="text-center">
           <a href="/login" className="text-primary hover:underline">
             Wróć do logowania

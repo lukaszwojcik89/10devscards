@@ -80,7 +80,7 @@ export function RegisterForm({ onSuccess, onError }: RegisterFormProps) {
   const handleInputChange = (field: keyof RegisterFormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = field === "age_confirmation" ? e.target.checked : e.target.value;
     setFormData((prev) => ({ ...prev, [field]: value }));
-    
+
     // Clear field-specific error when user starts typing/checking
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -89,7 +89,7 @@ export function RegisterForm({ onSuccess, onError }: RegisterFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Reset previous errors and success message
     setErrors({});
     setShowSuccessMessage(false);
@@ -124,7 +124,7 @@ export function RegisterForm({ onSuccess, onError }: RegisterFormProps) {
 
       if (!response.ok) {
         const errorResponse: ErrorResponseDTO = data;
-        
+
         // Handle specific error types
         if (errorResponse.error.code === "VALIDATION_ERROR") {
           // Map validation errors to form fields
@@ -136,9 +136,13 @@ export function RegisterForm({ onSuccess, onError }: RegisterFormProps) {
               }
             });
           }
-          setErrors(fieldErrors.email || fieldErrors.password || fieldErrors.age_confirmation ? fieldErrors : {
-            general: errorResponse.error.message,
-          });
+          setErrors(
+            fieldErrors.email || fieldErrors.password || fieldErrors.age_confirmation
+              ? fieldErrors
+              : {
+                  general: errorResponse.error.message,
+                }
+          );
         } else if (errorResponse.error.code === "EMAIL_EXISTS") {
           setErrors({
             email: "Użytkownik z tym adresem email już istnieje",
@@ -157,7 +161,7 @@ export function RegisterForm({ onSuccess, onError }: RegisterFormProps) {
       // Success handling
       const registerResponse: RegisterResponseDTO = data;
       setShowSuccessMessage(true);
-      
+
       // Clear form
       setFormData({
         email: "",
@@ -171,7 +175,6 @@ export function RegisterForm({ onSuccess, onError }: RegisterFormProps) {
       setTimeout(() => {
         window.location.href = "/login?registered=true";
       }, 2000);
-
     } catch {
       setErrors({
         general: "Wystąpił błąd podczas połączenia z serwerem",
@@ -190,17 +193,12 @@ export function RegisterForm({ onSuccess, onError }: RegisterFormProps) {
   if (showSuccessMessage) {
     return (
       <div className="w-full space-y-4">
-        <AlertInfo
-          variant="success"
-          message="Konto zostało utworzone pomyślnie!"
-        >
+        <AlertInfo variant="success" message="Konto zostało utworzone pomyślnie!">
           <p className="mt-2 text-sm">
-            Wysłaliśmy link potwierdzający na adres <strong>{formData.email}</strong>.
-            Sprawdź swoją skrzynkę pocztową i kliknij link, aby aktywować konto.
+            Wysłaliśmy link potwierdzający na adres <strong>{formData.email}</strong>. Sprawdź swoją skrzynkę pocztową i
+            kliknij link, aby aktywować konto.
           </p>
-          <p className="mt-2 text-sm">
-            Za chwilę zostaniesz przekierowany do strony logowania...
-          </p>
+          <p className="mt-2 text-sm">Za chwilę zostaniesz przekierowany do strony logowania...</p>
         </AlertInfo>
       </div>
     );

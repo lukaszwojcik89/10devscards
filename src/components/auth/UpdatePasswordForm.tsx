@@ -68,7 +68,7 @@ export function UpdatePasswordForm({ onSuccess, onError }: UpdatePasswordFormPro
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get("token");
-    
+
     if (!token) {
       setErrors({
         general: "Nieprawidłowy lub brakujący token resetowania hasła",
@@ -85,7 +85,7 @@ export function UpdatePasswordForm({ onSuccess, onError }: UpdatePasswordFormPro
   const handleInputChange = (field: keyof UpdatePasswordFormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setFormData((prev) => ({ ...prev, [field]: value }));
-    
+
     // Clear field-specific error when user starts typing
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -94,7 +94,7 @@ export function UpdatePasswordForm({ onSuccess, onError }: UpdatePasswordFormPro
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Check if we have a valid token
     if (!resetToken) {
       setErrors({
@@ -136,7 +136,7 @@ export function UpdatePasswordForm({ onSuccess, onError }: UpdatePasswordFormPro
 
       if (!response.ok) {
         const errorResponse: ErrorResponseDTO = data;
-        
+
         // Handle specific error types
         if (errorResponse.error.code === "VALIDATION_ERROR") {
           // Map validation errors to form fields
@@ -148,9 +148,13 @@ export function UpdatePasswordForm({ onSuccess, onError }: UpdatePasswordFormPro
               }
             });
           }
-          setErrors(fieldErrors.password ? fieldErrors : {
-            general: errorResponse.error.message,
-          });
+          setErrors(
+            fieldErrors.password
+              ? fieldErrors
+              : {
+                  general: errorResponse.error.message,
+                }
+          );
         } else if (errorResponse.error.code === "INVALID_TOKEN") {
           setErrors({
             general: "Token resetowania hasła jest nieprawidłowy lub wygasł. Spróbuj ponownie zresetować hasło.",
@@ -174,7 +178,6 @@ export function UpdatePasswordForm({ onSuccess, onError }: UpdatePasswordFormPro
       setTimeout(() => {
         window.location.href = "/login?password_updated=true";
       }, 3000);
-
     } catch {
       setErrors({
         general: "Wystąpił błąd podczas połączenia z serwerem",
@@ -193,10 +196,7 @@ export function UpdatePasswordForm({ onSuccess, onError }: UpdatePasswordFormPro
   if (showSuccessMessage) {
     return (
       <div className="w-full space-y-4">
-        <AlertInfo
-          variant="success"
-          message="Hasło zostało pomyślnie zaktualizowane!"
-        >
+        <AlertInfo variant="success" message="Hasło zostało pomyślnie zaktualizowane!">
           <p className="mt-2 text-sm">
             Twoje hasło zostało zmienione. Za chwilę zostaniesz przekierowany do strony logowania.
           </p>

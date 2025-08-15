@@ -93,7 +93,7 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
   const handleInputChange = (field: keyof LoginFormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setFormData((prev) => ({ ...prev, [field]: value }));
-    
+
     // Clear field-specific error when user starts typing
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -102,7 +102,7 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Reset previous errors
     setErrors({});
     setShowEmailUnverified(false);
@@ -136,7 +136,7 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
 
       if (!response.ok) {
         const errorResponse: ErrorResponseDTO = data;
-        
+
         // Handle specific error types
         if (errorResponse.error.code === "EMAIL_NOT_CONFIRMED") {
           setShowEmailUnverified(true);
@@ -173,7 +173,7 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
 
       // Success handling
       const loginResponse: LoginResponseDTO = data;
-      
+
       // Store tokens in localStorage
       localStorage.setItem("access_token", loginResponse.data.access_token);
       localStorage.setItem("refresh_token", loginResponse.data.refresh_token);
@@ -197,12 +197,12 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
 
   const handleResendEmail = async (_email: string) => {
     setIsResendingEmail(true);
-    
+
     try {
       // TODO: Implement resend email endpoint
       // For now, just simulate the action
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      
+
       // Show success message (you might want to use a toast instead)
       alert("Link potwierdzający został wysłany ponownie");
     } catch {
@@ -258,10 +258,7 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
       {/* Login Form */}
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>
         <div>
-          <label 
-            htmlFor="login-email" 
-            className="block text-sm font-medium mb-1"
-          >
+          <label htmlFor="login-email" className="block text-sm font-medium mb-1">
             Email
           </label>
           <input
@@ -286,10 +283,7 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
         </div>
 
         <div>
-          <label 
-            htmlFor="login-password" 
-            className="block text-sm font-medium mb-1"
-          >
+          <label htmlFor="login-password" className="block text-sm font-medium mb-1">
             Hasło
           </label>
           <input
@@ -313,11 +307,7 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
           )}
         </div>
 
-        <Button 
-          type="submit" 
-          className="w-full" 
-          disabled={isSubmitting}
-        >
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? "Logowanie..." : "Zaloguj się"}
         </Button>
 

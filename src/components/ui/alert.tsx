@@ -45,7 +45,7 @@ const iconVariants = {
 
 export function Alert({ className, variant = "default", children, ...props }: AlertProps) {
   const Icon = iconVariants[variant];
-  
+
   return (
     <div
       role="alert"

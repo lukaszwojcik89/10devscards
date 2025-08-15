@@ -161,30 +161,25 @@ function ToastItem({ toast }: ToastItemProps) {
       className={cn(
         "border rounded-lg shadow-lg p-4 transition-all duration-300 transform",
         toastVariants[toast.variant],
-        isVisible 
-          ? "translate-x-0 opacity-100" 
-          : "translate-x-full opacity-0"
+        isVisible ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
       )}
       role="alert"
       aria-live="polite"
     >
       <div className="flex items-start gap-3">
         <Icon className="h-5 w-5 flex-shrink-0 mt-0.5" />
-        
+
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium">{toast.message}</p>
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
           {toast.action && (
-            <button
-              onClick={toast.action.onClick}
-              className="text-xs font-medium underline hover:no-underline"
-            >
+            <button onClick={toast.action.onClick} className="text-xs font-medium underline hover:no-underline">
               {toast.action.label}
             </button>
           )}
-          
+
           <button
             onClick={handleRemove}
             className="p-1 hover:bg-black/10 rounded transition-colors"
