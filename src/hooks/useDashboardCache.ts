@@ -13,7 +13,7 @@ const cache = new Map<string, CacheEntry>();
  * Hook do zarządzania cache'em dashboard data
  */
 export const useDashboardCache = () => {
-  const cleanupTimerRef = useRef<NodeJS.Timeout>();
+  const cleanupTimerRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const getCacheKey = useCallback((token: string) => `dashboard_${token}`, []);
 
