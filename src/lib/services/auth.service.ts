@@ -115,8 +115,8 @@ export class AuthService {
 
     // Email not confirmed
     if (
-      message.includes("email not confirmed") || 
-      message.includes("signup not allowed") || 
+      message.includes("email not confirmed") ||
+      message.includes("signup not allowed") ||
       errorData.status === 422 ||
       errorData.code === "email_not_confirmed"
     ) {
@@ -124,11 +124,7 @@ export class AuthService {
     }
 
     // Too many requests
-    if (
-      message.includes("too many requests") || 
-      errorData.status === 429 ||
-      errorData.code === "too_many_requests"
-    ) {
+    if (message.includes("too many requests") || errorData.status === 429 || errorData.code === "too_many_requests") {
       throw new Error("Too many requests");
     }
 

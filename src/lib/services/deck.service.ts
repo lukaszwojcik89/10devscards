@@ -317,9 +317,9 @@ export class DeckService {
   async deleteDeck(command: DeleteDeckCommand): Promise<Record<string, unknown>> {
     const { data, error } = await (this.supabase as any) // eslint-disable-line @typescript-eslint/no-explicit-any
       .from("decks")
-      .update({ 
+      .update({
         is_deleted: true,
-        deleted_at: new Date().toISOString() 
+        deleted_at: new Date().toISOString(),
       })
       .eq("slug", command.slug)
       .eq("owner_id", command.owner_id)
