@@ -219,7 +219,7 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
   const hasErrors = Object.values(errors).some((error) => error);
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full space-y-6" suppressHydrationWarning>
       {/* Success Messages */}
       {showSuccessMessage && (
         <div className="p-3 bg-green-50 text-green-800 border border-green-200 rounded-md text-sm">
@@ -227,6 +227,7 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
         </div>
       )}
 
+      {/* Success message */}
       {showConfirmedMessage && (
         <div className="p-3 bg-green-50 text-green-800 border border-green-200 rounded-md text-sm">
           Adres email został potwierdzony. Możesz się teraz zalogować.
@@ -256,7 +257,7 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
       />
 
       {/* Login Form */}
-      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate suppressHydrationWarning>
         <div>
           <label htmlFor="login-email" className="block text-sm font-medium mb-1">
             Email
@@ -274,6 +275,7 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
             required
             aria-invalid={!!errors.email}
             aria-describedby={errors.email ? "email-error" : undefined}
+            suppressHydrationWarning
           />
           {errors.email && (
             <p id="email-error" className="mt-1 text-xs text-red-600" role="alert">
@@ -299,6 +301,7 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
             required
             aria-invalid={!!errors.password}
             aria-describedby={errors.password ? "password-error" : undefined}
+            suppressHydrationWarning
           />
           {errors.password && (
             <p id="password-error" className="mt-1 text-xs text-red-600" role="alert">
