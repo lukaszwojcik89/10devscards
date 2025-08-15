@@ -17,26 +17,12 @@ const pageTitle = "Dashboard - AI Flashcards";
 const pageDescription = "Twój osobisty panel kontrolny do nauki z fiszkami. Sprawdź postępy, zaległości i zaplanuj kolejne sesje.";
 ---
 
-<Layout title={pageTitle} description={pageDescription}>
+<Layout title={pageTitle}>
   <main class="container mx-auto px-4 py-8 min-h-screen">
     <div class="max-w-6xl mx-auto">
       <!-- Dashboard Container with client-side hydration -->
       <DashboardContainer client:load />
-    </div>
-  </main>
-</Layout>
-
-<script>
-  // Additional client-side auth check for extra security
-  document.addEventListener("DOMContentLoaded", () => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      window.location.href = "/login";
-    }
-  });
-</script>
-      </div>
-
+      
       <!-- Header for guest users -->
       <header id="guest-header" class="text-center mb-16">
         <div class="mb-8">
@@ -96,64 +82,4 @@ const pageDescription = "Twój osobisty panel kontrolny do nauki z fiszkami. Spr
   </main>
 </Layout>
 
-<script>
-  document.addEventListener("DOMContentLoaded", async () => {
-    const userWelcome = document.getElementById("user-welcome");
-    const guestHeader = document.getElementById("guest-header");
-
-    // Function to generate name from email
-    function generateNameFromEmail(email) {
-      const username = email.split('@')[0];
-      // Capitalize first letter and replace dots/underscores with spaces
-      return username
-        .replace(/[._-]/g, ' ')
-        .split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(' ');
-    }
-
-    // Check if user is logged in
-    const token = localStorage.getItem("access_token");
-
-    if (token) {
-      try {
-        const response = await fetch("/api/auth/me", {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (response.ok) {
-          // User is logged in
-          const userData = await response.json();
-          
-          // Generate name from email
-          const generatedName = generateNameFromEmail(userData.data.email);
-          
-          // Update greeting with user's name
-          const userGreeting = document.getElementById("user-greeting");
-          if (userGreeting) {
-            userGreeting.textContent = `Witaj ponownie, ${generatedName}! 👋`;
-          }
-          
-          userWelcome?.classList.remove("hidden");
-          guestHeader?.classList.add("hidden");
-        } else {
-          throw new Error("Token invalid");
-        }
-      } catch {
-        // Token invalid
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        userWelcome?.classList.add("hidden");
-        guestHeader?.classList.remove("hidden");
-      }
-    } else {
-      // No token
-      userWelcome?.classList.add("hidden");
-      guestHeader?.classList.remove("hidden");
-    }
-  });
-</script>
+<script src="/index-client.js"></script>
