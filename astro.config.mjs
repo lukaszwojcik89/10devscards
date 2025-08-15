@@ -20,22 +20,19 @@ export default defineConfig({
             "react-vendor": ["react", "react-dom"],
             "auth-forms": [
               "/src/components/auth/LoginForm.tsx",
-              "/src/components/auth/RegisterForm.tsx", 
+              "/src/components/auth/RegisterForm.tsx",
               "/src/components/auth/ResetPasswordForm.tsx",
-              "/src/components/auth/UpdatePasswordForm.tsx"
+              "/src/components/auth/UpdatePasswordForm.tsx",
             ],
-            "dashboard-core": [
-              "/src/hooks/useDashboard.ts", 
-              "/src/hooks/useQuickActions.ts"
-            ],
+            "dashboard-core": ["/src/hooks/useDashboard.ts", "/src/hooks/useQuickActions.ts"],
             "ui-components": [
               "/src/components/ui/button.tsx",
               "/src/components/ui/card.tsx",
               "/src/components/ui/skeleton.tsx",
               "/src/components/ui/toast.tsx",
               "/src/components/ui/avatar.tsx",
-              "/src/components/ui/alert.tsx"
-            ]
+              "/src/components/ui/alert.tsx",
+            ],
           },
         },
       },
