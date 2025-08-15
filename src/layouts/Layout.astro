@@ -2,9 +2,7 @@
 import "../styles/global.css";
 import UserNav from "../components/UserNav.astro";
 
-interface Props {
-  title?: string;
-}
+/** @typedef {{ title?: string }} Props */
 
 const { title = "10x Astro Starter" } = Astro.props;
 ---
@@ -161,7 +159,8 @@ const { title = "10x Astro Starter" } = Astro.props;
       </div>
     </div>
 
-    <script is:inline>
+    <script is:inline type="module">
+      /* eslint-disable */
       document.addEventListener("DOMContentLoaded", () => {
         const mobileMenuToggle = document.getElementById("mobile-menu-toggle");
         const mobileNav = document.getElementById("mobile-nav");
@@ -174,7 +173,7 @@ const { title = "10x Astro Starter" } = Astro.props;
 
         // Close mobile menu when clicking outside
         document.addEventListener("click", (e) => {
-          if (mobileNav && !mobileNav.contains(e.target) && !mobileMenuToggle?.contains(e.target)) {
+          if (mobileNav && !mobileNav.contains(e.target) && !(mobileMenuToggle && mobileMenuToggle.contains(e.target))) {
             mobileNav.classList.add("hidden");
           }
         });

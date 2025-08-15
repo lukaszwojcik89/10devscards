@@ -147,12 +147,15 @@ export interface AIGenerationMetadata {
  * Response DTO for POST /api/flashcards/generate
  */
 export interface GenerateFlashcardsResponseDTO {
-  generated_flashcards: FlashcardListItem[];
-  generation_summary: {
-    total_generated: number;
-    total_tokens: number;
-    total_cost_usd: number;
-    model_used: string;
+  data: {
+    generated_flashcards: FlashcardListItem[];
+    deck_slug: string;
+    generation_summary: {
+      total_generated: number;
+      total_tokens: number;
+      total_cost_usd: number;
+      model_used: string;
+    };
   };
 }
 

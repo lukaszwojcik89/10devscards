@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Tables, TablesUpdate } from "@/db/database.types";
 import { supabaseAdminClient } from "@/db/supabase.client";
@@ -31,8 +32,17 @@ export class FlashcardsService {
     // Walidacja danych wejściowych
     const validated = generateFlashcardsRequestSchema.parse(request);
 
-    // Weryfikacja talii
-    await this.verifyDeck(validated.deck_id, userId);
+    // Obsługa deck_id - CREATE_NEW lub istniejąca talia
+    let deckId: string;
+    if (validated.deck_id === "CREATE_NEW") {
+      // Tworzymy nową talię na podstawie tematu
+      const newDeck = await this.createDeckFromTopic(validated.input_text, userId);
+      deckId = newDeck.id;
+    } else {
+      // Weryfikacja istniejącej talii
+      await this.verifyDeck(validated.deck_id, userId);
+      deckId = validated.deck_id;
+    }
 
     // Sprawdzenie budżetu
     await this.checkBudgetLimits(userId);
@@ -47,21 +57,47 @@ export class FlashcardsService {
     );
 
     // Zapis fiszek
-    const saved = await this.saveToDB(aiRes.flashcards, validated.deck_id, aiRes.metadata);
+    const saved = await this.saveToDB(aiRes.flashcards, deckId, aiRes.metadata);
 
     // Zapis zdarzenia budżetu
     await this.recordEvent(userId, aiRes.metadata);
 
+    // Pobierz slug nowo utworzonej/istniejącej talii
+    const { data: deck } = await this.supabase.from("decks").select("slug").eq("id", deckId).single();
+
     // Zwrócenie odpowiedzi
     return {
-      generated_flashcards: saved,
-      generation_summary: {
-        total_generated: saved.length,
-        total_tokens: aiRes.metadata.tokens_used,
-        total_cost_usd: aiRes.metadata.cost_usd,
-        model_used: aiRes.metadata.model,
+      data: {
+        generated_flashcards: saved,
+        deck_slug: deck?.slug || "",
+        generation_summary: {
+          total_generated: saved.length,
+          total_tokens: aiRes.metadata.tokens_used,
+          total_cost_usd: aiRes.metadata.cost_usd,
+          model_used: aiRes.metadata.model,
+        },
       },
     };
+  }
+
+  /**
+   * Create a new deck from topic for AI generation
+   */
+  private async createDeckFromTopic(topic: string, userId: string): Promise<Tables<"decks">> {
+    // Import DeckService (lazy import to avoid circular dependency)
+    const { DeckService } = await import("./deck.service");
+    const deckService = new DeckService(this.supabase);
+
+    // Generate deck name from topic (limit to 100 chars)
+    const deckName = topic.length > 100 ? topic.substring(0, 97) + "..." : topic;
+
+    const newDeck = await deckService.createDeck({
+      name: deckName,
+      description: `Fiszki AI: ${topic}`,
+      owner_id: userId,
+    });
+
+    return newDeck;
   }
 
   /**
@@ -120,7 +156,8 @@ export class FlashcardsService {
     inputText: string,
     maxFlashcards: number,
     difficulty: "beginner" | "intermediate" | "advanced" = "intermediate",
-    context?: string
+    context: string | undefined,
+    language: "pl" | "en" | "de" | "fr" | "es" | "it"
   ): Promise<{
     flashcards: { question: string; answer: string }[];
     metadata: { tokens_used: number; cost_usd: number; model: string };

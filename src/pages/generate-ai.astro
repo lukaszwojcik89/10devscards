@@ -149,5 +149,106 @@ import Layout from "../layouts/Layout.astro";
   </main>
 </Layout>
 
-<!-- Remove the inline script and import a client-side JS file instead -->
-<script src="../scripts/generate-ai.js"></script>
+<script is:inline>
+  /* eslint-disable */
+  document.addEventListener("DOMContentLoaded", async () => {
+    const deckSelect = document.getElementById("deck");
+    const generateForm = document.getElementById("generate-form");
+    const submitBtn = document.getElementById("submit-btn");
+    const submitText = document.getElementById("submit-text");
+    const submitLoading = document.getElementById("submit-loading");
+
+    // Check if user is logged in
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      window.location.href = "/login";
+      return;
+    }
+
+    // Load existing decks
+    async function loadDecks() {
+      try {
+        const response = await fetch("/api/decks", {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const decks = data.data;
+
+          // Clear existing options except default ones
+          const defaultOptions = deckSelect.querySelectorAll('option[value=""], option[value="CREATE_NEW"]');
+          deckSelect.innerHTML = '';
+          defaultOptions.forEach(option => deckSelect.appendChild(option));
+
+          // Add deck options
+          decks.forEach(deck => {
+            const option = document.createElement('option');
+            option.value = deck.id;
+            option.textContent = deck.name;
+            deckSelect.appendChild(option);
+          });
+        }
+      } catch (error) {
+        console.error("Error loading decks:", error);
+      }
+    }
+
+    // Handle form submission
+    generateForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      // Show loading state
+      submitBtn.disabled = true;
+      submitText.classList.add("hidden");
+      submitLoading.classList.remove("hidden");
+
+      const formData = new FormData(e.target);
+      const deckValue = formData.get("deck_id");
+      
+      const data = {
+        deck_id: deckValue === "CREATE_NEW" ? "CREATE_NEW" : deckValue, // Send "CREATE_NEW" as string, not null
+        input_text: formData.get("topic"), // Map topic to input_text
+        max_cards: parseInt(formData.get("count")), // Map count to max_cards
+        difficulty: formData.get("difficulty"),
+        language: formData.get("language"),
+        context: formData.get("context") || undefined // Send undefined instead of empty string
+      };
+
+      try {
+        const response = await fetch("/api/flashcards/generate", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          // Redirect to the deck or show success message
+          window.location.href = `/decks/${result.data.deck_slug}`;
+        } else {
+          const error = await response.json();
+          alert(`Błąd: ${error.error?.message || "Nie udało się wygenerować fiszek"}`);
+        }
+      } catch (error) {
+        console.error("Error generating flashcards:", error);
+        alert("Wystąpił błąd podczas generowania fiszek. Spróbuj ponownie.");
+      } finally {
+        // Hide loading state
+        submitBtn.disabled = false;
+        submitText.classList.remove("hidden");
+        submitLoading.classList.add("hidden");
+      }
+    });
+
+    // Load decks on page load
+    await loadDecks();
+  });
+</script>
