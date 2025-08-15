@@ -18,10 +18,8 @@ export const useDashboard = () => {
     const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
 
     if (!token) {
-      if (typeof window !== "undefined") {
-        window.location.assign("/login");
-      }
-      return null;
+      // Don't redirect automatically, let parent component handle auth
+      throw new Error("No authentication token found");
     }
 
     const response = await fetch("/api/dashboard", {
@@ -34,13 +32,12 @@ export const useDashboard = () => {
 
     if (!response.ok) {
       if (response.status === 401) {
-        // Clear tokens and redirect to login on unauthorized
+        // Clear tokens on unauthorized but don't redirect
         if (typeof window !== "undefined") {
           localStorage.removeItem("access_token");
           localStorage.removeItem("refresh_token");
-          window.location.assign("/login");
         }
-        return null;
+        throw new Error("Session expired. Please log in again.");
       }
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
