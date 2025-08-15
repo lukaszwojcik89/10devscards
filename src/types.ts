@@ -621,3 +621,93 @@ export interface DashboardData {
 export interface DashboardResponseDTO {
   data: DashboardData;
 }
+
+// =============================================================================
+// DASHBOARD VIEW MODEL TYPES
+// =============================================================================
+
+/**
+ * Stan całego dashboard
+ */
+export interface DashboardState {
+  data: DashboardData | null;
+  isLoading: boolean;
+  error: string | null;
+  lastRefresh: Date | null;
+  showWelcomeToast: boolean;
+}
+
+/**
+ * Props dla kafla KPI
+ */
+export interface KpiTileProps {
+  title: string;
+  value: number | string;
+  subtitle?: string;
+  variant: "primary" | "warning" | "success" | "neutral";
+  onClick?: () => void;
+  isClickable?: boolean;
+  icon?: React.ComponentType;
+  tooltip?: string;
+}
+
+/**
+ * Props dla karty talii
+ */
+export interface DeckCardProps {
+  deck: RecentDeck;
+  onClick: (slug: string) => void;
+  showStats?: boolean;
+  showLastActivity?: boolean;
+}
+
+/**
+ * Props dla przycisku szybkiej akcji
+ */
+export interface QuickActionButtonProps {
+  title: string;
+  description?: string;
+  icon: React.ComponentType;
+  onClick: () => void;
+  isDisabled?: boolean;
+  variant: "primary" | "secondary";
+  disabledReason?: string;
+}
+
+/**
+ * Props dla bannera limitów
+ */
+export interface BannerLimitsProps {
+  aiUsage: AIUsage;
+  onDismiss: () => void;
+  onLearnMore?: () => void;
+  type: "warning" | "info";
+}
+
+/**
+ * Props dla toasta powitalnego
+ */
+export interface ToastWelcomeProps {
+  userName?: string;
+  onDismiss: () => void;
+  autoClose?: boolean;
+  duration?: number;
+}
+
+/**
+ * Props dla sekcji recent decks
+ */
+export interface RecentDecksSectionProps {
+  recentDecks: RecentDeck[];
+  onDeckClick: (slug: string) => void;
+  onViewAll: () => void;
+  isLoading?: boolean;
+}
+
+/**
+ * Props dla sekcji quick actions
+ */
+export interface QuickActionsSectionProps {
+  quickActions: QuickActions;
+  onActionClick: (action: string) => void;
+}
