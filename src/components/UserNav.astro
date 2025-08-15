@@ -99,7 +99,8 @@
   </a>
 </div>
 
-<script is:inline>
+<script is:inline type="module">
+  /* eslint-disable */
   document.addEventListener("DOMContentLoaded", async () => {
     const userNav = document.getElementById("user-nav");
     const guestNav = document.getElementById("guest-nav");
@@ -119,12 +120,14 @@
       isDropdownOpen = !isDropdownOpen;
       
       if (isDropdownOpen) {
-        userDropdown?.classList.remove("hidden");
-        // Trigger animation
-        setTimeout(() => {
-          userDropdown?.classList.remove("opacity-0", "scale-95");
-          userDropdown?.classList.add("opacity-100", "scale-100");
-        }, 10);
+        if (userDropdown) {
+          userDropdown.classList.remove("hidden");
+          // Trigger animation
+          setTimeout(() => {
+            userDropdown.classList.remove("opacity-0", "scale-95");
+            userDropdown.classList.add("opacity-100", "scale-100");
+          }, 10);
+        }
       } else {
         closeDropdown();
       }
@@ -134,23 +137,28 @@
       if (!isDropdownOpen) return;
       
       // Start closing animation
-      userDropdown?.classList.remove("opacity-100", "scale-100");
-      userDropdown?.classList.add("opacity-0", "scale-95");
+      if (userDropdown) {
+        userDropdown.classList.remove("opacity-100", "scale-100");
+        userDropdown.classList.add("opacity-0", "scale-95");
+      }
       
       // Hide after animation
       setTimeout(() => {
-        userDropdown?.classList.add("hidden");
+        if (userDropdown) userDropdown.classList.add("hidden");
         isDropdownOpen = false;
       }, 200);
     }
 
     // Event listeners for dropdown
-    avatarTrigger?.addEventListener('click', toggleDropdown);
+    if (avatarTrigger) avatarTrigger.addEventListener('click', toggleDropdown);
 
     // Close dropdown when clicking outside
     document.addEventListener('click', (e) => {
       // Check if click is outside the dropdown and avatar trigger
-      if (userDropdown && !userDropdown.contains(e.target) && !avatarTrigger?.contains(e.target)) {
+      const clickedTarget = e.target;
+      const clickedOutsideDropdown = userDropdown && !userDropdown.contains(clickedTarget);
+      const clickedOutsideTrigger = !(avatarTrigger && avatarTrigger.contains(clickedTarget));
+      if (clickedOutsideDropdown && clickedOutsideTrigger) {
         closeDropdown();
       }
     });
@@ -204,8 +212,8 @@
           if (dropdownAvatar) dropdownAvatar.textContent = initials;
 
           // Show user nav, hide guest nav
-          userNav?.classList.remove("hidden");
-          guestNav?.classList.add("hidden");
+          if (userNav) userNav.classList.remove("hidden");
+          if (guestNav) guestNav.classList.add("hidden");
         } else {
           throw new Error("Failed to fetch user");
         }
@@ -215,36 +223,38 @@
         localStorage.removeItem("refresh_token");
         
         // Show guest nav, hide user nav
-        userNav?.classList.add("hidden");
-        guestNav?.classList.remove("hidden");
+        if (userNav) userNav.classList.add("hidden");
+        if (guestNav) guestNav.classList.remove("hidden");
       }
     } else {
       // No token, show guest nav
-      userNav?.classList.add("hidden");
-      guestNav?.classList.remove("hidden");
+      if (userNav) userNav.classList.add("hidden");
+      if (guestNav) guestNav.classList.remove("hidden");
     }
 
     // Logout functionality
-    logoutBtn?.addEventListener("click", async () => {
-      try {
-        const logoutToken = localStorage.getItem("access_token");
-        if (logoutToken) {
-          await fetch("/api/auth/logout", {
-            method: "POST",
-            headers: {
-              "Authorization": `Bearer ${logoutToken}`,
-              "Content-Type": "application/json",
-            },
-          });
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", async () => {
+        try {
+          const logoutToken = localStorage.getItem("access_token");
+          if (logoutToken) {
+            await fetch("/api/auth/logout", {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer ${logoutToken}`,
+                "Content-Type": "application/json",
+              },
+            });
+          }
+        } catch {
+          // Ignore logout errors
+        } finally {
+          // Clear local storage and redirect
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
+          window.location.href = "/";
         }
-      } catch {
-        // Ignore logout errors
-      } finally {
-        // Clear local storage and redirect
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        window.location.href = "/";
-      }
-    });
+      });
+    }
   });
 </script>
