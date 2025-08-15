@@ -2,12 +2,8 @@
 /* global localStorage, fetch */
 
 document.addEventListener("DOMContentLoaded", async function () {
-  // Additional client-side auth check for extra security
+  // Client-side auth check, ale NIE przekierowuj automatycznie na login
   const token = localStorage.getItem("access_token");
-  if (!token) {
-    window.location.href = "/login";
-    return;
-  }
 
   const userWelcome = document.getElementById("user-welcome");
   const guestHeader = document.getElementById("guest-header");
