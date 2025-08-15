@@ -1,33 +1,40 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { DashboardContainer } from "../components/dashboard/DashboardContainer";
+
+export const prerender = false;
+
+// Authorization check - redirect to login if not authenticated
+const { request } = Astro;
+const authToken = Astro.cookies.get("access_token")?.value;
+
+if (!authToken) {
+  return Astro.redirect("/login", 302);
+}
+
+// SEO metadata for dashboard
+const pageTitle = "Dashboard - AI Flashcards";
+const pageDescription = "Twój osobisty panel kontrolny do nauki z fiszkami. Sprawdź postępy, zaległości i zaplanuj kolejne sesje.";
 ---
 
-<Layout>
-  <main class="container mx-auto px-4 py-12 min-h-screen">
+<Layout title={pageTitle} description={pageDescription}>
+  <main class="container mx-auto px-4 py-8 min-h-screen">
     <div class="max-w-6xl mx-auto">
-      <!-- Welcome message for logged in users -->
-      <div id="user-welcome" class="text-center mb-12 hidden">
-        <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-gray-200/50">
-          <h1 id="user-greeting" class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-4">
-            Witaj ponownie! 👋
-          </h1>
-          <p class="text-xl text-gray-600 mb-8">Gotowy na kolejną sesję nauki?</p>
-          
-          <div class="flex gap-4 justify-center flex-wrap">
-            <a 
-              href="/dashboard" 
-              class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl font-medium"
-            >
-              Przejdź do Panelu Użytkownika
-            </a>
-            <a 
-              href="/decks" 
-              class="px-8 py-3 bg-white/80 text-gray-700 rounded-xl hover:bg-white transition-all shadow-md hover:shadow-lg font-medium border border-gray-200"
-            >
-              Moje talie
-            </a>
-          </div>
-        </div>
+      <!-- Dashboard Container with client-side hydration -->
+      <DashboardContainer client:load />
+    </div>
+  </main>
+</Layout>
+
+<script>
+  // Additional client-side auth check for extra security
+  document.addEventListener("DOMContentLoaded", () => {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      window.location.href = "/login";
+    }
+  });
+</script>
       </div>
 
       <!-- Header for guest users -->
