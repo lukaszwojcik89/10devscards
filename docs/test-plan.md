@@ -56,7 +56,7 @@
 **W zakresie**:
 
 - Komponenty React i strony Astro
-- API endpoints (/api/*)
+- API endpoints (/api/\*)
 - Serwisy biznesowe (AuthService, FlashcardsService)
 - Hooki React (useBudgetMonitoring, useDashboard)
 - Walidacja Zod schemas
@@ -283,14 +283,14 @@
 **Severity**: Critical/High/Medium/Low
 **Component**: Auth/Flashcards/Dashboard/AI
 **Environment**: Local/CI/Production
-**Steps to Reproduce**: 
-1. 
-2. 
-3. 
-**Expected Result**: 
-**Actual Result**: 
-**Screenshots/Logs**: 
-**Additional Info**: 
+**Steps to Reproduce**:
+1.
+2.
+3.
+**Expected Result**:
+**Actual Result**:
+**Screenshots/Logs**:
+**Additional Info**:
 ```
 
 #### 10.3 Bug Lifecycle

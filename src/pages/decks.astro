@@ -511,7 +511,11 @@ import Layout from "../layouts/Layout.astro";
         description: formData.get("description") || undefined,
       };
 
-      console.log("Creating deck", { data, formDataName: formData.get("name"), formDataDesc: formData.get("description") });
+      console.log("Creating deck", {
+        data,
+        formDataName: formData.get("name"),
+        formDataDesc: formData.get("description"),
+      });
 
       try {
         const response = await fetch("/api/decks", {

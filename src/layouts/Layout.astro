@@ -14,11 +14,11 @@ const { title = "10x Astro Starter" } = Astro.props;
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="generator" content={Astro.generator} />
-    
+
     <!-- Preload critical resources -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://api.openai.com" />
-    
+
     <!-- Critical CSS inline -->
     <style>
       .skeleton-shimmer {
@@ -27,11 +27,15 @@ const { title = "10x Astro Starter" } = Astro.props;
         animation: shimmer 1.5s infinite;
       }
       @keyframes shimmer {
-        0% { background-position: -200% 0; }
-        100% { background-position: 200% 0; }
+        0% {
+          background-position: -200% 0;
+        }
+        100% {
+          background-position: 200% 0;
+        }
       }
     </style>
-    
+
     <title>{title}</title>
   </head>
   <body class="bg-gradient-to-br from-gray-50 via-white to-indigo-50/30 min-h-screen" style="--navbar-height: 72px;">
@@ -40,8 +44,13 @@ const { title = "10x Astro Starter" } = Astro.props;
       <div class="container mx-auto px-6 py-4">
         <div class="flex items-center justify-between">
           <!-- Logo/Brand -->
-          <a href="/" class="flex items-center gap-3 text-xl font-bold text-gray-800 hover:text-indigo-600 transition-all duration-300 group">
-            <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+          <a
+            href="/"
+            class="flex items-center gap-3 text-xl font-bold text-gray-800 hover:text-indigo-600 transition-all duration-300 group"
+          >
+            <div
+              class="w-10 h-10 bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105"
+            >
               <span class="text-white text-xl">🧠</span>
             </div>
             <span class="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
@@ -50,13 +59,13 @@ const { title = "10x Astro Starter" } = Astro.props;
           </a>
 
           <!-- Mobile menu button -->
-          <button 
+          <button
             id="mobile-menu-toggle"
             class="sm:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
             type="button"
           >
             <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
             </svg>
           </button>
 
@@ -74,7 +83,9 @@ const { title = "10x Astro Starter" } = Astro.props;
               <!-- User info -->
               <div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
                 <div class="flex items-center gap-3">
-                  <div class="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-lg">
+                  <div
+                    class="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-lg"
+                  >
                     <span id="mobile-user-avatar">?</span>
                   </div>
                   <div>
@@ -83,58 +94,77 @@ const { title = "10x Astro Starter" } = Astro.props;
                   </div>
                 </div>
               </div>
-              
+
               <!-- Navigation links -->
               <div class="space-y-1 mb-4">
-                <a 
-                  href="/dashboard" 
+                <a
+                  href="/dashboard"
                   class="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors rounded-lg"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                    ></path>
                   </svg>
                   Dashboard
                 </a>
-                
-                <a 
-                  href="/decks" 
+
+                <a
+                  href="/decks"
                   class="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors rounded-lg"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                    ></path>
                   </svg>
                   Moje talie
                 </a>
-                
-                <a 
-                  href="/generate-ai" 
+
+                <a
+                  href="/generate-ai"
                   class="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors rounded-lg"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"
+                    ></path>
                   </svg>
                   Generuj AI
                 </a>
               </div>
-              
+
               <!-- Logout button -->
-              <button 
+              <button
                 id="mobile-logout-btn"
                 class="w-full px-3 py-2 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center gap-2"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                  ></path>
                 </svg>
                 Wyloguj się
               </button>
             </div>
 
             <div id="mobile-guest-nav" class="flex flex-col gap-3">
-              <a href="/login" class="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 font-medium transition-colors text-center border border-gray-300 rounded-lg">
+              <a
+                href="/login"
+                class="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 font-medium transition-colors text-center border border-gray-300 rounded-lg"
+              >
                 Logowanie
               </a>
-              <a 
-                href="/register" 
+              <a
+                href="/register"
                 class="px-4 py-2 text-sm bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg text-center"
               >
                 Zarejestruj się
@@ -149,12 +179,18 @@ const { title = "10x Astro Starter" } = Astro.props;
     <div class="relative">
       <!-- Background decoration -->
       <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full opacity-30 blur-3xl"></div>
-        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-pink-100 to-indigo-100 rounded-full opacity-30 blur-3xl"></div>
+        <div
+          class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full opacity-30 blur-3xl"
+        >
+        </div>
+        <div
+          class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-pink-100 to-indigo-100 rounded-full opacity-30 blur-3xl"
+        >
+        </div>
       </div>
-      
+
       <!-- Content wrapper -->
-  <div class="relative z-10" style="padding-top: var(--navbar-height)">
+      <div class="relative z-10" style="padding-top: var(--navbar-height)">
         <slot />
       </div>
     </div>
@@ -173,7 +209,11 @@ const { title = "10x Astro Starter" } = Astro.props;
 
         // Close mobile menu when clicking outside
         document.addEventListener("click", (e) => {
-          if (mobileNav && !mobileNav.contains(e.target) && !(mobileMenuToggle && mobileMenuToggle.contains(e.target))) {
+          if (
+            mobileNav &&
+            !mobileNav.contains(e.target) &&
+            !(mobileMenuToggle && mobileMenuToggle.contains(e.target))
+          ) {
             mobileNav.classList.add("hidden");
           }
         });
@@ -188,12 +228,12 @@ const { title = "10x Astro Starter" } = Astro.props;
 
         // Function to generate name from email
         function generateNameFromEmail(email) {
-          const username = email.split('@')[0];
+          const username = email.split("@")[0];
           return username
-            .replace(/[._-]/g, ' ')
-            .split(' ')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-            .join(' ');
+            .replace(/[._-]/g, " ")
+            .split(" ")
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(" ");
         }
 
         // Check auth status for mobile
@@ -202,34 +242,38 @@ const { title = "10x Astro Starter" } = Astro.props;
           fetch("/api/auth/me", {
             method: "GET",
             headers: {
-              "Authorization": `Bearer ${token}`,
+              Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
             },
           })
-          .then(response => {
-            if (response.ok) {
-              return response.json();
-            }
-            throw new Error("Token invalid");
-          })
-          .then(data => {
-            const user = data.data;
-            const generatedName = generateNameFromEmail(user.email);
-            const initials = generatedName.split(' ').map(word => word.charAt(0)).join('').substring(0, 2);
-            
-            if (mobileUserEmail) mobileUserEmail.textContent = user.email;
-            if (mobileUserName) mobileUserName.textContent = generatedName;
-            if (mobileUserAvatar) mobileUserAvatar.textContent = initials;
-            
-            mobileUserNav?.classList.remove("hidden");
-            mobileGuestNav?.classList.add("hidden");
-          })
-          .catch(() => {
-            localStorage.removeItem("access_token");
-            localStorage.removeItem("refresh_token");
-            mobileUserNav?.classList.add("hidden");
-            mobileGuestNav?.classList.remove("hidden");
-          });
+            .then((response) => {
+              if (response.ok) {
+                return response.json();
+              }
+              throw new Error("Token invalid");
+            })
+            .then((data) => {
+              const user = data.data;
+              const generatedName = generateNameFromEmail(user.email);
+              const initials = generatedName
+                .split(" ")
+                .map((word) => word.charAt(0))
+                .join("")
+                .substring(0, 2);
+
+              if (mobileUserEmail) mobileUserEmail.textContent = user.email;
+              if (mobileUserName) mobileUserName.textContent = generatedName;
+              if (mobileUserAvatar) mobileUserAvatar.textContent = initials;
+
+              mobileUserNav?.classList.remove("hidden");
+              mobileGuestNav?.classList.add("hidden");
+            })
+            .catch(() => {
+              localStorage.removeItem("access_token");
+              localStorage.removeItem("refresh_token");
+              mobileUserNav?.classList.add("hidden");
+              mobileGuestNav?.classList.remove("hidden");
+            });
         } else {
           mobileUserNav?.classList.add("hidden");
           mobileGuestNav?.classList.remove("hidden");
@@ -243,7 +287,7 @@ const { title = "10x Astro Starter" } = Astro.props;
               await fetch("/api/auth/logout", {
                 method: "POST",
                 headers: {
-                  "Authorization": `Bearer ${logoutToken}`,
+                  Authorization: `Bearer ${logoutToken}`,
                   "Content-Type": "application/json",
                 },
               });

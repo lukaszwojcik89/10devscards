@@ -11,7 +11,7 @@ const isAuthenticated = !!authToken;
 
 // SEO metadata for dashboard
 const pageTitle = isAuthenticated ? "Dashboard - AI Flashcards" : "AI Flashcards - Ucz się efektywnie";
-const pageDescription = isAuthenticated 
+const pageDescription = isAuthenticated
   ? "Twój osobisty panel kontrolny do nauki z fiszkami. Sprawdź postępy, zaległości i zaplanuj kolejne sesje."
   : "Wykorzystaj moc AI do tworzenia spersonalizowanych fiszek. Nauka nigdy nie była tak efektywna!";
 ---
@@ -19,65 +19,74 @@ const pageDescription = isAuthenticated
 <Layout title={pageTitle}>
   <main class="container mx-auto px-4 py-8 min-h-screen">
     <div class="max-w-6xl mx-auto">
-      {isAuthenticated ? (
-        <div>
-          <DashboardContainer client:idle />
-        </div>
-      ) : (
-        <div>
-          <header id="guest-header" class="text-center mb-16">
-            <div class="mb-8">
-              <h1 class="text-6xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-6">
-                🧠 AI Flashcards
-              </h1>
-              <p class="text-2xl text-gray-600 mb-4">Ucz się efektywnie z fiszkami generowanymi przez sztuczną inteligencję</p>
-              <p class="text-lg text-gray-500 max-w-2xl mx-auto">
-                Wykorzystaj moc AI do tworzenia spersonalizowanych fiszek. Nauka nigdy nie była tak efektywna!
-              </p>
-            </div>
-            <!-- Call to action for guests -->
-            <div class="flex gap-6 justify-center flex-wrap mb-12">
-              <a 
-                href="/register" 
-                class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl font-semibold text-lg"
-              >
-                Rozpocznij za darmo
-              </a>
-              <a 
-                href="/login" 
-                class="px-8 py-4 bg-white/80 text-gray-700 rounded-xl hover:bg-white transition-all shadow-md hover:shadow-lg font-semibold text-lg border border-gray-200"
-              >
-                Zaloguj się
-              </a>
-            </div>
-          </header>
+      {
+        isAuthenticated ? (
+          <div>
+            <DashboardContainer client:idle />
+          </div>
+        ) : (
+          <div>
+            <header id="guest-header" class="text-center mb-16">
+              <div class="mb-8">
+                <h1 class="text-6xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-6">
+                  🧠 AI Flashcards
+                </h1>
+                <p class="text-2xl text-gray-600 mb-4">
+                  Ucz się efektywnie z fiszkami generowanymi przez sztuczną inteligencję
+                </p>
+                <p class="text-lg text-gray-500 max-w-2xl mx-auto">
+                  Wykorzystaj moc AI do tworzenia spersonalizowanych fiszek. Nauka nigdy nie była tak efektywna!
+                </p>
+              </div>
+              {/* Call to action for guests */}
+              <div class="flex gap-6 justify-center flex-wrap mb-12">
+                <a
+                  href="/register"
+                  class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl font-semibold text-lg"
+                >
+                  Rozpocznij za darmo
+                </a>
+                <a
+                  href="/login"
+                  class="px-8 py-4 bg-white/80 text-gray-700 rounded-xl hover:bg-white transition-all shadow-md hover:shadow-lg font-semibold text-lg border border-gray-200"
+                >
+                  Zaloguj się
+                </a>
+              </div>
+            </header>
 
-          <!-- Features section -->
-          <section class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-            <div class="bg-white/70 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-200/50 hover:shadow-xl transition-all">
-              <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center mb-4">
-                <span class="text-white text-2xl">🚀</span>
+            {/* Features section */}
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+              <div class="bg-white/70 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-200/50 hover:shadow-xl transition-all">
+                <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center mb-4">
+                  <span class="text-white text-2xl">🚀</span>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-3">Generowanie AI</h3>
+                <p class="text-gray-600">
+                  Automatycznie twórz fiszki używając sztucznej inteligencji na dowolny temat.
+                </p>
               </div>
-              <h3 class="text-xl font-semibold text-gray-800 mb-3">Generowanie AI</h3>
-              <p class="text-gray-600">Automatycznie twórz fiszki używając sztucznej inteligencji na dowolny temat.</p>
-            </div>
-            
-            <div class="bg-white/70 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-200/50 hover:shadow-xl transition-all">
-              <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mb-4">
-                <span class="text-white text-2xl">📊</span>
+
+              <div class="bg-white/70 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-200/50 hover:shadow-xl transition-all">
+                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mb-4">
+                  <span class="text-white text-2xl">📊</span>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-3">Inteligentne powtórki</h3>
+                <p class="text-gray-600">System spaced repetition optymalizuje czas nauki i zwiększa efektywność.</p>
               </div>
-              <h3 class="text-xl font-semibold text-gray-800 mb-3">Inteligentne powtórki</h3>
-              <p class="text-gray-600">System spaced repetition optymalizuje czas nauki i zwiększa efektywność.</p>
-            </div>
-            
-            <div class="bg-white/70 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-200/50 hover:shadow-xl transition-all">
-              <div class="w-12 h-12 bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl flex items-center justify-center mb-4">
-                <span class="text-white text-2xl">📈</span>
+
+              <div class="bg-white/70 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-200/50 hover:shadow-xl transition-all">
+                <div class="w-12 h-12 bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl flex items-center justify-center mb-4">
+                  <span class="text-white text-2xl">📈</span>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-3">Śledzenie postępów</h3>
+                <p class="text-gray-600">Monitoruj swoje postępy i zobacz jak rośnie Twoja wiedza dzień po dniu.</p>
               </div>
-              <h3 class="text-xl font-semibold text-gray-800 mb-3">Śledzenie postępów</h3>
-              <p class="text-gray-600">Monitoruj swoje postępy i zobacz jak rośnie Twoja wiedza dzień po dniu.</p>
-            </div>
-          </section>
-        </div>
-      )}
-<script src="/index-client.js" is:inline></script>
+            </section>
+          </div>
+        )
+      }
+      <script src="/index-client.js" is:inline></script>
+    </div>
+  </main></Layout
+>
