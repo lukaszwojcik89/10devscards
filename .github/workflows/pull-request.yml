@@ -4,6 +4,12 @@ on:
   pull_request:
     branches: [master, main]
     types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      test_mode:
+        description: 'Test mode - manual trigger'
+        required: false
+        default: 'true'
 
 jobs:
   lint:
