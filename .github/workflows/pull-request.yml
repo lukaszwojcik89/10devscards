@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       test_mode:
-        description: 'Test mode - manual trigger'
+        description: "Test mode - manual trigger"
         required: false
-        default: 'true'
+        default: "true"
 
 jobs:
   lint:
