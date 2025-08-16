@@ -143,7 +143,7 @@ interface KpiTileProps {
   title: string;
   value: number | string;
   subtitle?: string;
-  variant: 'primary' | 'warning' | 'success' | 'neutral';
+  variant: "primary" | "warning" | "success" | "neutral";
   onClick?: () => void;
   isClickable?: boolean;
   icon?: React.ComponentType;
@@ -165,7 +165,7 @@ interface QuickActionButtonProps {
   icon: React.ComponentType;
   onClick: () => void;
   isDisabled?: boolean;
-  variant: 'primary' | 'secondary';
+  variant: "primary" | "secondary";
   disabledReason?: string;
 }
 
@@ -174,7 +174,7 @@ interface BannerLimitsProps {
   aiUsage: AIUsage;
   onDismiss: () => void;
   onLearnMore?: () => void;
-  type: 'warning' | 'info';
+  type: "warning" | "info";
 }
 
 // Props dla toasta powitalnego
@@ -274,7 +274,7 @@ interface UseQuickActionsReturn {
 ```typescript
 // Tylko Authorization header wymagany
 Headers: {
-  Authorization: "Bearer <access_token>"
+  Authorization: "Bearer <access_token>";
 }
 ```
 
@@ -312,36 +312,42 @@ Headers: {
 ### Scenariusze interakcji
 
 1. **Initial dashboard load:**
+
    - Show skeleton states dla wszystkich sekcji
    - API call success → progressive reveal wszystkich sekcji
    - Welcome toast trigger jeśli first login session
    - Auto-focus na main content dla accessibility
 
 2. **KPI tile interactions:**
+
    - Click "Do nauki dziś" → navigate to study session
    - Click "Zaległe" → navigate to study z catchup=true
    - Click "Streak" → show streak info lub navigate to study
    - Hover → show detailed tooltips z breakdown
 
 3. **Recent decks interactions:**
+
    - Click deck card → navigate to `/decks/:slug`
    - Click "Zobacz wszystkie" → navigate to `/decks`
    - Empty state → show "Utwórz pierwszą talię" CTA
    - Hover deck → show quick stats overlay
 
 4. **Quick actions interactions:**
+
    - Click "Nowa sesja" → navigate to study session selection
    - Click "Generuj AI" → open generate modal
    - Click "Nowa talia" → navigate to deck creation
    - Disabled actions → show tooltip z explanation
 
 5. **Banner interactions:**
+
    - AI usage warning → show dismiss option, link to settings
    - Daily limit info → show progress, link to help
    - Dismiss → save preference, hide banner
    - Learn more → navigate to relevant help section
 
 6. **Toast interactions:**
+
    - Welcome toast → auto-dismiss po 5s, manual close option
    - Error notifications → manual dismiss, retry actions
    - Success messages → auto-dismiss po 3s
@@ -397,24 +403,28 @@ Headers: {
 ### Typy błędów i strategie
 
 1. **API Errors:**
+
    - 401 Unauthorized: "Sesja wygasła" → automatic redirect to login
    - 500 Server Error: "Wystąpił błąd" → retry button z exponential backoff
    - Network timeout: "Sprawdź połączenie" → offline mode z cached data
    - Handle: Global error boundary + section-specific fallbacks
 
 2. **Data Loading Errors:**
+
    - Partial API failure: Show loaded sections, error indicators dla failed
    - Data corruption: Show "Dane niedostępne" z refresh option
    - Schema validation failure: Fallback to default values z warning
    - Handle: Granular error handling per dashboard section
 
 3. **User Interaction Errors:**
+
    - Navigation failures: Toast notification z retry option
    - Quick action errors: Disable button, show error tooltip
    - Toast system failures: Fallback to browser notifications
    - Handle: User feedback + graceful degradation
 
 4. **Performance Issues:**
+
    - Slow loading: Extended skeleton display z progress indication
    - Memory issues: Virtualization dla large datasets
    - UI freezing: React.memo optimization + useMemo dla calculations
@@ -437,65 +447,76 @@ Headers: {
 ## 11. Kroki implementacji
 
 1. **Przygotowanie struktury plików**
+
    - Utwórz/zaktualizuj `src/pages/index.astro`
    - Utwórz folder `src/components/dashboard/`
    - Setup `src/hooks/useDashboard.ts`
    - Extend `src/utils/dashboard.ts` utility functions
 
 2. **Implementacja typów**
+
    - Extend `src/types.ts` z dashboard ViewModel types
    - Ensure compatibility z istniejącymi API types
    - Add error handling types
 
 3. **Base components implementation**
+
    - `KpiTile` - reusable KPI display component
    - `DeckCard` - recent deck card component
    - `QuickActionButton` - action button component
    - `SkeletonDashboard` - loading states
 
 4. **Section components**
+
    - `KpiSection` - KPI tiles layout
    - `RecentDecksSection` - recent decks list
    - `QuickActionsSection` - quick actions grid
    - `BannerLimits` - conditional banners
 
 5. **State management hooks**
+
    - `useDashboard` - API integration z React Query
    - `useWelcomeToast` - session-based toast management
    - `useQuickActions` - navigation helpers
    - Error handling hooks
 
 6. **Main DashboardContainer**
+
    - Integrate wszystkie sekcje
    - Coordinate loading states
    - Handle error boundaries
    - Manage conditional components
 
 7. **Astro page implementation**
+
    - `index.astro` z proper SEO
    - Layout integration z AppShell
    - Authorization checks
    - Client-side hydration
 
 8. **API integration refinement**
+
    - React Query setup z proper cache keys
    - Background refresh strategies
    - Error handling i retry logic
    - Performance optimization
 
 9. **Accessibility implementation**
+
    - ARIA landmarks dla wszystkich sekcji
    - Keyboard navigation support
    - Screen reader announcements
    - Focus management
 
 10. **Toast i notification system**
+
     - Welcome toast z session tracking
     - Error notifications
     - Success feedback
     - Auto-dismiss logic
 
 11. **Responsive design**
+
     - Desktop-first CSS Grid layouts
     - Mobile breakpoints
     - Touch-friendly interactions

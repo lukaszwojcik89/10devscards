@@ -9,7 +9,7 @@ Ekrany błędów stanowią system spójnego obsługiwania błędów nawigacji i 
 Widoki dostępne na następujących ścieżkach:
 
 - `/error/403` - błąd braku uprawnień dostępu
-- `/error/404` - błąd nieznalezionej strony/zasobu  
+- `/error/404` - błąd nieznalezionej strony/zasobu
 - `/error/500` - błąd wewnętrzny serwera
 
 Dodatkowo system wspiera automatyczne przekierowania:
@@ -27,7 +27,7 @@ ErrorPageLayout
 │   ├── ErrorIcon (403: Lock, 404: Search, 500: Warning)
 │   ├── ErrorContent
 │   │   ├── ErrorTitle
-│   │   ├── ErrorDescription  
+│   │   ├── ErrorDescription
 │   │   └── ErrorHelpText
 │   └── ErrorActions
 │       ├── Button(Retry) [tylko dla 500]
@@ -79,7 +79,7 @@ ErrorPageLayout
 
 ```typescript
 // Podstawowe typy dla error handling
-export type ErrorType = '403' | '404' | '500';
+export type ErrorType = "403" | "404" | "500";
 
 export interface ErrorPageProps {
   errorType: ErrorType;
@@ -100,12 +100,12 @@ export interface ErrorConfig {
   actions: ErrorActionType[];
 }
 
-export type ErrorActionType = 'retry' | 'back' | 'dashboard' | 'help' | 'login';
+export type ErrorActionType = "retry" | "back" | "dashboard" | "help" | "login";
 
 export interface ErrorActionConfig {
   type: ErrorActionType;
   label: string;
-  variant: 'primary' | 'secondary' | 'outline';
+  variant: "primary" | "secondary" | "outline";
   handler: ActionHandler;
 }
 
@@ -129,7 +129,7 @@ export interface ErrorActionsProps {
 
 export interface ErrorIconProps {
   errorType: ErrorType;
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
   className?: string;
 }
 
@@ -170,23 +170,23 @@ const [lastRetryTime, setLastRetryTime] = useState<Date | null>(null);
 const useErrorPageNavigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const goBack = useCallback(() => {
     if (window.history.length > 1) {
       window.history.back();
     } else {
-      navigate('/');
+      navigate("/");
     }
   }, [navigate]);
-  
+
   const goToDashboard = useCallback(() => {
-    navigate('/');
+    navigate("/");
   }, [navigate]);
-  
+
   const goToHelp = useCallback(() => {
-    navigate('/help');
+    navigate("/help");
   }, [navigate]);
-  
+
   return { goBack, goToDashboard, goToHelp };
 };
 ```
@@ -197,23 +197,23 @@ const useErrorPageNavigation = () => {
 const useRetryAction = (config: RetryConfig) => {
   const [isRetrying, setIsRetrying] = useState(false);
   const [attempts, setAttempts] = useState(0);
-  
+
   const retry = useCallback(async () => {
     if (attempts >= config.maxAttempts) return;
-    
+
     setIsRetrying(true);
-    setAttempts(prev => prev + 1);
-    
+    setAttempts((prev) => prev + 1);
+
     try {
-      await new Promise(resolve => setTimeout(resolve, config.debounceMs * attempts));
+      await new Promise((resolve) => setTimeout(resolve, config.debounceMs * attempts));
       window.location.reload();
     } catch (error) {
-      console.error('Retry failed:', error);
+      console.error("Retry failed:", error);
     } finally {
       setIsRetrying(false);
     }
   }, [attempts, config]);
-  
+
   return { retry, isRetrying, attempts, canRetry: attempts < config.maxAttempts };
 };
 ```
@@ -227,14 +227,14 @@ Error pages są głównie statyczne, ale mogą integrować się z następującym
 ```typescript
 const trackErrorPageView = async (errorData: ErrorAnalytics) => {
   try {
-    await fetch('/api/analytics/error', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(errorData)
+    await fetch("/api/analytics/error", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(errorData),
     });
   } catch (error) {
     // Silent fail - nie przerywamy UX dla analytics
-    console.warn('Error tracking failed:', error);
+    console.warn("Error tracking failed:", error);
   }
 };
 ```
@@ -244,9 +244,9 @@ const trackErrorPageView = async (errorData: ErrorAnalytics) => {
 ```typescript
 const checkServerHealth = async (): Promise<boolean> => {
   try {
-    const response = await fetch('/api/health', { 
-      method: 'HEAD',
-      cache: 'no-cache' 
+    const response = await fetch("/api/health", {
+      method: "HEAD",
+      cache: "no-cache",
     });
     return response.ok;
   } catch {
@@ -272,7 +272,7 @@ const checkServerHealth = async (): Promise<boolean> => {
 **404 Not Found:**
 
 1. Użytkownik wchodzi na nieistniejący URL lub kliknął broken link
-2. System przekierowuje na `/error/404`  
+2. System przekierowuje na `/error/404`
 3. Wyświetla się komunikat z opcjami: "Powrót", "Dashboard", "Pomoc"
 4. Klik "Pomoc" → `/help` z sekcją FAQ o nawigacji
 
@@ -325,9 +325,9 @@ const checkServerHealth = async (): Promise<boolean> => {
 
 ```typescript
 const handleNavigationError = (error: Error, fallbackUrl: string) => {
-  console.warn('Navigation failed:', error);
+  console.warn("Navigation failed:", error);
   // Graceful fallback do Dashboard
-  window.location.href = '/';
+  window.location.href = "/";
 };
 ```
 
@@ -337,7 +337,7 @@ const handleNavigationError = (error: Error, fallbackUrl: string) => {
 const handleRetryFailure = (attempt: number, maxAttempts: number) => {
   if (attempt >= maxAttempts) {
     // Show message o contacting support
-    showErrorMessage('Nie udało się rozwiązać problemu. Skontaktuj się z wsparciem.');
+    showErrorMessage("Nie udało się rozwiązać problemu. Skontaktuj się z wsparciem.");
     return;
   }
   // Continue z exponential backoff
@@ -348,11 +348,11 @@ const handleRetryFailure = (attempt: number, maxAttempts: number) => {
 
 ```typescript
 const validateErrorType = (type: string): ErrorType => {
-  if (['403', '404', '500'].includes(type)) {
+  if (["403", "404", "500"].includes(type)) {
     return type as ErrorType;
   }
   // Fallback do 404 dla unknown error types
-  return '404';
+  return "404";
 };
 ```
 
@@ -370,13 +370,13 @@ const handleOffline = () => {
 
 ```typescript
 const preventErrorLoop = () => {
-  const errorPageCount = sessionStorage.getItem('errorPageCount') || '0';
+  const errorPageCount = sessionStorage.getItem("errorPageCount") || "0";
   if (parseInt(errorPageCount) > 3) {
     // Force redirect do safe page
-    window.location.href = '/';
+    window.location.href = "/";
     return;
   }
-  sessionStorage.setItem('errorPageCount', (parseInt(errorPageCount) + 1).toString());
+  sessionStorage.setItem("errorPageCount", (parseInt(errorPageCount) + 1).toString());
 };
 ```
 
@@ -385,43 +385,52 @@ const preventErrorLoop = () => {
 ### Etap 1: Podstawowa struktura (Kroki 1-10)
 
 1. **Konfiguracja typów TypeScript**
+
    - Utworzenie `src/types/error.ts` z wszystkimi interfaces
    - Definicja ErrorType, ErrorConfig, ErrorPageProps
 
 2. **Utworzenie Astro pages**
+
    - `src/pages/error/403.astro` z proper HTTP status code
    - `src/pages/error/404.astro` z 404 status
    - `src/pages/error/500.astro` z 500 status
 
 3. **ErrorPageLayout component**
+
    - Utworzenie `src/components/ErrorPageLayout.astro`
    - Basic HTML structure z proper semantics
    - SEO meta tags i title handling
 
 4. **Error configuration object**
+
    - `src/config/errors.ts` z configuration dla każdego error type
    - Titles, descriptions, icons, actions per error type
 
 5. **Podstawowy routing**
+
    - Konfiguracja Astro routing dla `/error/*` paths
    - Middleware setup dla error handling
 
 6. **Base styling z Tailwind**
+
    - Responsive grid layout dla error content
    - Typography hierarchy z proper contrast ratios
    - Color scheme alignment z app design system
 
 7. **ErrorIcon component**
+
    - `src/components/ErrorIcon.tsx` z React
    - Import Lucide icons (Lock, Search, AlertTriangle)
    - Size variants i accessibility attributes
 
 8. **Basic ErrorState component**
+
    - `src/components/ErrorState.tsx` structure
    - Title, description, icon rendering
    - Responsive layout z centered content
 
 9. **ErrorActions component scaffold**
+
    - `src/components/ErrorActions.tsx` basic structure
    - Button group layout z shadcn/ui Button
    - Action handlers placeholders
@@ -434,46 +443,55 @@ const preventErrorLoop = () => {
 ### Etap 2: Navigation i funkcjonalność (Kroki 11-20)
 
 11. **useErrorPageNavigation hook**
+
     - Custom hook dla navigation logic
     - Safe back navigation z fallback
     - Dashboard i help navigation
 
 12. **Navigation handlers implementation**
+
     - goBack() z history API z safe fallback
     - goToDashboard() z proper routing
     - goToHelp() z optional error context
 
 13. **Button action wiring**
+
     - Connect navigation handlers do ErrorActions
     - Event handling z proper error boundaries
     - Loading states dla async navigation
 
 14. **Previous URL handling**
+
     - Capture referring page dla "Powrót" functionality
     - URL sanitization dla security
     - Fallback strategy gdy brak valid previous page
 
 15. **Error type validation**
+
     - URL parameter validation w Astro pages
     - Redirect logic dla invalid error types
     - Default fallback do 404
 
 16. **Breadcrumb navigation (opcjonalne)**
+
     - `src/components/ErrorBreadcrumbs.tsx`
     - Context-aware breadcrumb generation
     - Accessible breadcrumb markup
 
 17. **Keyboard navigation support**
+
     - Tab order optimization
     - Enter key handling dla buttons
     - Escape key dla quick exit do Dashboard
 
 18. **Focus management**
+
     - Auto-focus na pierwszy action button po load
     - Focus restoration po navigation attempts
     - Skip links dla accessibility
 
 19. **Error loop prevention**
+
     - Session storage tracking error page visits
     - Circuit breaker pattern dla repeated errors
     - Safe navigation fallbacks
@@ -486,46 +504,55 @@ const preventErrorLoop = () => {
 ### Etap 3: Retry logic i advanced features (Kroki 21-30)
 
 21. **useRetryAction hook**
+
     - Custom hook dla retry functionality z debouncing
     - Exponential backoff strategy
     - Max attempts limitation
 
 22. **Server health check**
+
     - `/api/health` endpoint integration
     - Network connectivity detection
     - Pre-retry validation
 
 23. **Retry UI implementation**
+
     - Loading spinner podczas retry attempts
     - Progress indication z attempt counting
     - Disabled state po max attempts
 
 24. **Error-specific retry logic**
+
     - Retry only dla 500 errors (nie dla 403/404)
     - Different retry strategies per error type
     - Conditional retry button rendering
 
 25. **Network status handling**
+
     - Online/offline detection
     - Automatic retry po network restoration
     - Offline mode indication
 
 26. **Advanced error messaging**
+
     - Dynamic messaging based na error context
     - Time-sensitive messaging (np. "spróbuj za chwilę")
     - User-friendly technical explanations
 
 27. **Error analytics integration (opcjonalne)**
+
     - Error page view tracking
     - User behavior analytics na error pages
     - A/B testing setup dla messaging
 
 28. **Performance optimization**
+
     - Lazy loading dla non-critical components
     - Image optimization dla error illustrations
     - Minimal JavaScript bundle dla error pages
 
 29. **Caching strategy**
+
     - Static asset caching dla error pages
     - Service worker integration dla offline support
     - CDN optimization
@@ -538,46 +565,55 @@ const preventErrorLoop = () => {
 ### Etap 4: Testing, accessibility i finalizacja (Kroki 31-40)
 
 31. **Unit tests setup**
+
     - Vitest configuration dla error components
     - Test utilities dla error page rendering
     - Mock setup dla navigation hooks
 
 32. **Component unit tests**
+
     - ErrorState component tests z różnymi props
     - ErrorActions interaction tests
     - ErrorIcon rendering tests
 
 33. **Integration tests**
+
     - Full error page rendering tests
     - Navigation flow tests
     - Retry functionality tests
 
 34. **Accessibility testing**
+
     - Automated a11y tests z jest-axe
     - Screen reader testing z NVDA/JAWS
     - Keyboard-only navigation testing
 
 35. **Cross-browser testing**
+
     - Modern browsers compatibility
     - Graceful degradation dla older browsers
     - Mobile browser testing
 
 36. **Performance testing**
+
     - Page load speed measurement
     - Bundle size optimization
     - Core Web Vitals monitoring
 
 37. **Error handling edge cases**
+
     - Invalid URL parameters handling
     - Network timeout scenarios
     - Memory leak prevention
 
 38. **SEO optimization**
+
     - Proper HTTP status codes verification
     - Meta tags optimization
     - Structured data markup
 
 39. **Final accessibility audit**
+
     - WCAG AA compliance verification
     - Color contrast ratio testing
     - Focus indicator visibility
@@ -597,6 +633,7 @@ const preventErrorLoop = () => {
 ## Zależności implementacyjne
 
 ### Zewnętrzne zależności:
+
 - **Layout.astro** - podstawowy layout application
 - **shadcn/ui Button** - consistent button styling
 - **Lucide React** - icons dla różnych error types

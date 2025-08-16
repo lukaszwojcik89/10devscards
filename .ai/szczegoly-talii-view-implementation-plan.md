@@ -192,7 +192,7 @@ interface DeckDetailState {
     updating: Record<string, boolean>;
   };
   error: string | null;
-  activeTab: 'flashcards' | 'stats' | 'settings';
+  activeTab: "flashcards" | "stats" | "settings";
   filters: FlashcardFilters;
   pagination: PaginationState;
   selectedRows: string[];
@@ -200,12 +200,12 @@ interface DeckDetailState {
 
 // Filtry dla fiszek z presetami
 interface FlashcardFilters {
-  status?: 'pending' | 'accepted' | 'rejected' | null;
-  box?: 'box1' | 'box2' | 'box3' | 'graduated' | null;
-  preset?: 'pending' | 'overdue' | 'newest' | null;
+  status?: "pending" | "accepted" | "rejected" | null;
+  box?: "box1" | "box2" | "box3" | "graduated" | null;
+  preset?: "pending" | "overdue" | "newest" | null;
   search?: string;
-  sortBy?: 'created_at' | 'updated_at' | 'next_due_date' | 'question';
-  sortOrder?: 'asc' | 'desc';
+  sortBy?: "created_at" | "updated_at" | "next_due_date" | "question";
+  sortOrder?: "asc" | "desc";
 }
 
 // Statystyki talii z dodatkowymi metrykami
@@ -269,10 +269,10 @@ interface PaginationState {
 }
 
 // Typ dla tab navigation
-type TabType = 'flashcards' | 'stats' | 'settings';
+type TabType = "flashcards" | "stats" | "settings";
 
 // Preset filtrów
-type FilterPreset = 'pending' | 'overdue' | 'newest';
+type FilterPreset = "pending" | "overdue" | "newest";
 ```
 
 ### Istniejące typy API (z types.ts)
@@ -361,7 +361,7 @@ interface UseFlashcardFiltersReturn {
 ```typescript
 // Authorization header wymagany
 Headers: {
-  Authorization: "Bearer <access_token>"
+  Authorization: "Bearer <access_token>";
 }
 ```
 
@@ -439,6 +439,7 @@ Headers: {
 ### Scenariusze nawigacji
 
 1. **Wejście na stronę talii:**
+
    - URL `/decks/python-basics` → load deck info + default flashcards view
    - Show loading skeletons, progressive reveal content
    - Auto-focus na main content dla accessibility
@@ -453,6 +454,7 @@ Headers: {
 ### Scenariusze filtrowania
 
 3. **Preset filters:**
+
    - Click "Do akceptacji" → apply status=pending filter
    - Click "Overdue" → apply custom filter due_date < today
    - Click "Najnowsze" → apply sort by created_at desc
@@ -467,12 +469,14 @@ Headers: {
 ### Scenariusze zarządzania fiszkami
 
 5. **Single flashcard actions:**
+
    - Click "Accept" → optimistic update, API call, rollback on error
    - Click "Reject" → optimistic removal, API call, restore on error
    - Click "Edit" → open EditFlashcardModal z prefilled data
    - Click "Delete" → open ConfirmDialog, API call po confirmation
 
 6. **Bulk actions:**
+
    - Select checkboxes → enable bulk action buttons
    - Click "Accept Selected" → sequential API calls z progress
    - Bulk error handling → show partial success results
@@ -487,6 +491,7 @@ Headers: {
 ### Scenariusze ustawień
 
 8. **Deck management:**
+
    - Inline edit deck name → click to edit, Enter to save
    - Update description → textarea expansion, save on blur
    - Export deck → generate JSON, trigger browser download
@@ -551,6 +556,7 @@ Headers: {
 ### Kategorie błędów i strategie
 
 1. **API Communication Errors:**
+
    - Network timeout: Show offline banner, enable retry
    - 401 Unauthorized: Clear auth tokens, redirect to login
    - 404 Deck Not Found: Redirect to /decks z "Talia nie istnieje"
@@ -558,12 +564,14 @@ Headers: {
    - Handle: Global error boundary + component-specific fallbacks
 
 2. **Data Loading Errors:**
+
    - Deck loading failure: Show error state z refresh option
    - Flashcards loading failure: Show table error state, preserve filters
    - Stats calculation errors: Show "Statystyki niedostępne"
    - Handle: Partial loading support, graceful degradation
 
 3. **User Action Errors:**
+
    - Flashcard update failure: Rollback optimistic update, show toast
    - Generation failure: Keep modal open, show specific error
    - Bulk action partial failure: Show success/failure summary
@@ -571,6 +579,7 @@ Headers: {
    - Handle: Optimistic UI patterns z rollback mechanisms
 
 4. **Validation Errors:**
+
    - Form validation: Highlight invalid fields, show inline messages
    - File size errors: Show "Plik za duży" dla text input
    - Budget exceeded: Show upgrade prompt, disable generate
@@ -595,38 +604,45 @@ Headers: {
 ### Etap 1: Przygotowanie infrastruktury (Kroki 1-8)
 
 1. **Utwórz strukturę plików**
+
    - `src/pages/decks/[slug]/index.astro` - główna strona
    - `src/components/deck-detail/` - folder komponentów
    - `src/hooks/deck-detail/` - custom hooks
 
 2. **Rozszerz typy**
+
    - Dodaj nowe interfejsy do `src/types.ts`
    - Validate compatibility z istniejącymi API types
    - Setup error handling types
 
 3. **Przygotuj routing**
+
    - Configure Astro routing dla dynamic slug
    - Setup breadcrumb navigation
    - Implement authorization guards
 
 4. **Utwórz base utilities**
+
    - Date formatting functions
    - Filter query builders
    - URL synchronization helpers
    - Validation utilities
 
 5. **Setup testing infrastructure**
+
    - Unit test setup dla components
    - Mock API responses
    - Accessibility testing tools
 
 6. **Create base components**
+
    - LoadingSpinner
    - ErrorBoundary
    - ConfirmDialog
    - Toast notifications
 
 7. **Implement main page structure**
+
    - DeckDetailPage.astro z layoutem
    - Basic routing i parameter extraction
    - SEO meta tags setup
@@ -639,36 +655,43 @@ Headers: {
 ### Etap 2: Custom hooks implementation (Kroki 9-16)
 
 9. **Implement useDeckDetail hook**
+
    - API integration dla deck loading
    - Loading i error states
    - React Query cache management
 
 10. **Create useFlashcardFilters hook**
+
     - Filter state management
     - URL synchronization
     - Preset filters logic
 
 11. **Build useFlashcardActions hook**
+
     - CRUD operations dla flashcards
     - Optimistic updates
     - Error handling z rollback
 
 12. **Add useOptimisticUpdates helper**
+
     - Generic optimistic update pattern
     - Rollback mechanisms
     - Loading state coordination
 
 13. **Implement usePagination hook**
+
     - Pagination state management
     - Page navigation logic
     - URL parameter sync
 
 14. **Create useBulkActions hook**
+
     - Multiple selection management
     - Bulk operations handling
     - Progress tracking
 
 15. **Add useAutoAcceptCountdown hook**
+
     - Real-time countdown dla pending fiszek
     - Auto-refresh trigger
     - Cleanup on unmount
@@ -681,36 +704,43 @@ Headers: {
 ### Etap 3: Core components (Kroki 17-24)
 
 17. **Build DeckDetailContainer**
+
     - Main state orchestration
     - Tab management
     - Error boundary integration
 
 18. **Implement DeckHeader**
+
     - Breadcrumb navigation
     - Inline editing dla deck title
     - Action buttons layout
 
 19. **Create DeckTabs component**
+
     - Tab navigation
     - Content switching
     - Keyboard accessibility
 
 20. **Build FilterBar**
+
     - Preset filter buttons
     - Custom filter controls
     - Reset functionality
 
 21. **Implement FlashcardsTable**
+
     - Data table z sorting
     - Column configuration
     - Responsive layout
 
 22. **Create FlashcardRow**
+
     - Row content display
     - Action buttons
     - Selection checkboxes
 
 23. **Add pagination controls**
+
     - Page navigation
     - Page size selection
     - Results summary
@@ -723,36 +753,43 @@ Headers: {
 ### Etap 4: Modals i formularze (Kroki 25-32)
 
 25. **Implement GenerateModal**
+
     - Form layout z validation
     - Character counter
     - Budget checking
 
 26. **Create EditFlashcardModal**
+
     - Form fields z validation
     - Dirty state detection
     - Save/cancel logic
 
 27. **Build form validation system**
+
     - Real-time validation
     - Error message display
     - Accessibility support
 
 28. **Add modal management**
+
     - Focus trapping
     - Escape key handling
     - Backdrop click closing
 
 29. **Implement loading states**
+
     - Skeleton placeholders
     - Progress indicators
     - Spinner components
 
 30. **Create toast system**
+
     - Success notifications
     - Error messages
     - Auto-dismiss logic
 
 31. **Add keyboard shortcuts**
+
     - Modal triggers
     - Form submissions
     - Navigation shortcuts
@@ -765,26 +802,31 @@ Headers: {
 ### Etap 5: Stats i Settings tabs (Kroki 33-38)
 
 33. **Implement StatsTab**
+
     - Stats cards layout
     - Data visualization
     - Chart components
 
 34. **Create SettingsTab**
+
     - Deck settings form
     - Export functionality
     - Delete confirmation
 
 35. **Add data visualization**
+
     - Charts dla stats
     - Progress indicators
     - Activity graphs
 
 36. **Implement export features**
+
     - JSON generation
     - File download trigger
     - Format options
 
 37. **Create danger zone**
+
     - Delete confirmation flow
     - Two-step verification
     - Redirect handling
@@ -797,6 +839,7 @@ Headers: {
 ### Etap 6: Finalizacja i polish (Kroki 39-40)
 
 39. **Complete accessibility implementation**
+
     - ARIA labels i descriptions
     - Keyboard navigation polish
     - Screen reader testing

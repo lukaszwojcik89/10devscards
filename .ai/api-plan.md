@@ -2,15 +2,15 @@
 
 ## 1. Resources
 
-| Resource | Database Table | Description |
-|----------|---------------|-------------|
-| Decks | `decks` | User-owned collections of flashcards |
-| Flashcards | `flashcards` | Individual learning cards within decks |
-| Reviews | `reviews` | Study session records and answers |
-| Study Sessions | Virtual resource | Active learning sessions |
-| User Data | Multiple tables | User profile and export functionality |
-| Budget | `budget_events` | AI cost tracking and limits |
-| Dashboard | Multiple tables | User dashboard with aggregated data and quick actions |
+| Resource       | Database Table   | Description                                           |
+| -------------- | ---------------- | ----------------------------------------------------- |
+| Decks          | `decks`          | User-owned collections of flashcards                  |
+| Flashcards     | `flashcards`     | Individual learning cards within decks                |
+| Reviews        | `reviews`        | Study session records and answers                     |
+| Study Sessions | Virtual resource | Active learning sessions                              |
+| User Data      | Multiple tables  | User profile and export functionality                 |
+| Budget         | `budget_events`  | AI cost tracking and limits                           |
+| Dashboard      | Multiple tables  | User dashboard with aggregated data and quick actions |
 
 ## 2. Endpoints
 
@@ -515,7 +515,7 @@
 {
   "data": {
     "current_month": "2025-06",
-    "budget_limit_usd": 10.00,
+    "budget_limit_usd": 10.0,
     "current_usage_usd": 7.85,
     "usage_percentage": 78.5,
     "threshold_80_reached": false,
@@ -576,7 +576,7 @@
     ],
     "ai_usage": {
       "monthly_usage_usd": 3.45,
-      "monthly_limit_usd": 10.00,
+      "monthly_limit_usd": 10.0,
       "usage_percentage": 34.5,
       "generations_this_month": 15,
       "tokens_used_this_month": 1250

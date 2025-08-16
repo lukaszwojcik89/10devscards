@@ -363,6 +363,7 @@ Endpoint do finalizacji procesu resetowania hasła. Waliduje token z emaila i um
 ### Faza 1: Przygotowanie infrastruktury (1 dzień)
 
 1. **Utworzenie endpoint files** - API route files
+
    - `/api/auth/logout.ts`
    - `/api/auth/refresh.ts`
    - `/api/auth/me.ts`
@@ -370,6 +371,7 @@ Endpoint do finalizacji procesu resetowania hasła. Waliduje token z emaila i um
    - `/api/auth/password/update.ts`
 
 2. **Rozszerzenie AuthService** - dodanie nowych metod
+
    - `logout()`
    - `refreshToken()`
    - `getCurrentUser()`
@@ -384,12 +386,14 @@ Endpoint do finalizacji procesu resetowania hasła. Waliduje token z emaila i um
 ### Faza 2: Implementacja session management (1.5 dnia)
 
 1. **POST /api/auth/logout**
+
    - JWT token validation
    - Supabase session invalidation
    - Optional token blacklisting
    - Audit logging implementation
 
 2. **POST /api/auth/refresh**
+
    - Refresh token validation
    - Token rotation logic
    - Session update handling
@@ -404,12 +408,14 @@ Endpoint do finalizacji procesu resetowania hasła. Waliduje token z emaila i um
 ### Faza 3: Password reset implementation (2 dni)
 
 1. **POST /api/auth/password/reset**
+
    - Email validation i normalization
    - Rate limiting implementation
    - Supabase password reset integration
    - Email sending verification
 
 2. **POST /api/auth/password/update**
+
    - Reset token validation
    - Password policy enforcement
    - Secure password update
@@ -424,12 +430,14 @@ Endpoint do finalizacji procesu resetowania hasła. Waliduje token z emaila i um
 ### Faza 4: Security hardening (1 dzień)
 
 1. **Rate limiting implementation**
+
    - Redis-based rate limiters
    - IP i user-based limits
    - Distributed throttling
    - Grace period handling
 
 2. **Audit logging enhancement**
+
    - Structured security logs
    - PII protection in logs
    - Log retention policies
@@ -444,12 +452,14 @@ Endpoint do finalizacji procesu resetowania hasła. Waliduje token z emaila i um
 ### Faza 5: Performance optimization (1 dzień)
 
 1. **Caching implementation**
+
    - User profile caching
    - Rate limit counters
    - Session state caching
    - Cache invalidation strategies
 
 2. **Database optimization**
+
    - Query optimization
    - Index verification
    - Connection pooling tuning
@@ -464,12 +474,14 @@ Endpoint do finalizacji procesu resetowania hasła. Waliduje token z emaila i um
 ### Faza 6: Testing i integration (1.5 dnia)
 
 1. **Unit testing**
+
    - AuthService methods testing
    - Security logic validation
    - Edge cases coverage
    - Mock integrations
 
 2. **Integration testing**
+
    - End-to-end auth flows
    - Password reset full cycle
    - Token refresh scenarios
@@ -484,6 +496,7 @@ Endpoint do finalizacji procesu resetowania hasła. Waliduje token z emaila i um
 ### Faza 7: Monitoring i deployment (0.5 dnia)
 
 1. **Monitoring setup**
+
    - Authentication metrics
    - Security event tracking
    - Performance monitoring

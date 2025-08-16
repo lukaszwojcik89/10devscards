@@ -138,14 +138,14 @@ interface AgeConfirmationProps {
 interface AlertInfoProps {
   title?: string;
   message: string;
-  type: 'info' | 'success' | 'warning';
+  type: "info" | "success" | "warning";
   onClose?: () => void;
   autoClose?: boolean;
 }
 
 // Propsy dla pola email (reuse z login)
 interface EmailInputProps extends FormFieldProps {
-  type: 'email';
+  type: "email";
   placeholder?: string;
   autoComplete?: string;
 }
@@ -206,7 +206,7 @@ interface UseRegisterFormReturn {
 
 ```typescript
 {
-  email: string;           // valid email format, max 254 chars
+  email: string; // valid email format, max 254 chars
   age_confirmation: boolean; // must be true (legal requirement)
 }
 ```
@@ -240,27 +240,32 @@ interface UseRegisterFormReturn {
 ### Scenariusze interakcji
 
 1. **Wpisywanie email:**
+
    - User wpisuje w pole email → real-time format validation
    - onBlur → walidacja i pokazanie błędu jeśli nieprawidłowy
    - onFocus → czyszczenie błędu jeśli format poprawny
 
 2. **Zaznaczanie age confirmation:**
+
    - User klika checkbox → toggle checked state
    - onChange → walidacja required (must be true)
    - Error message jeśli nie zaznaczone przy próbie submit
 
 3. **Submission formularza:**
+
    - Click Submit lub Enter → walidacja wszystkich pól
    - Invalid form → pokaż błędy, focus na pierwszy błędny
    - Valid form → disable form, show loading, API call
 
 4. **Sukces rejestracji:**
+
    - Pokaż AlertInfo z instrukcjami weryfikacji
    - Update UI do success state
    - Provide clear next steps (sprawdź email)
    - Optional redirect do /verify-email po timeout
 
 5. **Błąd rejestracji:**
+
    - Pokaż odpowiedni komunikat błędu
    - Re-enable form submission
    - Zachowaj form data dla user convenience
@@ -316,22 +321,26 @@ interface UseRegisterFormReturn {
 ### Typy błędów i strategie
 
 1. **Błędy walidacji klienta:**
+
    - Invalid email: "Nieprawidłowy format email"
    - Empty email: "Email jest wymagany"
    - Age confirmation unchecked: "Potwierdzenie wieku jest wymagane"
    - Handle: Real-time validation w components
 
 2. **Błędy API:**
+
    - 400: Field-specific errors w ErrorMessage components
    - 409: Global error w AlertInfo "Email już istnieje"
    - 500: Generic error message z retry option
 
 3. **Błędy sieci:**
+
    - Network unavailable: "Sprawdź połączenie z internetem"
    - Timeout: "Żądanie przekroczyło limit czasu"
    - Auto-retry mechanizm dla network errors
 
 4. **Email delivery issues:**
+
    - Success state includes instructions about checking spam
    - Provide resend verification option
    - Clear timeline expectations
@@ -350,63 +359,74 @@ interface UseRegisterFormReturn {
 ## 11. Kroki implementacji
 
 1. **Przygotowanie struktury plików**
+
    - Utwórz `src/pages/register.astro`
    - Reuse folder `src/components/auth/` z komponentów login
    - Utwórz `src/hooks/useRegisterForm.ts`
    - Extend `src/utils/validation.ts` o age confirmation
 
 2. **Implementacja typów**
+
    - Dodaj nowe Register ViewModel types do `src/types.ts`
    - Ensure compatibility z istniejącymi API types
    - Legal compliance types dla age confirmation
 
 3. **Utility functions**
+
    - `validateAgeConfirmation()` - boolean validation
    - Reuse `validateEmail()` z login implementation
    - `formatApiError()` - extend dla register-specific errors
 
 4. **Nowe komponenty**
+
    - `AgeConfirmationCheckbox` - z legal text i proper accessibility
    - `AlertInfo` - dla success messages i instructions
    - Reuse `EmailInput` i `SubmitButton` z login
 
 5. **Custom hook implementation**
+
    - `useRegisterForm` z register-specific logic
    - Success state management (różny od login)
    - Age confirmation validation
    - API integration bez token storage
 
 6. **Main RegisterForm component**
+
    - Integrate wszystkie sub-components
    - Use useRegisterForm hook
    - Success state UI z instrukcjami weryfikacji
    - Proper legal compliance handling
 
 7. **Astro page implementation**
+
    - `register.astro` z SEO meta tags
    - Layout integration
    - Client-side hydration dla RegisterForm
    - Navigation i routing
 
 8. **API integration**
+
    - HTTP client dla register endpoint
    - Response handling bez token storage
    - Success flow z email verification instructions
    - Error mapping dla register-specific cases
 
 9. **Success state refinement**
+
    - Clear instructions o email verification
    - Next steps guidance
    - Resend functionality planning
    - Legal compliance confirmation
 
 10. **Legal compliance verification**
+
     - Age confirmation text review
     - Accessibility audit dla legal text
     - GDPR/RODO compliance check
     - Audit trail implementation
 
 11. **Testing i accessibility**
+
     - Unit tests dla register validation functions
     - Integration tests dla register flow
     - Legal compliance testing

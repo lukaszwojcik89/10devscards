@@ -167,32 +167,38 @@ Endpoint służy do generowania fiszek z tekstu przy użyciu AI (GPT-4o-mini prz
 ## 9. Etapy wdrożenia
 
 1. **Przygotowanie infrastruktury**
+
    - Sprawdzenie istniejącego endpoint'a `/api/flashcards/generate.ts`
    - Weryfikacja konfiguracji Openrouter.ai w zmiennych środowiskowych
    - Sprawdzenie dostępności FlashcardsService
 
 2. **Implementacja walidacji**
+
    - Aktualizacja Zod schema jeśli potrzebna
    - Dodanie walidacji difficulty enum
    - Implementacja early returns dla błędów walidacji
 
 3. **Wdrożenie logiki biznesowej**
+
    - Rozszerzenie FlashcardsService o budget checking
    - Implementacja rate limiting mechanizmu
    - Dodanie error handling dla wszystkich scenariuszy
 
 4. **Integracja z AI service**
+
    - Konfiguracja Openrouter.ai client
    - Implementacja retry logic i timeout handling
    - Optymalizacja promptów dla różnych difficulty levels
 
 5. **Testowanie**
+
    - Unit testy dla FlashcardsService
    - Integration testy dla endpoint'a
    - Load testing dla określenia limitów wydajności
    - Security testing (auth, validation, rate limits)
 
 6. **Monitoring i logging**
+
    - Dodanie metryk do systemu monitoringu
    - Konfiguracja alertów dla błędów i limitów budżetu
    - Setup error tracking (Sentry integration)

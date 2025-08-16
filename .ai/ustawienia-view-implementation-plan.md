@@ -149,10 +149,10 @@ interface SettingsViewState {
   hasUnsavedChanges: boolean;
 }
 
-type TabType = 'profile' | 'data' | 'security';
+type TabType = "profile" | "data" | "security";
 
 interface SettingsError {
-  type: 'network' | 'authentication' | 'validation' | 'server';
+  type: "network" | "authentication" | "validation" | "server";
   message: string;
   retryable: boolean;
   details?: Record<string, any>;
@@ -176,10 +176,10 @@ interface ExportOptions {
   includeReviews: boolean;
   includeStatistics: boolean;
   includeMetadata: boolean;
-  format: 'json' | 'csv';
+  format: "json" | "csv";
 }
 
-type ExportScope = 'all' | 'selected_decks' | 'accepted_only';
+type ExportScope = "all" | "selected_decks" | "accepted_only";
 
 interface ExportConfiguration {
   options: ExportOptions;
@@ -188,7 +188,7 @@ interface ExportConfiguration {
 }
 
 interface ExportProgress {
-  status: 'preparing' | 'exporting' | 'complete' | 'error';
+  status: "preparing" | "exporting" | "complete" | "error";
   percentage: number;
   currentStep: string;
   eta?: number;
@@ -232,7 +232,7 @@ interface DeleteAccountRequest {
 }
 
 interface DeletionProgress {
-  status: 'confirming' | 'verifying' | 'deleting' | 'complete' | 'error';
+  status: "confirming" | "verifying" | "deleting" | "complete" | "error";
   currentStep: string;
   irreversible: boolean;
 }
@@ -283,7 +283,7 @@ interface SecurityState {
 }
 
 interface SecurityEvent {
-  type: 'login' | 'password_change' | 'export' | 'settings_change';
+  type: "login" | "password_change" | "export" | "settings_change";
   timestamp: string;
   ip_address?: string;
   user_agent?: string;
@@ -299,11 +299,11 @@ Widok używa lokalnego stanu zarządzanego przez custom hook `useSettings` wraz 
 ```typescript
 function useSettings(initialTab?: TabType) {
   const [settingsState, setSettingsState] = useState<SettingsViewState>({
-    activeTab: initialTab || 'profile',
+    activeTab: initialTab || "profile",
     userProfile: null,
     loading: true,
     error: null,
-    hasUnsavedChanges: false
+    hasUnsavedChanges: false,
   });
 
   // API integration
@@ -324,7 +324,7 @@ function useSettings(initialTab?: TabType) {
     loadUserProfile,
     resetPassword,
     changeTab,
-    clearError: () => setSettingsState(prev => ({ ...prev, error: null }))
+    clearError: () => setSettingsState((prev) => ({ ...prev, error: null })),
   };
 }
 ```
@@ -363,7 +363,7 @@ function useSettings(initialTab?: TabType) {
 
 ```typescript
 {
-  email: string
+  email: string;
 }
 ```
 
@@ -567,42 +567,49 @@ function useSettings(initialTab?: TabType) {
 ### Etap 1: Przygotowanie infrastruktury (Kroki 1-8)
 
 1. **Utwórz routing w src/pages/settings.astro**
+
    - Astro layout z React island dla settings
    - Query parameters extraction (tab, action)
    - SEO meta tags i breadcrumb setup
    - Authentication guard implementation
 
 2. **Dodaj typy do src/types.ts**
+
    - `SettingsViewState`, `TabType`, `SettingsError`
    - `ExportOptions`, `ExportConfiguration`, `ExportResult`
    - `DeleteAccountRequest`, `PasswordChangeRequest`
    - All component props interfaces
 
 3. **Utwórz hook useSettings w src/lib/hooks/**
+
    - State management dla settings view
    - Tab navigation logic
    - Error handling infrastructure
    - URL synchronization
 
 4. **Utwórz service functions w src/lib/services/settings.service.ts**
+
    - API wrapper functions dla all endpoints
    - Response data transformation
    - Error mapping i handling
    - Progress tracking utilities
 
 5. **Utwórz główny layout SettingsContainer**
+
    - React component z responsive design
    - Tab navigation system
    - Loading states i error boundaries
    - Accessibility foundation
 
 6. **Implementuj SettingsTabs component**
+
    - Tab navigation UI z icons
    - Active state management
    - Keyboard navigation support
    - URL state synchronization
 
 7. **Setup Tailwind styles dla settings**
+
    - Tab styling i animations
    - Form layouts i spacing
    - Danger zone special styling
@@ -617,42 +624,49 @@ function useSettings(initialTab?: TabType) {
 ### Etap 2: Profile Tab Implementation (Kroki 9-16)
 
 9. **Implementuj UserProfileSection**
+
    - Email display z readonly styling
    - Account metadata presentation
    - Profile completeness indicator
    - Copy-to-clipboard functionality
 
 10. **Dodaj profile data loading**
+
     - Integration z GET /api/auth/me
     - Loading skeleton dla profile section
     - Error handling dla profile fetch
     - Data refresh mechanisms
 
 11. **Implementuj PasswordManagement section**
+
     - Password reset trigger button
     - Integration z POST /api/auth/password/reset
     - Email confirmation flow
     - Security recommendations display
 
 12. **Dodaj password reset flow**
+
     - Email validation przed reset
     - Progress feedback dla email sending
     - Success confirmation z next steps
     - Error handling dla failed resets
 
 13. **Implementuj password policy display**
+
     - Current password policy rules
     - Security strength indicators
     - Last password change information
     - Password security tips
 
 14. **Dodaj form validation dla password operations**
+
     - Email format validation
     - Password strength checking
     - Confirmation password matching
     - Real-time validation feedback
 
 15. **Implementuj success/error notifications**
+
     - Toast notifications dla operations
     - Email confirmation messages
     - Error recovery suggestions
@@ -667,54 +681,63 @@ function useSettings(initialTab?: TabType) {
 ### Etap 3: Data Export Implementation (Kroki 17-26)
 
 17. **Implementuj ExportSection base layout**
+
     - Export description i instructions
     - GDPR compliance information
     - Export scope selection UI
     - File format options
 
 18. **Dodaj scope selection logic**
+
     - Radio button group dla scopes
     - Conditional deck picker dla "selected decks"
     - All/none selection dla decks
     - Scope validation rules
 
 19. **Implementuj DeckPicker component**
+
     - Multi-select deck interface
     - Search i filter functionality
     - Deck metadata display (card counts)
     - Select all/none convenience
 
 20. **Dodaj export options configuration**
+
     - Checkboxes dla include options
     - File size estimation
     - Format selection (JSON/CSV)
     - Advanced options toggle
 
 21. **Implementuj ExportModal**
+
     - Modal dialog z configuration
     - Progress tracking display
     - Real-time status updates
     - Download link generation
 
 22. **Dodaj export API integration**
+
     - GET /api/user/export z parameters
     - Progress tracking mechanism
     - File download handling
     - Large file streaming support
 
 23. **Implementuj export progress tracking**
+
     - Real-time progress updates
     - ETA calculation i display
     - Cancel operation capability
     - Error detection i recovery
 
 24. **Dodaj download link management**
+
     - Secure download URL generation
     - Link expiration handling
     - Browser download triggering
     - File validation checks
 
 25. **Implementuj export history**
+
     - Previous export tracking
     - Re-download capability
     - Export metadata display
@@ -729,42 +752,49 @@ function useSettings(initialTab?: TabType) {
 ### Etap 4: Security Tab Implementation (Kroki 27-34)
 
 27. **Implementuj SecurityTab base layout**
+
     - Session management section
     - Security events display
     - Danger zone separation
     - Warning styling i messaging
 
 28. **Dodaj SessionManagement component**
+
     - Active sessions display
     - Session metadata (device, location, time)
     - "Logout everywhere" functionality
     - Current session highlighting
 
 29. **Implementuj DangerZone section**
+
     - Clear visual separation
     - Warning messages i styling
     - Delete account trigger
     - Irreversibility warnings
 
 30. **Dodaj DeleteAccountModal**
+
     - Multi-step confirmation process
     - Confirmation phrase input
     - Password verification field
     - Final confirmation checkbox
 
 31. **Implementuj account deletion flow**
+
     - Step-by-step wizard interface
     - Progress indication
     - Validation po każdym step
     - Rollback prevention
 
 32. **Dodaj deletion API integration**
+
     - DELETE /api/user/account integration
     - Request validation
     - Progress tracking
     - Success/error handling
 
 33. **Implementuj confirmation phrase validation**
+
     - Exact phrase matching
     - Case-sensitive validation
     - Real-time validation feedback
@@ -779,30 +809,35 @@ function useSettings(initialTab?: TabType) {
 ### Etap 5: Advanced Features (Kroki 35-40)
 
 35. **Implementuj tab state persistence**
+
     - URL query parameter sync
     - Browser history management
     - Deep linking support
     - State restoration na refresh
 
 36. **Dodaj form state management**
+
     - Unsaved changes detection
     - Navigation warnings
     - Auto-save dla long forms
     - Data recovery mechanisms
 
 37. **Implementuj advanced error recovery**
+
     - Retry mechanisms z exponential backoff
     - Partial operation recovery
     - State rollback capabilities
     - User guidance dla error resolution
 
 38. **Dodaj loading state optimization**
+
     - Progressive loading
     - Skeleton screens
     - Lazy loading dla heavy components
     - Performance monitoring
 
 39. **Implementuj advanced accessibility**
+
     - High contrast mode support
     - Reduced motion preferences
     - Screen reader optimizations
@@ -817,6 +852,7 @@ function useSettings(initialTab?: TabType) {
 ### Etap 6: Testing & Validation (Kroki 41-42)
 
 41. **Comprehensive testing**
+
     - Unit tests dla all hooks i utilities
     - Integration tests dla API calls
     - End-to-end user flow testing

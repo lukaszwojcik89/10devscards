@@ -41,7 +41,7 @@ Endpoint służy do rejestracji nowych użytkowników w aplikacji AI Flashcards.
   "data": {
     "user": {
       "id": "uuid",
-      "email": "user@example.com", 
+      "email": "user@example.com",
       "email_confirmed_at": null,
       "created_at": "2025-06-11T10:00:00Z",
       "last_sign_in_at": "2025-06-11T10:00:00Z"
@@ -125,7 +125,7 @@ Endpoint służy do rejestracji nowych użytkowników w aplikacji AI Flashcards.
 ```json
 {
   "error": {
-    "code": "EMAIL_EXISTS", 
+    "code": "EMAIL_EXISTS",
     "message": "Użytkownik z tym adresem email już istnieje"
   }
 }
@@ -239,11 +239,13 @@ Endpoint służy do rejestracji nowych użytkowników w aplikacji AI Flashcards.
 ### Faza 1: Podstawowa infrastruktura ✅ (Completed)
 
 1. **Zod schema implementation**
+
    - Stworzenie `registerRequestSchema` w `auth.zod.ts`
    - Walidacja email (RFC 5322), password (długość), age_confirmation
    - Unit testy dla walidacji
 
 2. **AuthService implementation**
+
    - Podstawowa klasa `AuthService` w `auth.service.ts`
    - Metoda: `register()` z integracją Supabase
    - Mock implementation dla testowania
@@ -257,12 +259,14 @@ Endpoint służy do rejestracji nowych użytkowników w aplikacji AI Flashcards.
 ### Faza 2: Supabase integration ✅ (Completed)
 
 1. **Registration logic**
+
    - Integracja z `supabase.auth.signUp()`
    - Konfiguracja emailRedirectTo
    - Age confirmation w user metadata
    - Obsługa różnych typów błędów Supabase
 
 2. **User profile handling**
+
    - Formatowanie danych użytkownika po rejestracji
    - Mapowanie Supabase user na UserProfile interface
    - Obsługa timestamps (created_at, last_sign_in_at)
@@ -275,12 +279,14 @@ Endpoint służy do rejestracji nowych użytkowników w aplikacji AI Flashcards.
 ### Faza 3: Security & Validation ✅ (Mostly Completed)
 
 1. **Input validation enhancement**
+
    - Comprehensive Zod schema validation
    - Email normalization (lowercase, trim)
    - Password strength delegation to Supabase
    - Age confirmation enforcement
 
 2. **Security headers**
+
    - X-Content-Type-Options: nosniff
    - X-Frame-Options: DENY
    - X-XSS-Protection: 1; mode=block
@@ -295,12 +301,14 @@ Endpoint służy do rejestracji nowych użytkowników w aplikacji AI Flashcards.
 ### Faza 4: Testing & Frontend Integration ✅ (Completed)
 
 1. **Comprehensive testing**
+
    - Unit tests dla AuthService
    - Integration tests z Supabase
    - Error scenario testing
    - Manual testing przez curl
 
 2. **Frontend integration**
+
    - HTML form w `/register.astro`
    - JavaScript fetch do API endpoint
    - Error handling i display
@@ -315,12 +323,14 @@ Endpoint służy do rejestracji nowych użytkowników w aplikacji AI Flashcards.
 ### Faza 5: Production Readiness ⏳ (Pending)
 
 1. **Rate limiting implementation**
+
    - Redis-based rate limiting (opcjonalne dla MVP)
    - IP-based i email-based limits
    - Proper retry-after headers
    - Monitoring rate limit hits
 
 2. **Monitoring setup**
+
    - Metrics collection dla registration events
    - Alerting rules dla anomalii
    - Log aggregation i retention
@@ -397,7 +407,7 @@ Endpoint służy do rejestracji nowych użytkowników w aplikacji AI Flashcards.
 ### Security requirements
 
 - ✅ Input validation prevents malicious data
-- ✅ Email verification required before account activation  
+- ✅ Email verification required before account activation
 - ✅ Age confirmation enforced server-side
 - ✅ Proper error handling nie ujawnia sensitive info
 - ⏳ Rate limiting prevents abuse

@@ -169,28 +169,28 @@ GenerateAIModal (React Modal/Dialog)
 interface GenerateAIModalState {
   // Modal control
   isOpen: boolean;
-  step: 'input' | 'generating' | 'preview' | 'error';
-  triggerSource: 'dashboard' | 'decks' | 'deck-detail' | 'navbar';
-  
+  step: "input" | "generating" | "preview" | "error";
+  triggerSource: "dashboard" | "decks" | "deck-detail" | "navbar";
+
   // Form data
   selectedDeckId: string | null;
   newDeckData: CreateDeckData | null;
   inputText: string;
   generationSettings: GenerationSettings;
-  
+
   // Generation state
   isGenerating: boolean;
   generationProgress: GenerationProgress | null;
-  
+
   // Results data
   generatedFlashcards: FlashcardPreview[];
   generationSummary: GenerationSummary | null;
   selectedCards: string[];
-  
+
   // Error handling
   error: GenerationError | null;
   validationErrors: ValidationErrors;
-  
+
   // UI state
   showInlineCreate: boolean;
   budgetWarningDismissed: boolean;
@@ -199,8 +199,8 @@ interface GenerateAIModalState {
 // Ustawienia generacji AI
 interface GenerationSettings {
   maxCards: number; // 1-10
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  language: 'pl' | 'en';
+  difficulty: "beginner" | "intermediate" | "advanced";
+  language: "pl" | "en";
   context?: string; // dodatkowy kontekst dla AI
 }
 
@@ -236,7 +236,7 @@ interface GenerationSummary {
 interface GenerationProgress {
   current: number;
   total: number;
-  status: 'initializing' | 'processing' | 'generating' | 'finalizing';
+  status: "initializing" | "processing" | "generating" | "finalizing";
   statusMessage: string;
   estimatedTimeRemaining?: number; // seconds
 }
@@ -253,7 +253,7 @@ interface BudgetInfo {
 
 // Błędy generacji
 interface GenerationError {
-  type: 'validation' | 'budget' | 'rate_limit' | 'api' | 'network' | 'unknown';
+  type: "validation" | "budget" | "rate_limit" | "api" | "network" | "unknown";
   code: string;
   message: string;
   details?: Record<string, unknown>;
@@ -369,10 +369,10 @@ interface UseModalKeyboardShortcutsReturn {
   setupShortcuts: () => void;
   cleanupShortcuts: () => void;
   shortcuts: {
-    generate: 'Ctrl+Enter';
-    cancel: 'Escape';
-    selectAll: 'Ctrl+A';
-    save: 'Ctrl+S';
+    generate: "Ctrl+Enter";
+    cancel: "Escape";
+    selectAll: "Ctrl+A";
+    save: "Ctrl+S";
   };
 }
 ```
@@ -497,11 +497,13 @@ Query: {
 ### Scenariusze otwierania modal
 
 1. **Trigger z Dashboard:**
+
    - Click "Generuj fiszki" quick action → open modal, no preselected deck
    - Modal state: step='input', triggerSource='dashboard'
    - Focus management: auto-focus na deck selector
 
 2. **Trigger z Deck List:**
+
    - Click "Generuj" przy konkretnej talii → open modal, preselect deck
    - Modal state: selectedDeckId=deckId, triggerSource='decks'
    - Skip deck selection step jeśli valid preselection
@@ -514,6 +516,7 @@ Query: {
 ### Scenariusze wyboru talii
 
 4. **Existing deck selection:**
+
    - Open deck dropdown → load user decks, show loading state
    - Select deck → validate ownership, enable next step
    - Clear selection → reset to no deck selected state
@@ -527,6 +530,7 @@ Query: {
 ### Scenariusze input tekstu
 
 6. **Text input handling:**
+
    - Type w textarea → real-time character counting, validate ≤2000
    - Paste large text → auto-trim do 2000 chars, show warning
    - Drag-drop text file → extract text content, validate format
@@ -541,12 +545,14 @@ Query: {
 ### Scenariusze generacji i preview
 
 8. **AI Generation flow:**
+
    - Click "Generuj" → validate form, check budget, start generation
    - Show progress → spinner, status messages, cancel option
    - Generation complete → transition to preview step
    - Generation error → show error display, retry option
 
 9. **Preview i selection:**
+
    - Review generated cards → show question/answer preview
    - Select/deselect cards → update save button counter
    - Edit card inline → modify content, mark as edited
@@ -561,6 +567,7 @@ Query: {
 ### Scenariusze error handling
 
 11. **Budget i rate limit errors:**
+
     - Budget warning → show banner, disable generation przy 100%
     - Rate limit hit → show cooldown timer, disable actions
     - Service unavailable → show maintenance message
@@ -593,7 +600,7 @@ Query: {
 **Generation settings validation:**
 
 - max_cards: integer w range 1-10, default 5
-- difficulty: enum ['beginner', 'intermediate', 'advanced'], default 'intermediate'  
+- difficulty: enum ['beginner', 'intermediate', 'advanced'], default 'intermediate'
 - language: enum ['pl', 'en'], default 'pl'
 - Settings combination: validate logical combinations
 
@@ -642,6 +649,7 @@ Query: {
 ### Kategorie błędów i recovery strategies
 
 1. **User Input Errors:**
+
    - Empty text: "Wklej tekst do generacji fiszek"
    - Text too long: "Tekst przekracza 2000 znaków (obecne: X)"
    - No deck selected: "Wybierz talię lub utwórz nową"
@@ -650,6 +658,7 @@ Query: {
    - Handle: Inline validation messages, field highlighting, auto-correction suggestions
 
 2. **Budget i Rate Limiting Errors:**
+
    - Budget warning: "Wykorzystano X% miesięcznego limitu ($Y z $10)"
    - Budget exceeded: "Przekroczony miesięczny limit generacji AI"
    - Rate limited: "Zbyt wiele generacji. Spróbuj ponownie za X minut"
@@ -657,6 +666,7 @@ Query: {
    - Handle: Clear countdown timers, upgrade prompts, alternative suggestions
 
 3. **API Communication Errors:**
+
    - 401 Unauthorized: Close modal, redirect to login z return URL
    - 404 Deck Not Found: "Wybrana talia została usunięta", refresh deck list
    - 500 Server Error: "Wystąpił błąd serwera", retry button z exponential backoff
@@ -664,6 +674,7 @@ Query: {
    - Handle: Automatic retries, manual retry buttons, graceful degradation
 
 4. **Generation Specific Errors:**
+
    - AI service unavailable: "Generacja AI tymczasowo niedostępna"
    - Low quality input: "Tekst za krótki lub nieczytelny dla AI"
    - Generation timeout: "Generacja przekroczyła limit czasu (5s)"
@@ -692,36 +703,43 @@ Query: {
 ### Etap 1: Infrastruktura i podstawy (Kroki 1-8)
 
 1. **Przygotowanie struktury plików**
+
    - Utwórz `src/components/generate-ai/` folder structure
    - Setup modal components hierarchy
    - Create index files dla clean imports
 
 2. **Rozszerzenie typów**
-   - Dodaj GenerateAI ViewModel types do `src/types.ts`  
+
+   - Dodaj GenerateAI ViewModel types do `src/types.ts`
    - Extend istniejące API types jeśli potrzebne
    - Create validation error types
 
 3. **Setup base modal infrastructure**
+
    - Implement base Modal/Dialog component z shadcn/ui
    - Add focus trap z react-focus-trap
    - Setup keyboard event handling
 
 4. **Create utility functions**
+
    - Text processing i validation helpers
    - Character counting z performance optimization
    - Cost estimation calculations
 
 5. **Setup state management**
+
    - Create Context dla modal state sharing
    - Setup React Query integration
    - Add localStorage utilities dla form persistence
 
 6. **Implement routing integration**
+
    - Add modal trigger system
    - Setup URL parameter handling dla deep linking
    - Create trigger functions dla different views
 
 7. **Add accessibility foundation**
+
    - ARIA roles i properties setup
    - Keyboard navigation base implementation
    - Screen reader announcements structure
@@ -734,36 +752,43 @@ Query: {
 ### Etap 2: Custom hooks implementation (Kroki 9-16)
 
 9. **Implement useGenerateAIModal hook**
+
    - Core modal state management
    - Step-based workflow control
    - Form data persistence
 
 10. **Create useFlashcardGeneration hook**
+
     - API integration dla generation endpoint
     - Progress tracking i cancellation
     - Error handling z retry logic
 
 11. **Build useBudgetMonitoring hook**
+
     - Real-time budget checking
     - Cost estimation calculations
     - Warning threshold management
 
 12. **Add useModalKeyboardShortcuts hook**
+
     - Keyboard shortcuts handling
     - Focus management between steps
     - Accessibility key bindings
 
 13. **Implement useDeckManagement hook**
+
     - Deck loading dla selection
     - Inline deck creation logic
     - Deck validation i caching
 
 14. **Create useFormValidation hook**
+
     - Real-time input validation
     - Error message management
     - Validation state coordination
 
 15. **Add useTextProcessing hook**
+
     - Character counting z debouncing
     - Text sanitization i formatting
     - Markdown detection i removal
@@ -776,36 +801,43 @@ Query: {
 ### Etap 3: Core modal components (Kroki 17-24)
 
 17. **Build GenerateAIModal main container**
+
     - Modal wrapper z responsive sizing
     - Step management i navigation
     - Global error boundary
 
 18. **Implement ModalHeader component**
+
     - Title display z step indication
     - Close button z confirmation logic
     - Progress indicator integration
 
 19. **Create DeckSelectionSection**
+
     - Dropdown z user decks
     - Loading i empty states
     - Inline create toggle
 
 20. **Build InlineCreateDeck component**
+
     - Form fields z validation
     - Real-time deck name checking
     - Submission handling
 
 21. **Implement TextInputSection**
+
     - Large textarea z performance optimization
     - Character counter z visual feedback
     - Validation messages display
 
 22. **Create GenerationSettingsSection**
+
     - Settings controls layout
     - Real-time cost estimation
     - Settings persistence
 
 23. **Add BudgetWarningBanner**
+
     - Conditional display logic
     - Usage visualization
     - Upgrade call-to-action
@@ -818,36 +850,43 @@ Query: {
 ### Etap 4: Generation flow components (Kroki 25-32)
 
 25. **Implement GenerationProgressSection**
+
     - Progress spinner i status display
     - Real-time updates handling
     - Cancellation functionality
 
 26. **Create PreviewResultsSection**
+
     - Flashcards preview layout
     - Generation summary display
     - Selection management
 
 27. **Build FlashcardsPreviewList**
+
     - Virtual scrolling dla performance
     - Individual card components
     - Bulk selection controls
 
 28. **Add FlashcardPreviewItem**
+
     - Card content display
     - Inline editing capabilities
     - Selection state management
 
 29. **Implement ErrorDisplaySection**
+
     - Error categorization i display
     - Retry action handling
     - Technical details toggle
 
 30. **Create ActionButtons component**
+
     - Step-specific button logic
     - Loading states handling
     - Keyboard shortcuts integration
 
 31. **Add ModalFooter**
+
     - Help text i shortcuts display
     - Secondary actions
     - Status information
@@ -860,26 +899,31 @@ Query: {
 ### Etap 5: Advanced features i polish (Kroki 33-38)
 
 33. **Implement advanced keyboard shortcuts**
+
     - Step navigation shortcuts
     - Quick actions (Ctrl+Enter, Ctrl+A)
     - Accessibility improvements
 
 34. **Add drag-and-drop functionality**
+
     - Text file drag-drop support
     - Visual feedback podczas drag
     - File content extraction
 
 35. **Create export preview functionality**
+
     - Preview results export
     - Multiple format support
     - Sharing capabilities
 
 36. **Implement form state persistence**
+
     - localStorage integration
     - Session recovery
     - Cross-tab synchronization
 
 37. **Add animation i transitions**
+
     - Step transition animations
     - Loading state animations
     - Micro-interactions polish
@@ -892,6 +936,7 @@ Query: {
 ### Etap 6: Testing, accessibility i deployment (Kroki 39-40)
 
 39. **Complete accessibility implementation**
+
     - WCAG AA compliance verification
     - Screen reader testing
     - Keyboard navigation polish

@@ -82,15 +82,15 @@ Data: 12 czerwca 2025
 
 ## 🎯 PODSUMOWANIE STATUSU
 
-| Resource | Endpointy | Plan implementacji | Status |
-|----------|-----------|-------------------|---------|
-| **Decks** | 5/5 | `decks-endpoints-implementation-plan.md` | ✅ Complete |
-| **Flashcards** | 6/6 | `flashcards-crud-endpoints-implementation-plan.md` + `generate-endpoint-implementation-plan.md` | ✅ Complete |
-| **Study Sessions** | 1/1 | `study-sessions-implementation-plan.md` | ✅ Complete |
-| **Reviews** | 2/2 | `reviews-endpoints-implementation-plan.md` | ✅ Complete |
-| **User Data** | 2/2 | `user-data-endpoints-implementation-plan.md` | ✅ Complete 🆕 |
-| **Budget Admin** | 1/1 | `budget-admin-endpoints-implementation-plan.md` | ✅ Complete 🆕 |
-| **Authentication** | 7/7 | `auth-endpoints-implementation-plan.md` + `auth-additional-endpoints-implementation-plan.md` | ✅ Complete |
+| Resource           | Endpointy | Plan implementacji                                                                              | Status         |
+| ------------------ | --------- | ----------------------------------------------------------------------------------------------- | -------------- |
+| **Decks**          | 5/5       | `decks-endpoints-implementation-plan.md`                                                        | ✅ Complete    |
+| **Flashcards**     | 6/6       | `flashcards-crud-endpoints-implementation-plan.md` + `generate-endpoint-implementation-plan.md` | ✅ Complete    |
+| **Study Sessions** | 1/1       | `study-sessions-implementation-plan.md`                                                         | ✅ Complete    |
+| **Reviews**        | 2/2       | `reviews-endpoints-implementation-plan.md`                                                      | ✅ Complete    |
+| **User Data**      | 2/2       | `user-data-endpoints-implementation-plan.md`                                                    | ✅ Complete 🆕 |
+| **Budget Admin**   | 1/1       | `budget-admin-endpoints-implementation-plan.md`                                                 | ✅ Complete 🆕 |
+| **Authentication** | 7/7       | `auth-endpoints-implementation-plan.md` + `auth-additional-endpoints-implementation-plan.md`    | ✅ Complete    |
 
 **RAZEM: 24/24 endpointy** ✅
 
@@ -104,7 +104,7 @@ Data: 12 czerwca 2025
 2. `auth-endpoints-implementation-plan.md` - register/login endpoints
 3. `auth-additional-endpoints-implementation-plan.md` - logout, refresh, me, password reset/update
 4. `login-endpoint-implementation-plan.md` - dedykowany plan logowania
-5. `register-endpoint-implementation-plan.md` - dedykowany plan rejestracji  
+5. `register-endpoint-implementation-plan.md` - dedykowany plan rejestracji
 6. `decks-endpoints-implementation-plan.md` - wszystkie operacje na taliach
 7. `flashcards-crud-endpoints-implementation-plan.md` - CRUD operations fiszek
 8. `generate-endpoint-implementation-plan.md` - AI generation fiszek
@@ -176,16 +176,16 @@ Data: 12 czerwca 2025
 
 ## 📈 ŁĄCZNY CZAS IMPLEMENTACJI
 
-| Grupa Endpointów | Estimated Time | Priority Level |
-|------------------|----------------|----------------|
-| **Authentication** | ~15-20 dni | 🔴 HIGH |
-| **Decks Management** | ~8 dni | 🔴 HIGH |
-| **Flashcards CRUD** | ~8 dni | 🔴 HIGH |
-| **AI Generation** | ~7 dni | 🔴 HIGH |
-| **Study Sessions** | ~8.5 dni | 🔴 HIGH |
-| **Reviews System** | ~8 dni | 🔴 HIGH |
-| **User Data** | ~9 dni | 🟡 MEDIUM |
-| **Budget Admin** | ~8 dni | 🟡 MEDIUM |
+| Grupa Endpointów     | Estimated Time | Priority Level |
+| -------------------- | -------------- | -------------- |
+| **Authentication**   | ~15-20 dni     | 🔴 HIGH        |
+| **Decks Management** | ~8 dni         | 🔴 HIGH        |
+| **Flashcards CRUD**  | ~8 dni         | 🔴 HIGH        |
+| **AI Generation**    | ~7 dni         | 🔴 HIGH        |
+| **Study Sessions**   | ~8.5 dni       | 🔴 HIGH        |
+| **Reviews System**   | ~8 dni         | 🔴 HIGH        |
+| **User Data**        | ~9 dni         | 🟡 MEDIUM      |
+| **Budget Admin**     | ~8 dni         | 🟡 MEDIUM      |
 
 **RAZEM:** ~71.5-76.5 dni roboczych (~14-15 tygodni)
 
@@ -220,7 +220,7 @@ File: decks-endpoints-implementation-plan.md
 ```bash
 File: flashcards-crud-endpoints-implementation-plan.md
 ├── GET /api/flashcards (60 min)
-├── POST /api/flashcards (60 min) 
+├── POST /api/flashcards (60 min)
 ├── GET /api/flashcards/{id} (45 min)
 ├── PUT /api/flashcards/{id} (45 min)
 └── DELETE /api/flashcards/{id} (30 min)
@@ -276,15 +276,15 @@ File: budget-admin-endpoints-implementation-plan.md
 
 ## 📂 **MAPOWANIE PLANÓW NA ENDPOINTY (2-DNI SPRINT)**
 
-| Plan Implementation File | Endpointy | Priorytet | Dzień | Czas |
-|-------------------------|-----------|-----------|-------|------|
-| `auth-additional-endpoints-implementation-plan.md` | 5 auth endpoints | 🔴 HIGH | 1 + 2 | 5h |
-| `decks-endpoints-implementation-plan.md` | 5 decks endpoints | 🔴 HIGH | 1 | 4h |
-| `flashcards-crud-endpoints-implementation-plan.md` | 5 CRUD endpoints | 🔴 HIGH | 1 | 4h |
-| `study-sessions-implementation-plan.md` | 1 SRS endpoint | 🔴 HIGH | 1→2 | 1h |
-| `reviews-endpoints-implementation-plan.md` | 2 review endpoints | 🔴 HIGH | 2 | 2h |
-| `user-data-endpoints-implementation-plan.md` | 2 GDPR endpoints | 🟡 MED | 2 | 3h |
-| `budget-admin-endpoints-implementation-plan.md` | 1 admin endpoint | 🟡 MED | 2 | 1.5h |
+| Plan Implementation File                           | Endpointy          | Priorytet | Dzień | Czas |
+| -------------------------------------------------- | ------------------ | --------- | ----- | ---- |
+| `auth-additional-endpoints-implementation-plan.md` | 5 auth endpoints   | 🔴 HIGH   | 1 + 2 | 5h   |
+| `decks-endpoints-implementation-plan.md`           | 5 decks endpoints  | 🔴 HIGH   | 1     | 4h   |
+| `flashcards-crud-endpoints-implementation-plan.md` | 5 CRUD endpoints   | 🔴 HIGH   | 1     | 4h   |
+| `study-sessions-implementation-plan.md`            | 1 SRS endpoint     | 🔴 HIGH   | 1→2   | 1h   |
+| `reviews-endpoints-implementation-plan.md`         | 2 review endpoints | 🔴 HIGH   | 2     | 2h   |
+| `user-data-endpoints-implementation-plan.md`       | 2 GDPR endpoints   | 🟡 MED    | 2     | 3h   |
+| `budget-admin-endpoints-implementation-plan.md`    | 1 admin endpoint   | 🟡 MED    | 2     | 1.5h |
 
 **Plany już zaimplementowane:** ✅
 
@@ -312,7 +312,7 @@ File: budget-admin-endpoints-implementation-plan.md
 
 - ✅ 100% coverage wszystkich API endpoints
 - ✅ Comprehensive security considerations
-- ✅ Performance optimization strategies  
+- ✅ Performance optimization strategies
 - ✅ GDPR compliance requirements
 - ✅ Detailed implementation phases
 - ✅ Complete testing strategies

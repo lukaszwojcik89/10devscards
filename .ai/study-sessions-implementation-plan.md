@@ -216,12 +216,14 @@ Endpoint służy do pobierania fiszek przeznaczonych do powtórki w bieżącej s
 ### Faza 2: Implementacja logiki SRS (2 dni)
 
 1. **Daily limits calculation**
+
    - Query reviews tabeli dla current day
    - Obliczenie completed reviews vs limits
    - Implementacja catch-up logic
    - Validation dziennych ograniczeń
 
 2. **Due flashcards query**
+
    - Complex query z JOIN na decks table
    - Filtering według due dates i statusów
    - Deck ownership verification przez RLS
@@ -236,12 +238,14 @@ Endpoint służy do pobierania fiszek przeznaczonych do powtórki w bieżącej s
 ### Faza 3: Business rules implementation (1 dzień)
 
 1. **Leitner system integration**
+
    - Due date calculation based on box levels
    - Progress tracking przez review history
    - Box advancement logic verification
    - SRS algorithm fine-tuning
 
 2. **Catch-up functionality**
+
    - Overdue cards identification
    - Once-per-day catch-up enforcement
    - Separate limits tracking
@@ -255,12 +259,14 @@ Endpoint służy do pobierania fiszek przeznaczonych do powtórki w bieżącej s
 ### Faza 4: Error handling i validation (1 dzień)
 
 1. **Input validation**
+
    - Query parameters Zod validation
    - Business rules validation
    - Edge cases handling
    - Error message standardization
 
 2. **Authorization i security**
+
    - JWT token validation
    - RLS policy verification
    - Rate limiting implementation
@@ -275,12 +281,14 @@ Endpoint służy do pobierania fiszek przeznaczonych do powtórki w bieżącej s
 ### Faza 5: Performance optimization (1 dzień)
 
 1. **Database optimization**
+
    - Index optimization dla SRS queries
    - Query performance analysis
    - Connection pooling verification
    - Slow query identification
 
 2. **Caching implementation**
+
    - Session result caching
    - Daily statistics caching
    - Cache invalidation strategy
@@ -294,12 +302,14 @@ Endpoint służy do pobierania fiszek przeznaczonych do powtórki w bieżącej s
 ### Faza 6: Testing i integration (1 dzień)
 
 1. **Unit testing**
+
    - StudyService methods testing
    - Business logic validation
    - Edge cases coverage
    - Mock data scenarios
 
 2. **Integration testing**
+
    - API endpoint testing
    - Database integration verification
    - Authentication flow testing
@@ -314,6 +324,7 @@ Endpoint służy do pobierania fiszek przeznaczonych do powtórki w bieżącej s
 ### Faza 7: Monitoring i deployment (0.5 dnia)
 
 1. **Monitoring setup**
+
    - Session metrics collection
    - Daily limits monitoring
    - Performance metrics tracking

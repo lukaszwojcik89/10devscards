@@ -240,7 +240,7 @@ interface SessionSummaryState {
   sessionData: SessionSummaryData | null;
   loading: boolean;
   error: string | null;
-  selectedTab: 'overview' | 'details' | 'performance';
+  selectedTab: "overview" | "details" | "performance";
 }
 
 // Component Props Types
@@ -257,7 +257,7 @@ interface ActionButtonsProps {
   onNavigate: (action: NavigationAction) => void;
 }
 
-type NavigationAction = 'new_session' | 'back_to_deck' | 'back_to_dashboard' | 'view_deck_details';
+type NavigationAction = "new_session" | "back_to_deck" | "back_to_dashboard" | "view_deck_details";
 
 // Display Format Types
 interface StatDisplayFormat {
@@ -268,7 +268,7 @@ interface StatDisplayFormat {
 }
 
 interface TimeDisplayFormat {
-  format: 'short' | 'long' | 'precise';
+  format: "short" | "long" | "precise";
   showSeconds: boolean;
   showMilliseconds: boolean;
 }
@@ -286,7 +286,7 @@ function useSessionSummary(sessionId: string, deckSlug?: string) {
     sessionData: null,
     loading: true,
     error: null,
-    selectedTab: 'overview'
+    selectedTab: "overview",
   });
 
   // Aggregate data from multiple sources
@@ -305,7 +305,7 @@ function useSessionSummary(sessionId: string, deckSlug?: string) {
   return {
     summaryState,
     startNewSession,
-    retryLoad: fetchSessionSummary
+    retryLoad: fetchSessionSummary,
   };
 }
 ```
@@ -331,14 +331,14 @@ function useSessionSummary(sessionId: string, deckSlug?: string) {
 
 ```typescript
 // Query reviews for specific session
-const reviews = await fetch('/api/reviews?session_id=' + sessionId);
+const reviews = await fetch("/api/reviews?session_id=" + sessionId);
 ```
 
 **GET /api/dashboard** (dla streak i achievement data)
 
 ```typescript
 // Get current user stats including streaks
-const dashboardData = await fetch('/api/dashboard');
+const dashboardData = await fetch("/api/dashboard");
 ```
 
 ### Kalkulacja statistyk (local computation)
@@ -347,20 +347,20 @@ Ponieważ endpoint `/api/reviews` już istnieje, widok będzie wykonywał lokaln
 
 ```typescript
 function calculateSessionStatistics(reviews: ReviewData[]): SessionStatistics {
-  const correctAnswers = reviews.filter(r => r.is_correct).length;
+  const correctAnswers = reviews.filter((r) => r.is_correct).length;
   const totalAnswers = reviews.length;
   const accuracyPercentage = (correctAnswers / totalAnswers) * 100;
-  
+
   const totalResponseTime = reviews.reduce((sum, r) => sum + r.response_time_ms, 0);
   const averageResponseTime = totalResponseTime / totalAnswers;
-  
+
   // Calculate box changes from review data + SRS logic
   const boxChanges = calculateBoxChanges(reviews);
-  
+
   return {
     accuracy: { correctAnswers, totalAnswers, accuracyPercentage },
     timing: { averageResponseTime, totalResponseTime },
-    progress: { cardsReviewed: totalAnswers, boxesAdvanced: boxChanges.advancements }
+    progress: { cardsReviewed: totalAnswers, boxesAdvanced: boxChanges.advancements },
   };
 }
 ```
@@ -510,26 +510,31 @@ function calculateSessionStatistics(reviews: ReviewData[]): SessionStatistics {
 ### Etap 1: Przygotowanie infrastruktury (Kroki 1-6)
 
 1. **Utwórz routing w src/pages/study/summary.astro**
+
    - Astro layout z React island
    - Query parameters extraction (session_id, deck)
    - SEO meta tags i breadcrumb navigation
 
 2. **Dodaj brakujące typy do src/types.ts**
+
    - `SessionSummaryData`, `SessionStatistics`, `BoxChangeData`
    - `CardPerformanceData`, `MotivationalData`, `AchievementBadge`
    - Component props interfaces
 
 3. **Utwórz hook useSessionSummary w src/lib/hooks/**
+
    - State management dla summary data
    - API integration functions
    - Statistics calculation functions
 
 4. **Utwórz service functions w src/lib/services/summary.service.ts**
+
    - `fetchSessionReviews()` - wrapper dla GET /api/reviews
    - `calculateSessionStatistics()` - local computation
    - `calculateBoxChanges()` - SRS logic analysis
 
 5. **Utwórz główny layout SummaryContainer**
+
    - React component z responsive design
    - Loading skeleton states
    - Error boundary implementation
@@ -542,26 +547,31 @@ function calculateSessionStatistics(reviews: ReviewData[]): SessionStatistics {
 ### Etap 2: Core Statistics & Display (Kroki 7-12)
 
 7. **Implementuj SessionStats component**
+
    - Three main KPI tiles (Accuracy, Timing, Progress)
    - Responsive grid layout
    - Animation on data load
 
 8. **Implementuj AccuracyStats kafelek**
+
    - Percentage display z circular indicator
    - Correct/total fraction display
    - Color-coded success indicators
 
 9. **Implementuj TimingStats kafelek**
+
    - Session duration formatting (MM:SS)
    - Average response time calculation
    - Time efficiency indicators
 
 10. **Implementuj ProgressStats kafelek**
+
     - Cards reviewed count
     - Boxes advanced visualization
     - Progress completion indicator
 
 11. **Dodaj statistics calculation logic**
+
     - Accuracy percentage calculation
     - Response time aggregation (average, median)
     - Box change detection z review data
@@ -574,26 +584,31 @@ function calculateSessionStatistics(reviews: ReviewData[]): SessionStatistics {
 ### Etap 3: Detailed Results Section (Kroki 13-18)
 
 13. **Implementuj DetailedResults container**
+
     - Tabbed interface (Overview/Details)
     - Expandable sections
     - Smooth transition animations
 
 14. **Implementuj BoxChangesSection**
+
     - List advancement (green indicators)
     - List resets (red indicators)
     - Box level visualizations (box1→box2→box3)
 
 15. **Implementuj CardPerformanceList**
+
     - Individual card performance items
     - Correct/incorrect visual indicators
     - Response time per card display
 
 16. **Dodaj box change calculation logic**
+
     - Determine box transitions from review results
     - Apply Leitner algorithm rules
     - Categorize advancements vs resets
 
 17. **Implementuj card performance analysis**
+
     - Response time distribution
     - Accuracy per card type
     - Question difficulty indicators
@@ -606,26 +621,31 @@ function calculateSessionStatistics(reviews: ReviewData[]): SessionStatistics {
 ### Etap 4: Motivational Features (Kroki 19-24)
 
 19. **Implementuj MotivationalFeedback section**
+
     - Streak counter display
     - Achievement badges layout
     - Encouragement messages
 
 20. **Implementuj StreakCounter component**
+
     - Current streak days
     - Longest streak comparison
     - Milestone celebrations
 
 21. **Implementuj AchievementBadges display**
+
     - Badge icons z descriptions
     - New achievement highlighting
     - Achievement progress indicators
 
 22. **Dodaj motivational message system**
+
     - Dynamic messages based on performance
     - Encouragement for improvement areas
     - Success celebration messages
 
 23. **Implementuj streak calculation logic**
+
     - Daily session completion tracking
     - Streak maintenance rules
     - Milestone detection
@@ -638,26 +658,31 @@ function calculateSessionStatistics(reviews: ReviewData[]): SessionStatistics {
 ### Etap 5: Navigation & Actions (Kroki 25-30)
 
 25. **Implementuj ActionButtons section**
+
     - Primary CTA (Start New Session)
     - Secondary actions (Back to Deck/Dashboard)
     - Button hierarchy i styling
 
 26. **Implementuj navigation logic**
+
     - Check session availability (daily limits)
     - Proper URL construction
     - Context-aware navigation
 
 27. **Dodaj StartNewSessionButton**
+
     - Availability checking
     - Loading states
     - Automatic deck context passing
 
 28. **Implementuj BackToDeckButton**
+
     - Conditional rendering (jeśli deck context)
     - Proper deck URL construction
     - Fallback gdy deck unavailable
 
 29. **Implementuj BackToDashboardButton**
+
     - Always available fallback
     - Dashboard navigation
     - Session completion tracking
@@ -670,26 +695,31 @@ function calculateSessionStatistics(reviews: ReviewData[]): SessionStatistics {
 ### Etap 6: Error Handling & Edge Cases (Kroki 31-36)
 
 31. **Implementuj comprehensive error handling**
+
     - API error detection i recovery
     - Network timeout handling
     - Data validation errors
 
 32. **Dodaj loading states**
+
     - Skeleton screens dla statistics
     - Progressive data loading
     - Smooth transitions
 
 33. **Implementuj empty state handling**
+
     - No reviews found scenario
     - Incomplete session handling
     - Missing data graceful degradation
 
 34. **Dodaj retry mechanisms**
+
     - Automatic retry z exponential backoff
     - Manual retry options
     - Offline/online detection
 
 35. **Implementuj session validation**
+
     - Session ownership verification
     - Completion status checking
     - Data integrity validation
@@ -702,26 +732,31 @@ function calculateSessionStatistics(reviews: ReviewData[]): SessionStatistics {
 ### Etap 7: Polish & Testing (Kroki 37-42)
 
 37. **Implementuj accessibility features**
+
     - ARIA labels dla all statistics
     - Keyboard navigation support
     - Screen reader optimizations
 
 38. **Dodaj responsive design**
+
     - Mobile-friendly layouts
     - Touch-friendly interactions
     - Breakpoint optimizations
 
 39. **Implementuj animations i transitions**
+
     - Statistics count-up animations
     - Smooth section transitions
     - Loading state animations
 
 40. **Performance optimization**
+
     - Component memoization
     - Efficient re-renders
     - Data calculation optimization
 
 41. **Cross-browser testing**
+
     - Safari, Chrome, Firefox compatibility
     - Mobile browser testing
     - Accessibility testing

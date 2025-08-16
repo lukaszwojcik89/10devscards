@@ -85,7 +85,7 @@ Endpoint służy do autentykacji użytkowników w aplikacji AI Flashcards. Jest 
 ### Rate limiting
 
 - **Per IP**: Max 10 prób logowania na 15 minut
-- **Per email**: Max 5 prób logowania na 15 minut  
+- **Per email**: Max 5 prób logowania na 15 minut
 - **Global**: Max 1000 prób logowania na minutę dla całej aplikacji
 - **Exponential backoff**: Zwiększanie opóźnienia po nieudanych próbach
 
@@ -249,11 +249,13 @@ Endpoint służy do autentykacji użytkowników w aplikacji AI Flashcards. Jest 
 ### Faza 1: Podstawowa infrastruktura (2-3 dni)
 
 1. **Zod schema implementation**
+
    - Stworzenie `loginRequestSchema` w `auth.zod.ts`
    - Walidacja email (RFC 5322) i password (długość)
    - Unit testy dla walidacji
 
 2. **AuthService implementation**
+
    - Podstawowa klasa `AuthService` w `auth.service.ts`
    - Metody: `login()`, `validateCredentials()`, `formatUserProfile()`
    - Mock implementation dla testowania
@@ -267,11 +269,13 @@ Endpoint służy do autentykacji użytkowników w aplikacji AI Flashcards. Jest 
 ### Faza 2: Supabase integration (2-3 dni)
 
 1. **Authentication logic**
+
    - Integracja z `supabase.auth.signInWithPassword()`
    - Obsługa różnych typów błędów Supabase
    - Mapowanie błędów na odpowiednie HTTP status codes
 
 2. **User profile handling**
+
    - Pobieranie i formatowanie danych użytkownika
    - Obsługa niezweryfikowanych kont
    - Aktualizacja `last_sign_in_at` timestamp
@@ -284,12 +288,14 @@ Endpoint służy do autentykacji użytkowników w aplikacji AI Flashcards. Jest 
 ### Faza 3: Security & Rate limiting (3-4 dni)
 
 1. **Rate limiting implementation**
+
    - Redis integration dla counters
    - IP-based i email-based limiting
    - Exponential backoff logic
    - Rate limit headers w response
 
 2. **Security enhancements**
+
    - Input sanitization
    - CSRF protection considerations
    - Audit logging implementation
@@ -304,12 +310,14 @@ Endpoint służy do autentykacji użytkowników w aplikacji AI Flashcards. Jest 
 ### Faza 4: Testing & Monitoring (2-3 dni)
 
 1. **Comprehensive testing**
+
    - Unit tests (>90% coverage)
    - Integration tests
    - Security tests
    - Performance tests
 
 2. **Monitoring setup**
+
    - Metrics collection
    - Alerting rules
    - Dashboard creation
@@ -324,12 +332,14 @@ Endpoint służy do autentykacji użytkowników w aplikacji AI Flashcards. Jest 
 ### Faza 5: Deployment & Optimization (1-2 dni)
 
 1. **Staging deployment**
+
    - Feature flags setup
    - Environment configuration
    - Smoke tests
    - Performance validation
 
 2. **Production deployment**
+
    - Gradual rollout (1% -> 10% -> 100%)
    - Real-time monitoring
    - Rollback procedures

@@ -20,7 +20,7 @@ Dodatkowe routing patterns:
 HelpView
 ├── SearchBar
 ├── CategoryFilter
-├── QuickLinks  
+├── QuickLinks
 ├── FAQAccordion
 │   ├── FAQSection (System Leitner)
 │   ├── FAQSection (Limity dzienne)
@@ -109,7 +109,7 @@ export interface FAQItem {
   notHelpful: number;
 }
 
-export type FAQCategory = 'leitner' | 'limits' | 'catchup' | 'interface' | 'troubleshooting';
+export type FAQCategory = "leitner" | "limits" | "catchup" | "interface" | "troubleshooting";
 
 export interface FAQSection {
   category: FAQCategory;
@@ -125,7 +125,7 @@ export interface Tutorial {
   title: string;
   description: string;
   estimatedTime: number;
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  difficulty: "beginner" | "intermediate" | "advanced";
   steps: TutorialStep[];
   completedBy: number;
 }
@@ -134,7 +134,7 @@ export interface TutorialStep {
   id: string;
   title: string;
   content: string;
-  type: 'text' | 'code' | 'interactive' | 'video';
+  type: "text" | "code" | "interactive" | "video";
   media?: MediaAsset;
 }
 
@@ -163,7 +163,7 @@ export interface SearchResult {
 
 // Contact types
 export interface ContactMethod {
-  type: 'email' | 'discord' | 'github' | 'documentation';
+  type: "email" | "discord" | "github" | "documentation";
   label: string;
   value: string;
   icon: string;
@@ -171,11 +171,11 @@ export interface ContactMethod {
 }
 
 export interface FeedbackFormData {
-  type: 'bug' | 'feature' | 'general' | 'improvement';
+  type: "bug" | "feature" | "general" | "improvement";
   title: string;
   description: string;
   email?: string;
-  priority: 'low' | 'medium' | 'high';
+  priority: "low" | "medium" | "high";
 }
 
 // Component props
@@ -213,11 +213,11 @@ export interface CategoryFilterProps {
 
 ```typescript
 const [searchState, setSearchState] = useState<SearchState>({
-  query: '',
+  query: "",
   isLoading: false,
   results: [],
   totalResults: 0,
-  selectedCategory: undefined
+  selectedCategory: undefined,
 });
 
 const [accordionState, setAccordionState] = useState<{
@@ -225,7 +225,7 @@ const [accordionState, setAccordionState] = useState<{
   feedbackSubmitted: Set<string>;
 }>({
   expandedItems: new Set(),
-  feedbackSubmitted: new Set()
+  feedbackSubmitted: new Set(),
 });
 ```
 
@@ -235,17 +235,18 @@ const [accordionState, setAccordionState] = useState<{
 const useSearchFAQ = (faqData: FAQItem[]) => {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  
+
   const debouncedSearch = useMemo(
-    () => debounce((query: string, category?: FAQCategory) => {
-      setIsSearching(true);
-      const results = performSearch(query, faqData, category);
-      setSearchResults(results);
-      setIsSearching(false);
-    }, 300),
+    () =>
+      debounce((query: string, category?: FAQCategory) => {
+        setIsSearching(true);
+        const results = performSearch(query, faqData, category);
+        setSearchResults(results);
+        setIsSearching(false);
+      }, 300),
     [faqData]
   );
-  
+
   return { searchResults, isSearching, search: debouncedSearch };
 };
 ```
@@ -255,9 +256,9 @@ const useSearchFAQ = (faqData: FAQItem[]) => {
 ```typescript
 const useAccordionState = (itemIds: string[]) => {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
-  
+
   const toggle = useCallback((id: string) => {
-    setExpandedItems(prev => {
+    setExpandedItems((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(id)) {
         newSet.delete(id);
@@ -267,10 +268,10 @@ const useAccordionState = (itemIds: string[]) => {
       return newSet;
     });
   }, []);
-  
+
   const expandAll = () => setExpandedItems(new Set(itemIds));
   const collapseAll = () => setExpandedItems(new Set());
-  
+
   return { expandedItems, toggle, expandAll, collapseAll };
 };
 ```
@@ -284,7 +285,7 @@ Widok FAQ/Pomoc jest głównie statyczny z opcjonalnymi integracjami:
 ```typescript
 // Request type
 interface FAQAnalyticsRequest {
-  action: 'view' | 'search' | 'expand' | 'feedback';
+  action: "view" | "search" | "expand" | "feedback";
   itemId?: string;
   query?: string;
   helpful?: boolean;
@@ -299,13 +300,13 @@ interface FAQAnalyticsResponse {
 // Usage
 const trackFAQInteraction = async (data: FAQAnalyticsRequest) => {
   try {
-    await fetch('/api/analytics/faq', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+    await fetch("/api/analytics/faq", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
     });
   } catch (error) {
-    console.warn('Analytics tracking failed:', error);
+    console.warn("Analytics tracking failed:", error);
   }
 };
 ```
@@ -329,20 +330,20 @@ interface FeedbackSubmissionResponse {
 
 // Usage
 const submitFeedback = async (data: FeedbackFormData): Promise<FeedbackSubmissionResponse> => {
-  const response = await fetch('/api/support/feedback', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  const response = await fetch("/api/support/feedback", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       formData: data,
       userAgent: navigator.userAgent,
-      page: '/help'
-    })
+      page: "/help",
+    }),
   });
-  
+
   if (!response.ok) {
-    throw new Error('Failed to submit feedback');
+    throw new Error("Failed to submit feedback");
   }
-  
+
   return response.json();
 };
 ```
@@ -417,11 +418,11 @@ const submitFeedback = async (data: FeedbackFormData): Promise<FeedbackSubmissio
 
 ```typescript
 const handleSearchError = (error: Error) => {
-  console.warn('Search failed:', error);
+  console.warn("Search failed:", error);
   // Fallback to showing all FAQs
   setSearchResults(allFAQItems);
   // Show user-friendly message
-  showToast('Wyszukiwarka chwilowo niedostępna. Pokazujemy wszystkie tematy.', 'warning');
+  showToast("Wyszukiwarka chwilowo niedostępna. Pokazujemy wszystkie tematy.", "warning");
 };
 ```
 
@@ -429,12 +430,12 @@ const handleSearchError = (error: Error) => {
 
 ```typescript
 const handleContentError = (error: Error) => {
-  console.error('FAQ content failed to load:', error);
+  console.error("FAQ content failed to load:", error);
   // Show minimal help content
   setFAQSections(getBasicHelpContent());
   // Offer retry option
-  showErrorBoundary('Nie udało się załadować pomocy', {
-    onRetry: () => window.location.reload()
+  showErrorBoundary("Nie udało się załadować pomocy", {
+    onRetry: () => window.location.reload(),
   });
 };
 ```
@@ -443,13 +444,13 @@ const handleContentError = (error: Error) => {
 
 ```typescript
 const handleSubmissionError = (error: Error, formData: FeedbackFormData) => {
-  console.error('Feedback submission failed:', error);
+  console.error("Feedback submission failed:", error);
   // Save form data dla retry
-  localStorage.setItem('pendingFeedback', JSON.stringify(formData));
+  localStorage.setItem("pendingFeedback", JSON.stringify(formData));
   // Show retry option
-  showErrorMessage('Nie udało się wysłać wiadomości. Spróbuj ponownie.', {
-    action: 'Ponów',
-    onAction: () => retrySubmission(formData)
+  showErrorMessage("Nie udało się wysłać wiadomości. Spróbuj ponownie.", {
+    action: "Ponów",
+    onAction: () => retrySubmission(formData),
   });
 };
 ```
@@ -461,9 +462,9 @@ const handleOfflineState = () => {
   // Disable form submissions
   setIsOffline(true);
   // Show offline indicator
-  showBanner('Brak połączenia z internetem. Niektóre funkcje mogą być niedostępne.', 'info');
+  showBanner("Brak połączenia z internetem. Niektóre funkcje mogą być niedostępne.", "info");
   // Listen dla online event
-  window.addEventListener('online', handleOnlineState);
+  window.addEventListener("online", handleOnlineState);
 };
 ```
 
@@ -471,9 +472,9 @@ const handleOfflineState = () => {
 
 ```typescript
 const handleA11yError = (element: HTMLElement, error: string) => {
-  console.warn('Accessibility issue:', error, element);
+  console.warn("Accessibility issue:", error, element);
   // Apply fallback accessibility attributes
-  element.setAttribute('aria-label', 'Element pomocy');
+  element.setAttribute("aria-label", "Element pomocy");
   // Report dla monitoring
   reportA11yIssue(error, element.tagName);
 };
@@ -484,38 +485,47 @@ const handleA11yError = (element: HTMLElement, error: string) => {
 ### Etap 1: Podstawowa struktura (Kroki 1-10)
 
 1. **Konfiguracja Astro page**
+
    - Utworzenie `src/pages/help.astro` z podstawowym layoutem
    - Konfiguracja meta tags i SEO dla help page
 
 2. **Podstawowe typy TypeScript**
+
    - Utworzenie `src/types/help.ts` z FAQItem, Tutorial, ContactMethod interfaces
    - Definicja search i state management types
 
 3. **Data structure dla FAQ**
+
    - Utworzenie `src/data/faq.ts` z kategoryzowanymi FAQ items
    - Strukturyzacja content dla każdej kategorii (Leitner, limity, catch-up, etc.)
 
 4. **HelpView główny komponent**
+
    - Utworzenie `src/components/HelpView.tsx` jako main container
    - Setup podstawowego layout z responsive grid
 
 5. **SearchBar komponent**
+
    - Implementacja search input z proper labeling
    - Podstawowa struktura bez search logic
 
 6. **FAQ data content**
+
    - Wypełnienie FAQ data z comprehensive content dla każdej kategorii
    - System Leitner explanations, daily limits, catch-up functionality
 
 7. **Podstawowy styling**
+
    - Konfiguracja Tailwind classes dla help page layout
    - Responsive design foundations
 
 8. **CategoryFilter komponent**
+
    - Implementacja filter buttons dla FAQ categories
    - Visual indication selected category
 
 9. **Accessibility foundations**
+
    - Proper heading hierarchy (h1, h2, h3)
    - Basic ARIA landmarks i roles
 
@@ -526,38 +536,47 @@ const handleA11yError = (element: HTMLElement, error: string) => {
 ### Etap 2: Search functionality (Kroki 11-20)
 
 11. **useSearchFAQ custom hook**
+
     - Implementacja search logic z debouncing
     - Real-time filtering FAQ items based on query
 
 12. **Search algorithm**
+
     - Text matching z relevance scoring
     - Support dla partial matches i typos
 
 13. **Search highlighting**
+
     - Highlight matched terms w FAQ content
     - Safe HTML rendering z XSS protection
 
 14. **Search state management**
+
     - Integration search state z URL parameters
     - Persistent search across page refreshes
 
 15. **Category filtering**
+
     - Implementacja filtering by selected category
     - Combined search + category filtering
 
 16. **Search performance optimization**
+
     - Client-side search indexing
     - Memoization dla expensive search operations
 
 17. **Search UI enhancements**
+
     - Loading states podczas search
     - Results counter i "clear search" functionality
 
 18. **Search accessibility**
+
     - Screen reader announcements dla search results
     - Keyboard navigation w search results
 
 19. **Search analytics tracking**
+
     - Track search queries dla content improvement
     - Popular searches identification
 
@@ -568,38 +587,47 @@ const handleA11yError = (element: HTMLElement, error: string) => {
 ### Etap 3: FAQ Accordion (Kroki 21-30)
 
 21. **FAQAccordion base component**
+
     - Implementacja accordion container z proper ARIA
     - Keyboard navigation support (Arrow keys, Home, End)
 
 22. **FAQSection component**
+
     - Individual FAQ item z expand/collapse functionality
     - Smooth animations dla content reveal
 
 23. **useAccordionState hook**
+
     - State management dla expanded/collapsed items
     - Persistence w sessionStorage
 
 24. **Rich content support**
+
     - Markdown rendering w FAQ answers
     - Code syntax highlighting dla examples
 
 25. **FAQ feedback system**
+
     - "Was this helpful?" buttons na each FAQ
     - Feedback state management i submission
 
 26. **FAQ multimedia integration**
+
     - Support dla images i videos w answers
     - Lazy loading dla performance
 
 27. **FAQ deep linking**
+
     - URL fragments dla direct links do specific FAQs
     - Scroll-to-section functionality
 
 28. **FAQ search result highlighting**
+
     - Integration z search highlighting w accordion content
     - Smooth scroll do relevant sections
 
 29. **FAQ analytics**
+
     - Track most viewed FAQ items
     - Measure usefulness z feedback data
 
@@ -610,38 +638,47 @@ const handleA11yError = (element: HTMLElement, error: string) => {
 ### Etap 4: Tutorials i Contact (Kroki 31-40)
 
 31. **TutorialSection component**
+
     - Grid layout dla tutorial cards
     - Preview information (time, difficulty, completion rate)
 
 32. **Tutorial data structure**
+
     - Step-by-step tutorial content
     - Interactive elements where applicable
 
 33. **Tutorial progress tracking**
+
     - localStorage-based progress saving
     - Visual progress indicators
 
 34. **ContactCTA component**
+
     - Multiple contact methods display
     - Response time expectations
 
 35. **Feedback form implementation**
+
     - Form validation z proper error handling
     - Spam protection mechanisms
 
 36. **Form submission handling**
+
     - Integration z backend feedback endpoint
     - Success/error state management
 
 37. **Contact methods integration**
+
     - External links do Discord, GitHub, email
     - Copy-to-clipboard functionality dla contact info
 
 38. **Comprehensive testing**
+
     - Unit tests dla all components
     - Integration tests dla search i form functionality
 
 39. **Performance optimization**
+
     - Bundle size optimization
     - Lazy loading dla non-critical components
 
@@ -667,11 +704,12 @@ const handleA11yError = (element: HTMLElement, error: string) => {
 ### Techniczne wymagania:
 
 - **Astro 5** - statyczna generacja z React islands
-- **React 19** - component interactivity  
+- **React 19** - component interactivity
 - **TypeScript 5** - type safety
 - **Tailwind CSS 4** - styling framework
 
 ### API endpoints (opcjonalne):
+
 - **POST /api/analytics/faq** - FAQ interaction tracking
 - **POST /api/support/feedback** - user feedback submission
 

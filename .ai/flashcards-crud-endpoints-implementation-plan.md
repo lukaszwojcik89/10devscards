@@ -8,7 +8,7 @@ Ten plan obejmuje implementację 6 endpointów CRUD dla zarządzania fiszkami w 
 
 Endpoint do pobierania wszystkich fiszek należących do określonej talii z opcjonalnym filtrowaniem według statusu i pola Leitner. Obsługuje paginację i zwraca szczegółowe informacje o każdej fiszce.
 
-### GET /api/flashcards/{id}  
+### GET /api/flashcards/{id}
 
 Endpoint do pobierania szczegółowych informacji o pojedynczej fiszce, w tym wszystkich metadanych AI i informacji o postępie w systemie Leitner.
 
@@ -45,7 +45,7 @@ Endpoint do permanentnego usuwania fiszki z systemu wraz z całą historią powt
 
 ### GET /api/flashcards/{id}
 
-- **Metoda HTTP**: GET  
+- **Metoda HTTP**: GET
 - **Struktura URL**: `/api/flashcards/{id}`
 - **Parametry**:
   - **Wymagane** (w URL):
@@ -188,7 +188,7 @@ Zwraca strukturę identyczną jak GET /api/flashcards/{id}
 
 Zwraca strukturę identyczną jak GET /api/flashcards/{id}
 
-### PATCH /api/flashcards/{id}/status - Sukces (200 OK)  
+### PATCH /api/flashcards/{id}/status - Sukces (200 OK)
 
 Zwraca strukturę identyczną jak GET /api/flashcards/{id}
 
@@ -207,7 +207,7 @@ Zwraca strukturę identyczną jak GET /api/flashcards/{id}
 - **404 Not Found**: Fiszka, talia lub zasób nie istnieje/nie należy do użytkownika
 - **500 Internal Server Error**: Błąd serwera (database, system)
 
-## 5. Przepływ danych  
+## 5. Przepływ danych
 
 ### GET /api/decks/{slug}/flashcards
 
@@ -355,8 +355,8 @@ Zwraca strukturę identyczną jak GET /api/flashcards/{id}
 ### Optymalizacje queries
 
 - **Pagination limits** - max 100 results per request
-- **SELECT specific fields** - unikanie SELECT *
-- **Efficient counting** - COUNT(*) OVER() dla pagination
+- **SELECT specific fields** - unikanie SELECT \*
+- **Efficient counting** - COUNT(\*) OVER() dla pagination
 - **Index hints** - WHERE clauses matching database indexes
 
 ### Caching strategia
@@ -383,12 +383,14 @@ Zwraca strukturę identyczną jak GET /api/flashcards/{id}
 ### Faza 1: Przygotowanie infrastruktury (1 dzień)
 
 1. **Tworzenie plików endpoint** - utworzenie API route files
+
    - `/api/decks/[slug]/flashcards.ts`
    - `/api/flashcards/[id].ts`
    - `/api/flashcards/index.ts`
    - `/api/flashcards/[id]/status.ts`
 
 2. **Rozszerzenie FlashcardsService** - dodanie metod CRUD
+
    - `getFlashcardsByDeck()`
    - `getFlashcardById()`
    - `createFlashcard()`
@@ -405,12 +407,14 @@ Zwraca strukturę identyczną jak GET /api/flashcards/{id}
 ### Faza 2: Implementacja GET endpoints (1 dzień)
 
 1. **GET /api/decks/{slug}/flashcards**
+
    - Deck ownership verification
    - Query parameters parsing i validation
    - Database query z filtering i pagination
    - Response formatting
 
 2. **GET /api/flashcards/{id}**
+
    - Flashcard ownership verification przez RLS
    - Single flashcard fetch
    - Error handling dla not found
@@ -423,6 +427,7 @@ Zwraca strukturę identyczną jak GET /api/flashcards/{id}
 ### Faza 3: Implementacja POST/PUT endpoints (2 dni)
 
 1. **POST /api/flashcards**
+
    - Request validation z Zod
    - Deck ownership check
    - Business rules validation (limits)
@@ -430,6 +435,7 @@ Zwraca strukturę identyczną jak GET /api/flashcards/{id}
    - Response formatting
 
 2. **PUT /api/flashcards/{id}**
+
    - Request validation
    - Ownership verification
    - Update logic z metadata preservation
@@ -444,12 +450,14 @@ Zwraca strukturę identyczną jak GET /api/flashcards/{id}
 ### Faza 4: Implementacja PATCH/DELETE endpoints (1 dzień)
 
 1. **PATCH /api/flashcards/{id}/status**
+
    - Status validation (only pending can change)
    - Auto-acceptance logic implementation
    - Due date recalculation
    - Business rules enforcement
 
 2. **DELETE /api/flashcards/{id}**
+
    - Ownership verification
    - Cascade delete handling
    - Confirmation response
@@ -462,12 +470,14 @@ Zwraca strukturę identyczną jak GET /api/flashcards/{id}
 ### Faza 5: Security i Performance optimization (1 dzień)
 
 1. **Security audit**
+
    - Input validation completeness
    - Authorization checks verification
    - SQL injection testing
    - Error message security review
 
 2. **Performance optimization**
+
    - Query optimization i indexing
    - Response time measurements
    - Memory usage optimization
@@ -481,12 +491,14 @@ Zwraca strukturę identyczną jak GET /api/flashcards/{id}
 ### Faza 6: Integration testing i deployment (1 dzień)
 
 1. **End-to-end testing**
+
    - Full workflow testing
    - Cross-endpoint integration
    - Frontend integration testing
    - Error flow testing
 
 2. **Load testing**
+
    - Concurrent requests handling
    - Database performance under load
    - Memory leak detection
@@ -501,6 +513,7 @@ Zwraca strukturę identyczną jak GET /api/flashcards/{id}
 ### Faza 7: Monitoring i documentation (0.5 dnia)
 
 1. **Monitoring setup**
+
    - Metrics collection (response times, error rates)
    - Alerting configuration
    - Dashboard creation

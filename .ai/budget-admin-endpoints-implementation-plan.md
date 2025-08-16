@@ -36,7 +36,7 @@
 
 - **Method**: GET
 - **Path**: `/api/admin/budget/status`
-- **Headers**: 
+- **Headers**:
   - `Authorization: Bearer <admin_access_token>`
   - `Content-Type: application/json`
 - **Query Parameters**: None
@@ -56,7 +56,7 @@
 {
   "data": {
     "current_month": "2025-06",
-    "budget_limit_usd": 10.00,
+    "budget_limit_usd": 10.0,
     "current_usage_usd": 7.85,
     "usage_percentage": 78.5,
     "threshold_80_reached": false,
@@ -70,6 +70,7 @@
 ### Error responses
 
 #### 401 Unauthorized
+
 ```json
 {
   "error": "UNAUTHORIZED",
@@ -78,6 +79,7 @@
 ```
 
 #### 403 Forbidden (Not Admin)
+
 ```json
 {
   "error": "FORBIDDEN",
@@ -86,6 +88,7 @@
 ```
 
 #### 500 Internal Server Error
+
 ```json
 {
   "error": "INTERNAL_SERVER_ERROR",
@@ -114,14 +117,14 @@
 
 ```sql
 -- Get current month budget usage
-SELECT 
+SELECT
   COALESCE(SUM(cost_usd), 0) as current_usage_usd,
   MAX(created_at) as last_updated
-FROM budget_events 
+FROM budget_events
 WHERE DATE_TRUNC('month', created_at) = DATE_TRUNC('month', CURRENT_DATE);
 
 -- Get threshold events for current month
-SELECT 
+SELECT
   threshold_reached,
   created_at
 FROM budget_events
@@ -131,10 +134,10 @@ ORDER BY created_at DESC
 LIMIT 1;
 
 -- Check if generation is currently blocked
-SELECT 
-  CASE 
-    WHEN COALESCE(SUM(cost_usd), 0) >= $1 THEN true 
-    ELSE false 
+SELECT
+  CASE
+    WHEN COALESCE(SUM(cost_usd), 0) >= $1 THEN true
+    ELSE false
   END as generation_blocked
 FROM budget_events
 WHERE DATE_TRUNC('month', created_at) = DATE_TRUNC('month', CURRENT_DATE);
@@ -144,7 +147,7 @@ WHERE DATE_TRUNC('month', created_at) = DATE_TRUNC('month', CURRENT_DATE);
 
 ```sql
 -- Recent budget events for context
-SELECT 
+SELECT
   event_type,
   cost_usd,
   cumulative_usd,
@@ -245,15 +248,12 @@ try {
       { status: 503 }
     );
   }
-  
+
   if (error instanceof BudgetConfigurationError) {
     logger.error("Budget configuration missing", { error });
-    return Response.json(
-      { error: "CONFIGURATION_ERROR", message: "Budget configuration not found" },
-      { status: 500 }
-    );
+    return Response.json({ error: "CONFIGURATION_ERROR", message: "Budget configuration not found" }, { status: 500 });
   }
-  
+
   logger.error("Budget status calculation failed", { error: error.message });
   return Response.json(
     { error: "INTERNAL_SERVER_ERROR", message: "Failed to retrieve budget status" },
@@ -268,24 +268,15 @@ try {
 try {
   const isAdmin = await verifyAdminAccess(authToken);
   if (!isAdmin) {
-    return Response.json(
-      { error: "FORBIDDEN", message: "Admin access required" },
-      { status: 403 }
-    );
+    return Response.json({ error: "FORBIDDEN", message: "Admin access required" }, { status: 403 });
   }
 } catch (error) {
   if (error instanceof TokenExpiredError) {
-    return Response.json(
-      { error: "TOKEN_EXPIRED", message: "Admin token has expired" },
-      { status: 401 }
-    );
+    return Response.json({ error: "TOKEN_EXPIRED", message: "Admin token has expired" }, { status: 401 });
   }
-  
+
   logger.error("Admin verification failed", { error: error.message });
-  return Response.json(
-    { error: "UNAUTHORIZED", message: "Authentication required" },
-    { status: 401 }
-  );
+  return Response.json({ error: "UNAUTHORIZED", message: "Authentication required" }, { status: 401 });
 }
 ```
 

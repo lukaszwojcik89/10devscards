@@ -169,7 +169,7 @@ interface DecksPageState {
     totalCount: number;
   };
   ui: {
-    viewMode: 'table' | 'cards';
+    viewMode: "table" | "cards";
     selectedDeck: string | null;
     showCreateModal: boolean;
     showDeleteDialog: string | null;
@@ -179,21 +179,21 @@ interface DecksPageState {
 // Filtry dla listy talii
 interface DecksFilters {
   search: string;
-  sortBy: 'name' | 'created_at' | 'updated_at' | 'flashcard_count' | 'due_count';
-  sortOrder: 'asc' | 'desc';
-  status?: 'active' | 'empty' | null;
+  sortBy: "name" | "created_at" | "updated_at" | "flashcard_count" | "due_count";
+  sortOrder: "asc" | "desc";
+  status?: "active" | "empty" | null;
   hasOverdue?: boolean;
 }
 
 // Konfiguracja sortowania
 interface SortConfig {
-  field: keyof DecksFilters['sortBy'];
-  direction: 'asc' | 'desc';
+  field: keyof DecksFilters["sortBy"];
+  direction: "asc" | "desc";
 }
 
 // Opcje sortowania dla UI
 interface SortOption {
-  value: DecksFilters['sortBy'];
+  value: DecksFilters["sortBy"];
   label: string;
   icon?: string;
 }
@@ -210,7 +210,7 @@ interface DecksHeaderProps {
 interface DecksTableProps {
   decks: DeckListItem[];
   sort: SortConfig;
-  onSort: (field: DecksFilters['sortBy']) => void;
+  onSort: (field: DecksFilters["sortBy"]) => void;
   onRowClick: (slug: string) => void;
   onLoadMore: () => void;
   hasMore: boolean;
@@ -268,7 +268,7 @@ interface UseDecksReturn {
   actions: {
     searchDecks: (query: string) => void;
     applyFilters: (filters: Partial<DecksFilters>) => void;
-    sortDecks: (field: DecksFilters['sortBy']) => void;
+    sortDecks: (field: DecksFilters["sortBy"]) => void;
     loadMore: () => Promise<void>;
     refreshDecks: () => Promise<void>;
     createDeck: (data: CreateDeckRequest) => Promise<void>;
@@ -411,6 +411,7 @@ interface UseDecksFiltersReturn {
 ### Scenariusze nawigacji
 
 1. **Wejście na stronę talii:**
+
    - URL `/decks` → load deck list z default sorting
    - Show loading skeletons, progressive reveal content
    - Auto-focus na search input dla accessibility
@@ -425,6 +426,7 @@ interface UseDecksFiltersReturn {
 ### Scenariusze filtrowania i sortowania
 
 3. **Sortowanie listy:**
+
    - Click column header → toggle sort direction
    - Select z dropdown → apply new sort immediately
    - Visual feedback: sort direction indicators
@@ -439,12 +441,14 @@ interface UseDecksFiltersReturn {
 ### Scenariusze zarządzania taliami
 
 5. **Tworzenie nowej talii:**
+
    - Click "Utwórz talię" → open CreateDeckModal
    - Fill form fields → real-time validation
    - Submit → optimistic update, API call, navigate to deck
    - Error handling → show errors, keep modal open
 
 6. **Nawigacja do talii:**
+
    - Click row/card → navigate to `/decks/:slug`
    - Click "Ucz się" → navigate to `/study?deck=:slug`
    - Breadcrumb navigation → maintain context
@@ -459,6 +463,7 @@ interface UseDecksFiltersReturn {
 ### Scenariusze infinite scroll
 
 8. **Ładowanie więcej talii:**
+
    - Scroll to bottom → automatic load more (if enabled)
    - Click "Załaduj więcej" → manual load more trigger
    - Loading state → show skeleton items
@@ -522,24 +527,28 @@ interface UseDecksFiltersReturn {
 ### Kategorie błędów i strategie
 
 1. **API Communication Errors:**
+
    - Network timeout: Show offline banner, enable retry
    - 401 Unauthorized: Clear auth tokens, redirect to login
    - 500 Server Error: Show "Wystąpił błąd", retry button
    - Handle: Global error boundary + component-specific fallbacks
 
 2. **Data Loading Errors:**
+
    - Initial load failure: Show error state z refresh option
    - Load more failure: Show "Nie udało się załadować", retry button
    - Search failure: Show "Wyszukiwanie niedostępne", clear search
    - Handle: Partial loading support, graceful degradation
 
 3. **User Action Errors:**
+
    - Create deck failure: Keep modal open, show specific error
    - Delete failure: Restore item, show retry option
    - Search timeout: Show "Wyszukiwanie zbyt długie", cancel option
    - Handle: Optimistic UI patterns z rollback mechanisms
 
 4. **Validation Errors:**
+
    - Form validation: Highlight invalid fields, show inline messages
    - Duplicate name: Show "Talia o tej nazwie już istnieje"
    - Character limits: Show remaining characters counter
@@ -564,38 +573,45 @@ interface UseDecksFiltersReturn {
 ### Etap 1: Przygotowanie infrastruktury (Kroki 1-8)
 
 1. **Utwórz strukturę plików**
+
    - `src/pages/decks.astro` - główna strona
    - `src/components/decks/` - folder komponentów
    - `src/hooks/decks/` - custom hooks
 
 2. **Rozszerz typy**
+
    - Dodaj nowe interfejsy do `src/types.ts`
    - Validate compatibility z istniejącymi API types
    - Setup error handling types
 
 3. **Przygotuj routing**
+
    - Configure Astro routing dla `/decks`
    - Setup SEO meta tags
    - Implement authorization guards
 
 4. **Utwórz base utilities**
+
    - Search debouncing utilities
    - Filter query builders
    - URL synchronization helpers
    - Validation utilities
 
 5. **Setup testing infrastructure**
+
    - Unit test setup dla components
    - Mock API responses
    - Accessibility testing tools
 
 6. **Create base components**
+
    - LoadingSpinner/Skeleton
    - ErrorBoundary
    - EmptyState
    - Toast notifications
 
 7. **Implement main page structure**
+
    - DecksPage.astro z layoutem
    - Basic content structure
    - SEO meta tags setup
@@ -608,36 +624,43 @@ interface UseDecksFiltersReturn {
 ### Etap 2: Custom hooks implementation (Kroki 9-16)
 
 9. **Implement useDecks hook**
+
    - API integration dla deck loading
    - Loading i error states
    - React Query cache management
 
 10. **Create useDecksFilters hook**
+
     - Filter state management
     - URL synchronization
     - Preset filters logic
 
 11. **Build useInfiniteScroll hook**
+
     - Cursor-based pagination
     - Load more functionality
     - Error handling
 
 12. **Add useDebouncing helper**
+
     - Search input debouncing
     - Cancellation logic
     - Loading state coordination
 
 13. **Implement useDeckActions hook**
+
     - CRUD operations dla decks
     - Optimistic updates
     - Error handling z rollback
 
 14. **Create useResponsiveView hook**
+
     - Viewport detection
     - Layout switching logic
     - Responsive state management
 
 15. **Add useUrlSync hook**
+
     - Query parameter synchronization
     - History management
     - Deep linking support
@@ -650,36 +673,43 @@ interface UseDecksFiltersReturn {
 ### Etap 3: Core components (Kroki 17-24)
 
 17. **Build DecksContainer**
+
     - Main state orchestration
     - API integration
     - Error boundary integration
 
 18. **Implement DecksHeader**
+
     - Search functionality
     - Page title i stats
     - Create deck CTA
 
 19. **Create DecksFilterBar**
+
     - Sort controls
     - Filter options
     - Clear functionality
 
 20. **Build DecksTable (desktop)**
+
     - Table layout z sortable columns
     - Row click handling
     - Responsive behavior
 
 21. **Implement DeckRow**
+
     - Row content display
     - Action buttons
     - Hover states
 
 22. **Create DeckCards (mobile)**
+
     - Card grid layout
     - Touch interactions
     - Responsive design
 
 23. **Add DeckCard component**
+
     - Card content layout
     - Touch gestures
     - Action handling
@@ -692,36 +722,43 @@ interface UseDecksFiltersReturn {
 ### Etap 4: Modals i infinite scroll (Kroki 25-32)
 
 25. **Implement CreateDeckModal**
+
     - Form layout z validation
     - Real-time validation
     - Submit handling
 
 26. **Create DeleteConfirmDialog**
+
     - Confirmation workflow
     - Safety measures
     - Keyboard handling
 
 27. **Build infinite scroll system**
+
     - Intersection Observer setup
     - Load more functionality
     - Performance optimization
 
 28. **Add loading states**
+
     - Skeleton placeholders
     - Loading indicators
     - Progressive loading
 
 29. **Implement search system**
+
     - Debounced search input
     - Search results highlighting
     - Search state management
 
 30. **Create toast system**
+
     - Success notifications
     - Error messages
     - Auto-dismiss logic
 
 31. **Add keyboard shortcuts**
+
     - Search focus (/)
     - Create deck (n)
     - Navigation shortcuts
@@ -734,16 +771,19 @@ interface UseDecksFiltersReturn {
 ### Etap 5: Polish i optimization (Kroki 33-36)
 
 33. **Implement responsive design**
+
     - Desktop table view
     - Mobile card view
     - Transition animations
 
 34. **Add empty states**
+
     - No decks state
     - No search results
     - Error states
 
 35. **Optimize performance**
+
     - Virtual scrolling dla large lists
     - Image lazy loading
     - Bundle optimization
@@ -757,16 +797,19 @@ interface UseDecksFiltersReturn {
 ### Etap 6: Final testing (Kroki 37-40)
 
 37. **Integration testing**
+
     - End-to-end workflows
     - API integration testing
     - Error scenario testing
 
 38. **Performance testing**
+
     - Large dataset handling
     - Search performance
     - Infinite scroll performance
 
 39. **Accessibility audit**
+
     - Screen reader testing
     - Keyboard navigation audit
     - Color contrast validation

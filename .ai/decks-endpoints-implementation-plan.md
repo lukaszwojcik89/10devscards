@@ -172,7 +172,7 @@ Wszystkie błędy zwracane w formacie ErrorResponseDTO z kodem, wiadomością i 
 ## 9. Kroki implementacji
 
 1. **Stworzenie Zod schemas** - deckListQuerySchema, createDeckSchema, updateDeckSchema w pliku decks.zod.ts
-2. **Implementacja DecksService** - klasa z metodami CRUD w lib/services/decks.service.ts  
+2. **Implementacja DecksService** - klasa z metodami CRUD w lib/services/decks.service.ts
 3. **Endpoint GET /api/decks** - lista z paginacją i licznikami w pages/api/decks/index.ts
 4. **Endpoint GET /api/decks/[slug]** - pojedyncza talia w pages/api/decks/[slug].ts
 5. **Endpoint POST /api/decks** - tworzenie nowych talii w pages/api/decks/index.ts

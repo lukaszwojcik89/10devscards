@@ -30,7 +30,7 @@ StudySessionView (src/pages/study.astro - główny layout)
     │   ├── CatchupToggle (jeśli dostępne)
     │   ├── SessionTimer
     │   └── ExitButton (Esc)
-    ├── FlashcardContainer 
+    ├── FlashcardContainer
     │   ├── QuestionCard
     │   ├── AnswerCard (conditional render)
     │   └── CardActions
@@ -216,10 +216,10 @@ interface KeyboardShortcut {
 }
 
 // Error & Loading States
-type StudySessionStatus = 'loading' | 'ready' | 'question' | 'answer' | 'submitting' | 'complete' | 'error';
+type StudySessionStatus = "loading" | "ready" | "question" | "answer" | "submitting" | "complete" | "error";
 
 interface StudyError {
-  type: 'network' | 'session_expired' | 'daily_limit' | 'no_cards' | 'server_error';
+  type: "network" | "session_expired" | "daily_limit" | "no_cards" | "server_error";
   message: string;
   retryable: boolean;
   details?: Record<string, any>;
@@ -235,7 +235,7 @@ Widok używa lokalnego stanu zarządzanego przez custom hook `useStudySession` w
 ```typescript
 function useStudySession(deckSlug?: string, includeCatchup?: boolean) {
   const [sessionState, setSessionState] = useState<StudySessionState | null>(null);
-  const [status, setStatus] = useState<StudySessionStatus>('loading');
+  const [status, setStatus] = useState<StudySessionStatus>("loading");
   const [error, setError] = useState<StudyError | null>(null);
 
   // API integration
@@ -248,9 +248,15 @@ function useStudySession(deckSlug?: string, includeCatchup?: boolean) {
   };
 
   // Actions
-  const showAnswer = () => { /* reveal answer + start response timer */ };
-  const rateCard = async (rating: 1|2|3) => { /* submit + move to next */ };
-  const exitSession = () => { /* cleanup + navigate */ };
+  const showAnswer = () => {
+    /* reveal answer + start response timer */
+  };
+  const rateCard = async (rating: 1 | 2 | 3) => {
+    /* submit + move to next */
+  };
+  const exitSession = () => {
+    /* cleanup + navigate */
+  };
 
   return {
     sessionState,
@@ -259,7 +265,7 @@ function useStudySession(deckSlug?: string, includeCatchup?: boolean) {
     showAnswer,
     rateCard,
     exitSession,
-    retrySession
+    retrySession,
   };
 }
 ```
@@ -285,9 +291,9 @@ function useStudySession(deckSlug?: string, includeCatchup?: boolean) {
 
 ```typescript
 const params = new URLSearchParams({
-  deck_slug: deckSlug || '',
-  include_catchup: includeCatchup?.toString() || 'false',
-  limit: '50'
+  deck_slug: deckSlug || "",
+  include_catchup: includeCatchup?.toString() || "false",
+  limit: "50",
 });
 ```
 
@@ -463,7 +469,7 @@ interface ErrorRecoveryStrategy {
   backoffMs: number;
   fallbackAction: () => void;
   userMessage: string;
-  logLevel: 'warn' | 'error' | 'critical';
+  logLevel: "warn" | "error" | "critical";
 }
 ```
 
@@ -472,36 +478,43 @@ interface ErrorRecoveryStrategy {
 ### Etap 1: Przygotowanie infrastruktury (Kroki 1-8)
 
 1. **Dodaj brakujące typy do src/types.ts**
+
    - `StudySessionResponseDTO`, `StudyFlashcard`, `StudySessionMetadata`
    - `StudySessionState`, `StudyAnswer`, `StudyError`
    - Component props interfaces, keyboard handling types
 
 2. **Utwórz hook useStudySession w src/lib/hooks/**
+
    - Podstawowa struktura z state management
    - API integration placeholder functions
    - Error handling infrastructure
 
 3. **Utwórz API client functions w src/lib/services/study.service.ts**
+
    - `fetchStudySession(params)` → GET /api/study/session
    - `submitStudyAnswer(answer)` → POST /api/reviews
    - Error mapping i response formatting
 
 4. **Skonfiguruj routing w src/pages/study.astro**
+
    - Podstawowy Astro layout z React island
    - Query parameters extraction (deck, catchup)
    - SEO meta tags i page title
 
 5. **Utwórz główny layout StudyContainer w src/components/study/**
+
    - React component z full-screen layout
    - Podstawowy state management setup
    - Props interface i TypeScript setup
 
 6. **Utwórz komponenty StudyToolbar i FlashcardContainer**
+
    - Podstawowe struktury komponentów
    - Props interfaces i placeholder content
    - Tailwind styling foundation
 
 7. **Utwórz hook useKeyboardShortcuts**
+
    - Global keyboard event listeners
    - Shortcut mapping object
    - Focus management i prevent default handling
@@ -514,36 +527,43 @@ interface ErrorRecoveryStrategy {
 ### Etap 2: Core Functionality - API Integration (Kroki 9-16)
 
 9. **Implementuj fetchStudySession w useStudySession**
+
    - API call z proper query parameters
    - Loading state management
    - Response data transformation
 
 10. **Implementuj error handling dla session loading**
+
     - Network error detection i retry logic
     - API error code mapping
     - User-friendly error messages
 
 11. **Implementuj submitStudyAnswer w useStudySession**
+
     - POST request z answer data
     - Response handling i state updates
     - Optimistic update pattern
 
 12. **Dodaj session state transitions**
+
     - Loading → Ready → Question → Answer → Submitting cycle
     - State validation i transition guards
     - Error state handling
 
 13. **Implementuj session initialization w StudyContainer**
+
     - useEffect hook dla API call on mount
     - Query parameters processing
     - Initial state setup
 
 14. **Dodaj loading states do UI komponentów**
+
     - Skeleton screens dla loading session
     - Loading indicators dla API calls
     - Smooth transition animations
 
 15. **Implementuj basic error recovery**
+
     - Retry mechanisms dla failed API calls
     - Error modal z user actions
     - Graceful fallback states
@@ -556,36 +576,43 @@ interface ErrorRecoveryStrategy {
 ### Etap 3: Flashcard Display & Interaction (Kroki 17-24)
 
 17. **Implementuj QuestionCard component**
+
     - Question text display z proper formatting
     - Deck name indicator
     - Responsive layout dla different question lengths
 
 18. **Implementuj AnswerCard component**
+
     - Conditional rendering based on showAnswer state
     - Answer text z markdown support
     - Code syntax highlighting (jeśli needed)
 
 19. **Implementuj card flip animation**
+
     - CSS transitions między question i answer
     - Smooth animation performance
     - Accessibility-friendly reduced motion support
 
 20. **Implementuj CardActions component**
+
     - Show Answer button z proper states
     - Rating buttons (1-2-3) z visual feedback
     - Loading states podczas API submission
 
 21. **Dodaj response time tracking**
+
     - Timer start na question display
     - Timer stop na answer submission
     - Response time calculation i storage
 
 22. **Implementuj navigation między cards**
+
     - Automatic transition po successful rating
     - Previous/next card handling (jeśli needed)
     - Session progress management
 
 23. **Dodaj visual feedback dla user actions**
+
     - Button hover i active states
     - Success/error feedback animations
     - Progress indicator updates
@@ -598,36 +625,43 @@ interface ErrorRecoveryStrategy {
 ### Etap 4: Keyboard Shortcuts & Accessibility (Kroki 25-32)
 
 25. **Implementuj podstawowe keyboard shortcuts**
+
     - Space/Enter dla show answer i submit
     - Number keys (1-3) dla rating
     - Escape dla exit session
 
 26. **Dodaj keyboard shortcuts context awareness**
+
     - Different shortcuts w different states
     - Disable shortcuts podczas loading/submitting
     - Focus management dla proper key handling
 
 27. **Implementuj HotkeysHint component**
+
     - Floating overlay z current shortcuts
     - Auto-hide functionality po user activity
     - Responsive positioning
 
 28. **Dodaj focus management**
+
     - Proper tab order dla keyboard navigation
     - Auto-focus na relevant elements
     - Focus visible indicators
 
 29. **Implementuj ARIA attributes**
+
     - aria-live regions dla dynamic content updates
     - aria-labels dla all interactive elements
     - aria-describedby dla help text
 
 30. **Dodaj screen reader support**
+
     - Proper heading structure (h1-h6)
     - Descriptive text dla images i icons
     - Status announcements dla state changes
 
 31. **Implementuj high contrast mode support**
+
     - CSS custom properties dla colors
     - Proper contrast ratios (WCAG AA)
     - Alternative styling dla low vision users
@@ -640,16 +674,19 @@ interface ErrorRecoveryStrategy {
 ### Etap 5: Toolbar & Progress Management (Kroki 33-36)
 
 33. **Implementuj ProgressIndicator w StudyToolbar**
+
     - Current card / total cards display
     - Visual progress bar
     - Separate indicators dla regular vs catch-up
 
 34. **Implementuj CatchupToggle functionality**
+
     - Toggle switch z proper states
     - API integration dla catch-up mode
     - Visual indicators dla catch-up cards
 
 35. **Implementuj SessionTimer**
+
     - Real-time timer display
     - Pause/resume functionality (jeśli needed)
     - Time formatting (MM:SS)
@@ -662,16 +699,19 @@ interface ErrorRecoveryStrategy {
 ### Etap 6: Advanced Error Handling (Kroki 37-40)
 
 37. **Implementuj comprehensive error scenarios**
+
     - Network timeout handling
     - API rate limiting responses
     - Session expiration detection
 
 38. **Dodaj error recovery mechanisms**
+
     - Automatic retry z exponential backoff
     - Manual retry options dla users
     - Session state restoration
 
 39. **Implementuj localStorage backup**
+
     - Save session state periodically
     - Restore session on page reload
     - Clear backup on successful completion
@@ -684,6 +724,7 @@ interface ErrorRecoveryStrategy {
 ### Etap 7: Polish & Testing (Kroki 41-42)
 
 41. **Performance optimization**
+
     - React.memo dla expensive components
     - useCallback/useMemo dla expensive calculations
     - Image/content preloading dla smooth UX

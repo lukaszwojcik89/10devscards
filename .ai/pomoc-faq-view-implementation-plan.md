@@ -46,7 +46,7 @@ FeedbackButton: React.FC<{ itemId: string, onFeedback: (helpful: boolean) => voi
 ```typescript
 interface FAQItem {
   id: string;
-  category: 'leitner' | 'limits' | 'catchup' | 'interface' | 'troubleshooting';
+  category: "leitner" | "limits" | "catchup" | "interface" | "troubleshooting";
   question: string;
   answer: string;
   tags: string[];
@@ -60,7 +60,7 @@ interface Tutorial {
   description: string;
   steps: TutorialStep[];
   estimatedTime: number;
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  difficulty: "beginner" | "intermediate" | "advanced";
 }
 
 interface TutorialStep {
@@ -68,7 +68,7 @@ interface TutorialStep {
   title: string;
   content: string;
   interactive?: boolean;
-  media?: { type: 'image' | 'video', url: string };
+  media?: { type: "image" | "video"; url: string };
 }
 ```
 
@@ -87,8 +87,8 @@ interface TutorialStep {
 ---
 // src/pages/help.astro
 const breadcrumbs = [
-  { label: 'Dashboard', href: '/dashboard' },
-  { label: 'Pomoc', href: '/help' }
+  { label: "Dashboard", href: "/dashboard" },
+  { label: "Pomoc", href: "/help" },
 ];
 ---
 ```
@@ -97,9 +97,10 @@ const breadcrumbs = [
 
 ```typescript
 const helpMetadata = {
-  title: '10DevsCards - Pomoc i FAQ',
-  description: 'Pomoc, FAQ i tutoriale dla aplikacji 10DevsCards. Wyjaśnienia systemu Leitner, limitów dziennych i funkcji catch-up.',
-  keywords: 'pomoc, FAQ, system Leitner, fiszki, nauka, tutoriale'
+  title: "10DevsCards - Pomoc i FAQ",
+  description:
+    "Pomoc, FAQ i tutoriale dla aplikacji 10DevsCards. Wyjaśnienia systemu Leitner, limitów dziennych i funkcji catch-up.",
+  keywords: "pomoc, FAQ, system Leitner, fiszki, nauka, tutoriale",
 };
 ```
 
@@ -108,7 +109,7 @@ const helpMetadata = {
 ### Local State (React useState)
 
 ```typescript
-const [searchQuery, setSearchQuery] = useState('');
+const [searchQuery, setSearchQuery] = useState("");
 const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 const [filteredFAQ, setFilteredFAQ] = useState<FAQItem[]>([]);
 const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
@@ -121,14 +122,14 @@ const [tutorialProgress, setTutorialProgress] = useState<Record<string, number>>
 const searchFAQ = useMemo(() => {
   return (query: string, items: FAQItem[]) => {
     if (!query.trim()) return items;
-    
+
     const normalizedQuery = query.toLowerCase();
     return items
-      .map(item => ({
+      .map((item) => ({
         ...item,
-        relevance: calculateRelevance(normalizedQuery, item)
+        relevance: calculateRelevance(normalizedQuery, item),
       }))
-      .filter(item => item.relevance > 0)
+      .filter((item) => item.relevance > 0)
       .sort((a, b) => b.relevance - a.relevance);
   };
 }, []);
@@ -136,13 +137,13 @@ const searchFAQ = useMemo(() => {
 const calculateRelevance = (query: string, item: FAQItem): number => {
   let score = 0;
   const queryWords = query.split(/\s+/);
-  
-  queryWords.forEach(word => {
+
+  queryWords.forEach((word) => {
     if (item.question.toLowerCase().includes(word)) score += 10;
     if (item.answer.toLowerCase().includes(word)) score += 5;
-    if (item.tags.some(tag => tag.toLowerCase().includes(word))) score += 3;
+    if (item.tags.some((tag) => tag.toLowerCase().includes(word))) score += 3;
   });
-  
+
   return score;
 };
 ```
@@ -153,19 +154,21 @@ const calculateRelevance = (query: string, item: FAQItem): number => {
 
 ```typescript
 const helpStyles = {
-  container: 'max-w-4xl mx-auto px-4 py-8',
-  searchSection: 'mb-8 space-y-4',
-  searchInput: 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-  categoryFilters: 'flex flex-wrap gap-2 mb-6',
-  categoryButton: 'px-4 py-2 rounded-full border transition-colors hover:bg-gray-50',
-  categoryButtonActive: 'bg-blue-100 border-blue-300 text-blue-700',
-  faqSection: 'space-y-4',
-  accordionItem: 'border border-gray-200 rounded-lg overflow-hidden',
-  accordionHeader: 'w-full px-6 py-4 text-left bg-gray-50 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500',
-  accordionContent: 'px-6 py-4 bg-white border-t border-gray-200',
-  tutorialGrid: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8',
-  tutorialCard: 'p-6 border border-gray-200 rounded-lg hover:shadow-md transition-shadow',
-  contactSection: 'mt-12 p-6 bg-gray-50 rounded-lg'
+  container: "max-w-4xl mx-auto px-4 py-8",
+  searchSection: "mb-8 space-y-4",
+  searchInput:
+    "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+  categoryFilters: "flex flex-wrap gap-2 mb-6",
+  categoryButton: "px-4 py-2 rounded-full border transition-colors hover:bg-gray-50",
+  categoryButtonActive: "bg-blue-100 border-blue-300 text-blue-700",
+  faqSection: "space-y-4",
+  accordionItem: "border border-gray-200 rounded-lg overflow-hidden",
+  accordionHeader:
+    "w-full px-6 py-4 text-left bg-gray-50 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500",
+  accordionContent: "px-6 py-4 bg-white border-t border-gray-200",
+  tutorialGrid: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8",
+  tutorialCard: "p-6 border border-gray-200 rounded-lg hover:shadow-md transition-shadow",
+  contactSection: "mt-12 p-6 bg-gray-50 rounded-lg",
 };
 ```
 
@@ -182,13 +185,13 @@ const helpStyles = {
     margin: -1rem -1rem 1rem -1rem;
     border-bottom: 1px solid #e5e7eb;
   }
-  
+
   .category-filters {
     overflow-x: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
-  
+
   .category-filters::-webkit-scrollbar {
     display: none;
   }
@@ -205,26 +208,26 @@ Widok FAQ wykorzystuje statyczne dane, ale może integrować się z:
 // Opcjonalne API calls dla analytics
 const trackFAQInteraction = async (action: string, itemId: string) => {
   try {
-    await fetch('/api/analytics/faq', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, itemId, timestamp: Date.now() })
+    await fetch("/api/analytics/faq", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action, itemId, timestamp: Date.now() }),
     });
   } catch (error) {
-    console.warn('Failed to track FAQ interaction:', error);
+    console.warn("Failed to track FAQ interaction:", error);
   }
 };
 
 // Feedback submission
-const submitFeedback = async (type: 'helpful' | 'not-helpful', itemId: string) => {
+const submitFeedback = async (type: "helpful" | "not-helpful", itemId: string) => {
   try {
-    await fetch('/api/feedback/faq', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type, itemId, userId: user?.id })
+    await fetch("/api/feedback/faq", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type, itemId, userId: user?.id }),
     });
   } catch (error) {
-    console.warn('Failed to submit feedback:', error);
+    console.warn("Failed to submit feedback:", error);
   }
 };
 ```
@@ -235,13 +238,13 @@ const submitFeedback = async (type: 'helpful' | 'not-helpful', itemId: string) =
 // FAQ content as structured data
 export const faqData: FAQItem[] = [
   {
-    id: 'leitner-basic',
-    category: 'leitner',
-    question: 'Co to jest system Leitner?',
-    answer: 'System Leitner to metoda nauki oparta na interwałach czasowych...',
-    tags: ['system leitner', 'srs', 'algorytm', 'nauka'],
+    id: "leitner-basic",
+    category: "leitner",
+    question: "Co to jest system Leitner?",
+    answer: "System Leitner to metoda nauki oparta na interwałach czasowych...",
+    tags: ["system leitner", "srs", "algorytm", "nauka"],
     priority: 1,
-    lastUpdated: new Date('2024-12-01')
+    lastUpdated: new Date("2024-12-01"),
   },
   // ... więcej elementów FAQ
 ];
@@ -258,7 +261,7 @@ const FAQErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children })
       fallback={
         <div className="text-center py-8">
           <p className="text-gray-600 mb-4">Wystąpił błąd podczas ładowania pomocy.</p>
-          <button 
+          <button
             onClick={() => window.location.reload()}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
@@ -278,7 +281,7 @@ const FAQErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children })
 ```typescript
 const SearchResults: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
-  
+
   if (isSearching) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -287,7 +290,7 @@ const SearchResults: React.FC = () => {
       </div>
     );
   }
-  
+
   // ... reszta komponentu
 };
 ```
@@ -331,12 +334,12 @@ describe('SearchBar', () => {
       { id: '1', question: 'System Leitner', answer: 'Opis systemu...', category: 'leitner', tags: [], priority: 1, lastUpdated: new Date() },
       { id: '2', question: 'Limity dzienne', answer: 'Opis limitów...', category: 'limits', tags: [], priority: 1, lastUpdated: new Date() }
     ];
-    
+
     const { getByPlaceholderText } = render(<SearchBar items={mockItems} onResults={jest.fn()} />);
     const searchInput = getByPlaceholderText('Wyszukaj w pomocy...');
-    
+
     fireEvent.change(searchInput, { target: { value: 'leitner' } });
-    
+
     expect(mockOnResults).toHaveBeenCalledWith([mockItems[0]]);
   });
 });
@@ -349,18 +352,18 @@ describe('SearchBar', () => {
 describe('Help Page', () => {
   it('should display all FAQ categories', async () => {
     render(<HelpPage />);
-    
+
     expect(screen.getByText('System Leitner')).toBeInTheDocument();
     expect(screen.getByText('Limity dzienne')).toBeInTheDocument();
     expect(screen.getByText('Catch-up')).toBeInTheDocument();
     expect(screen.getByText('Interfejs')).toBeInTheDocument();
   });
-  
+
   it('should filter results when category is selected', async () => {
     render(<HelpPage />);
-    
+
     fireEvent.click(screen.getByText('System Leitner'));
-    
+
     await waitFor(() => {
       expect(screen.queryByText('Limity dzienne FAQ')).not.toBeInTheDocument();
     });
@@ -375,20 +378,20 @@ describe('Help Page', () => {
 describe('FAQAccordion Accessibility', () => {
   it('should support keyboard navigation', () => {
     render(<FAQAccordion items={mockFAQItems} />);
-    
+
     const firstAccordionButton = screen.getAllByRole('button')[0];
     firstAccordionButton.focus();
-    
+
     fireEvent.keyDown(firstAccordionButton, { key: 'Enter' });
     expect(screen.getByRole('region')).toBeVisible();
-    
+
     fireEvent.keyDown(firstAccordionButton, { key: 'Escape' });
     expect(screen.queryByRole('region')).not.toBeVisible();
   });
-  
+
   it('should have proper ARIA attributes', () => {
     render(<FAQAccordion items={mockFAQItems} />);
-    
+
     const accordionButton = screen.getAllByRole('button')[0];
     expect(accordionButton).toHaveAttribute('aria-expanded', 'false');
     expect(accordionButton).toHaveAttribute('aria-controls');
@@ -433,8 +436,8 @@ import { FixedSizeList as List } from 'react-window';
 const VirtualizedFAQList: React.FC<{ items: FAQItem[] }> = ({ items }) => {
   const Row = ({ index, style }: { index: number, style: React.CSSProperties }) => (
     <div style={style}>
-      <MemoizedFAQItem 
-        item={items[index]} 
+      <MemoizedFAQItem
+        item={items[index]}
         isExpanded={expandedItems.has(items[index].id)}
         onToggle={() => toggleExpanded(items[index].id)}
       />
@@ -459,27 +462,28 @@ const VirtualizedFAQList: React.FC<{ items: FAQItem[] }> = ({ items }) => {
 ```typescript
 // Debounced search
 const debouncedSearch = useMemo(
-  () => debounce((query: string) => {
-    setIsSearching(true);
-    const results = searchFAQ(query, faqData);
-    setFilteredFAQ(results);
-    setIsSearching(false);
-  }, 300),
+  () =>
+    debounce((query: string) => {
+      setIsSearching(true);
+      const results = searchFAQ(query, faqData);
+      setFilteredFAQ(results);
+      setIsSearching(false);
+    }, 300),
   [searchFAQ]
 );
 
 // Search index dla szybszego wyszukiwania
 const searchIndex = useMemo(() => {
   const index = new Map<string, Set<string>>();
-  
-  faqData.forEach(item => {
+
+  faqData.forEach((item) => {
     const words = [...item.question.toLowerCase().split(/\s+/), ...item.tags];
-    words.forEach(word => {
+    words.forEach((word) => {
       if (!index.has(word)) index.set(word, new Set());
       index.get(word)!.add(item.id);
     });
   });
-  
+
   return index;
 }, [faqData]);
 ```
@@ -493,29 +497,29 @@ const useKeyboardNavigation = (items: FAQItem[]) => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.target === document.body) return;
-      
+
       switch (event.key) {
-        case 'ArrowDown':
+        case "ArrowDown":
           event.preventDefault();
           focusNextItem();
           break;
-        case 'ArrowUp':
+        case "ArrowUp":
           event.preventDefault();
           focusPrevItem();
           break;
-        case 'Home':
+        case "Home":
           event.preventDefault();
           focusFirstItem();
           break;
-        case 'End':
+        case "End":
           event.preventDefault();
           focusLastItem();
           break;
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [items]);
 };
 ```
@@ -569,7 +573,7 @@ useEffect(() => {
   .faq-item {
     border: 2px solid;
   }
-  
+
   .search-input {
     border: 2px solid;
   }
@@ -581,38 +585,47 @@ useEffect(() => {
 ### Faza 1: Podstawowa struktura (Kroki 1-10)
 
 1. **Konfiguracja podstawowa**
+
    - Utworzenie `src/pages/help.astro` z podstawowym layoutem
    - Import Layout.astro i ustawienie meta tags
 
 2. **Struktura danych FAQ**
+
    - Utworzenie `src/data/faq.ts` z typami TypeScript
    - Implementacja podstawowej struktury FAQItem i Category
 
 3. **Główny komponent HelpView**
+
    - Utworzenie `src/components/HelpView.tsx` jako głównego kontenera
    - Implementacja podstawowego state management z useState
 
 4. **Komponent SearchBar**
+
    - Implementacja search input z debounced handling
    - Dodanie podstawowej walidacji i sanitization
 
 5. **Struktura CSS i stylowanie**
+
    - Konfiguracja Tailwind classes dla help view
    - Implementacja responsive grid layout
 
 6. **Podstawowa nawigacja**
+
    - Implementacja breadcrumb navigation
    - Dodanie skip-to-content link dla accessibility
 
 7. **CategoryFilter komponent**
+
    - Implementacja horizontal scrollable category filters
    - Dodanie keyboard navigation support
 
 8. **Podstawowy FAQ content**
+
    - Utworzenie pierwszych 10 FAQ items dla kategorii "leitner"
    - Implementacja podstawowej struktury pytanie/odpowiedź
 
 9. **Search functionality - podstawy**
+
    - Implementacja podstawowego text matching algoritmu
    - Dodanie real-time filtering w miarę typing
 
@@ -623,38 +636,47 @@ useEffect(() => {
 ### Faza 2: Zaawansowane funkcje wyszukiwania (Kroki 11-20)
 
 11. **Zaawansowany search algorithm**
+
     - Implementacja relevance scoring systemu
     - Dodanie support dla częściowych dopasowań
 
 12. **Search highlighting**
+
     - Komponent SearchHighlight dla oznaczania znalezionych termów
     - Implementacja bezpiecznego HTML rendering
 
 13. **Search suggestions**
+
     - Implementacja autocomplete z popularnymi zapytaniami
     - Dodanie search history w localStorage
 
 14. **No results handling**
+
     - Komponent NoResultsMessage z suggested searches
     - Implementacja fallback content dla empty states
 
 15. **Search performance optimization**
+
     - Implementacja search index dla szybszego wyszukiwania
     - Dodanie memoization dla expensive operations
 
 16. **Category-specific search**
+
     - Implementacja filtered search w obrębie kategorii
     - Dodanie category badges w search results
 
 17. **Search analytics preparation**
+
     - Implementacja tracking search queries
     - Dodanie most searched terms analytics
 
 18. **Keyboard shortcuts dla search**
+
     - Implementacja Ctrl+K / Cmd+K global search shortcut
     - Dodanie Escape dla clear search
 
 19. **Search accessibility**
+
     - Implementacja proper ARIA labels i descriptions
     - Dodanie screen reader announcements dla results
 
@@ -665,38 +687,47 @@ useEffect(() => {
 ### Faza 3: FAQ Accordion i content (Kroki 21-30)
 
 21. **FAQAccordion komponent**
+
     - Implementacja collapsible accordion z smooth animations
     - Dodanie keyboard navigation (Arrow keys, Home, End)
 
 22. **FAQ content - System Leitner**
+
     - Kompletna implementacja 8-10 FAQ items o systemie Leitner
     - Dodanie diagramów i przykładów SRS intervals
 
 23. **FAQ content - Limity dzienne**
+
     - Implementacja FAQ o limitach dziennych (50+20 catch-up)
     - Wyjaśnienie reset timing i optymalizacji nauki
 
 24. **FAQ content - Catch-up system**
+
     - Szczegółowe FAQ o funkcjonalności catch-up
     - Implementacja przykładów użycia i best practices
 
 25. **FAQ content - Interfejs aplikacji**
+
     - FAQ o nawigacji, skrótach klawiszowych, funkcjach
     - Dodanie interaktywnych przykładów gdzie możliwe
 
 26. **FAQ content - Troubleshooting**
+
     - Implementacja FAQ dla typowych problemów
     - Dodanie kroków diagnozy i rozwiązań
 
 27. **Rich content support**
+
     - Implementacja Markdown rendering w answers
     - Dodanie support dla code blocks i syntax highlighting
 
 28. **FAQ multimedia integration**
+
     - Implementacja embedded images i videos w answers
     - Dodanie lazy loading dla media content
 
 29. **FAQ feedback system**
+
     - Komponent FeedbackButton z "Was this helpful?"
     - Implementacja basic analytics dla helpful/not helpful
 
@@ -707,22 +738,27 @@ useEffect(() => {
 ### Faza 4: Tutorial system (Kroki 31-36)
 
 31. **TutorialSection komponent**
+
     - Implementacja tutorial cards grid layout
     - Dodanie tutorial preview z estimated time
 
 32. **Tutorial content structure**
+
     - Implementacja Tutorial i TutorialStep interfaces
     - Utworzenie pierwszych 3 podstawowych tutoriali
 
 33. **Interactive tutorial player**
+
     - Komponent TutorialPlayer ze step-by-step navigation
     - Implementacja progress tracking w localStorage
 
 34. **Tutorial media integration**
+
     - Support dla embedded images i videos w steps
     - Implementacja responsive media containers
 
 35. **Tutorial completion tracking**
+
     - Implementacja progress badges i completion status
     - Dodanie "Resume tutorial" functionality
 
@@ -733,22 +769,27 @@ useEffect(() => {
 ### Faza 5: Support i kontakt (Kroki 37-42)
 
 37. **ContactCTA komponent**
+
     - Implementacja multiple contact methods (email, Discord, GitHub)
     - Dodanie response time expectations
 
 38. **Bug report integration**
+
     - Formularz bug report z automatic environment info
     - Implementacja structured data collection
 
 39. **Feature request system**
+
     - Implementacja feature request form
     - Dodanie category selection i priority voting
 
 40. **Community links**
+
     - Implementacja links do Discord, forum, GitHub discussions
     - Dodanie community guidelines i etiquette
 
 41. **Help desk integration**
+
     - Implementacja ticket system integration (jeśli będzie)
     - Dodanie knowledge base cross-references
 

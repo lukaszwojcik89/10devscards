@@ -19,7 +19,7 @@
 
 - **Cel**: Umożliwienie użytkownikom eksportu wszystkich ich danych zgodnie z GDPR
 - **Business value**: Data portability, compliance, user trust
-- **Use cases**: 
+- **Use cases**:
   - Backup osobisty przed migracją
   - Audyt własnych danych nauki
   - Compliance z GDPR Article 20 (Right to data portability)
@@ -46,7 +46,7 @@
 ### DELETE /api/user/account
 
 - **Method**: DELETE
-- **Path**: `/api/user/account` 
+- **Path**: `/api/user/account`
 - **Headers**: `Authorization: Bearer <access_token>`
 - **Body**:
 
@@ -118,6 +118,7 @@
 ### Error responses
 
 #### 400 Bad Request (DELETE only)
+
 ```json
 {
   "error": "INVALID_CONFIRMATION",
@@ -126,6 +127,7 @@
 ```
 
 #### 401 Unauthorized
+
 ```json
 {
   "error": "UNAUTHORIZED",
@@ -134,9 +136,10 @@
 ```
 
 #### 500 Internal Server Error
+
 ```json
 {
-  "error": "INTERNAL_SERVER_ERROR", 
+  "error": "INTERNAL_SERVER_ERROR",
   "message": "An error occurred processing your request"
 }
 ```
@@ -149,7 +152,7 @@
 2. **User identification** - pobranie user_id z tokena
 3. **Data aggregation** - równoległe zapytania do wszystkich tabel:
    - Decks owned by user
-   - Flashcards in user's decks  
+   - Flashcards in user's decks
    - Reviews by user
    - Calculated statistics
 4. **Data serialization** - formatowanie zgodnie z UserDataExportResponseDTO
@@ -180,8 +183,8 @@
 
 ```sql
 -- Get user's decks
-SELECT id, slug, name, description, created_at, updated_at 
-FROM decks 
+SELECT id, slug, name, description, created_at, updated_at
+FROM decks
 WHERE owner_id = $1 AND deleted_at IS NULL
 ORDER BY created_at;
 
@@ -194,7 +197,7 @@ WHERE d.owner_id = $1 AND f.deleted_at IS NULL
 ORDER BY f.created_at;
 
 -- Get user's reviews
-SELECT r.id, r.flashcard_id, r.quality, r.response_time_ms, 
+SELECT r.id, r.flashcard_id, r.quality, r.response_time_ms,
        r.ease_factor, r.interval_days, r.reviewed_at
 FROM reviews r
 JOIN flashcards f ON r.flashcard_id = f.id
@@ -203,7 +206,7 @@ WHERE d.owner_id = $1
 ORDER BY r.reviewed_at;
 
 -- Calculate statistics
-SELECT 
+SELECT
   COUNT(DISTINCT f.id) as total_flashcards,
   COUNT(DISTINCT r.id) as total_reviews,
   ROUND(AVG(CASE WHEN r.quality >= 3 THEN 1.0 ELSE 0.0 END), 2) as accuracy_rate,
@@ -216,7 +219,7 @@ LEFT JOIN (
   SELECT COUNT(*) as days
   FROM generate_series(CURRENT_DATE - INTERVAL '365 days', CURRENT_DATE, '1 day'::interval) AS day
   WHERE EXISTS (
-    SELECT 1 FROM reviews r2 
+    SELECT 1 FROM reviews r2
     JOIN flashcards f2 ON r2.flashcard_id = f2.id
     JOIN decks d2 ON f2.deck_id = d2.id
     WHERE d2.owner_id = $1 AND DATE(r2.reviewed_at) = day::date
@@ -232,7 +235,7 @@ WHERE d.owner_id = $1;
 BEGIN;
 
 -- Delete reviews (must be first due to foreign keys)
-DELETE FROM reviews 
+DELETE FROM reviews
 WHERE flashcard_id IN (
   SELECT f.id FROM flashcards f
   JOIN decks d ON f.deck_id = d.id
@@ -240,7 +243,7 @@ WHERE flashcard_id IN (
 );
 
 -- Delete flashcards
-DELETE FROM flashcards 
+DELETE FROM flashcards
 WHERE deck_id IN (
   SELECT id FROM decks WHERE owner_id = $1
 );
@@ -350,19 +353,13 @@ try {
       { status: 503 }
     );
   }
-  
+
   if (error instanceof DataTooLargeError) {
-    return Response.json(
-      { error: "EXPORT_TOO_LARGE", message: "Data export exceeds size limit" },
-      { status: 413 }
-    );
+    return Response.json({ error: "EXPORT_TOO_LARGE", message: "Data export exceeds size limit" }, { status: 413 });
   }
-  
+
   logger.error("Export failed", { userId, error: error.message });
-  return Response.json(
-    { error: "INTERNAL_SERVER_ERROR", message: "Export failed" },
-    { status: 500 }
-  );
+  return Response.json({ error: "INTERNAL_SERVER_ERROR", message: "Export failed" }, { status: 500 });
 }
 ```
 
@@ -374,26 +371,17 @@ try {
   return Response.json({ message: "Account deleted successfully" });
 } catch (error) {
   if (error instanceof InvalidConfirmationError) {
-    return Response.json(
-      { error: "INVALID_CONFIRMATION", message: "Invalid confirmation text" },
-      { status: 400 }
-    );
+    return Response.json({ error: "INVALID_CONFIRMATION", message: "Invalid confirmation text" }, { status: 400 });
   }
-  
+
   if (error instanceof AccountDeletionError) {
     // Rollback transaction
     await rollbackDeletion(userId);
-    return Response.json(
-      { error: "DELETION_FAILED", message: "Account deletion failed" },
-      { status: 500 }
-    );
+    return Response.json({ error: "DELETION_FAILED", message: "Account deletion failed" }, { status: 500 });
   }
-  
+
   logger.error("Account deletion failed", { userId, error: error.message });
-  return Response.json(
-    { error: "INTERNAL_SERVER_ERROR", message: "Deletion failed" },
-    { status: 500 }
-  );
+  return Response.json({ error: "INTERNAL_SERVER_ERROR", message: "Deletion failed" }, { status: 500 });
 }
 ```
 
@@ -514,7 +502,7 @@ try {
 
 ### Faza 1: Core export functionality (2.5 dni)
 
-- **Day 1**: 
+- **Day 1**:
   - Setup endpoint structure i authentication
   - Implement basic data queries dla decks, flashcards, reviews
   - Create response formatting logic
@@ -527,7 +515,7 @@ try {
   - Integration testing
   - Documentation updates
 
-### Faza 2: Account deletion functionality (3 dni)  
+### Faza 2: Account deletion functionality (3 dni)
 
 - **Day 1**:
   - Setup deletion endpoint i confirmation validation

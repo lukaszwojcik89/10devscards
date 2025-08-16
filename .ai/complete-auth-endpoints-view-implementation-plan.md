@@ -218,27 +218,27 @@ interface ErrorResponseDTO {
 const registerRequestSchema = z.object({
   email: z.string().email().max(254),
   password: z.string().min(8).max(128),
-  age_confirmation: z.boolean().refine(val => val === true)
+  age_confirmation: z.boolean().refine((val) => val === true),
 });
 
 const loginRequestSchema = z.object({
   email: z.string().email().max(254),
-  password: z.string().min(8).max(128)
+  password: z.string().min(8).max(128),
 });
 
 // Session Management
 const refreshTokenRequestSchema = z.object({
-  refresh_token: z.string().min(1)
+  refresh_token: z.string().min(1),
 });
 
 // Password Management
 const passwordResetRequestSchema = z.object({
-  email: z.string().email().max(254)
+  email: z.string().email().max(254),
 });
 
 const passwordUpdateRequestSchema = z.object({
   token: z.string().min(1),
-  password: z.string().min(8).max(128)
+  password: z.string().min(8).max(128),
 });
 ```
 
@@ -654,6 +654,7 @@ const passwordUpdateRequestSchema = z.object({
 ### Faza 1: Przygotowanie infrastruktury (1.5 dnia)
 
 1. **Utworzenie endpoint files**
+
    - `/api/auth/register.ts`
    - `/api/auth/login.ts`
    - `/api/auth/logout.ts`
@@ -663,6 +664,7 @@ const passwordUpdateRequestSchema = z.object({
    - `/api/auth/password/update.ts`
 
 2. **Rozszerzenie typów**
+
    - Wszystkie DTOs w `types.ts`
    - Validation schemas w `auth.zod.ts`
    - Service interfaces
@@ -675,12 +677,14 @@ const passwordUpdateRequestSchema = z.object({
 ### Faza 2: Core Authentication (2 dni)
 
 1. **POST /api/auth/register**
+
    - Zod validation z age_confirmation
    - Supabase signUp integration
    - Email confirmation flow
    - Error handling i responses
 
 2. **POST /api/auth/login**
+
    - Credentials validation
    - Email confirmation check
    - Token extraction i formatting
@@ -695,12 +699,14 @@ const passwordUpdateRequestSchema = z.object({
 ### Faza 3: Session Management (1.5 dnia)
 
 1. **POST /api/auth/logout**
+
    - JWT token validation
    - Session invalidation
    - Token blacklisting (optional)
    - Security logging
 
 2. **POST /api/auth/refresh**
+
    - Refresh token validation
    - Token rotation logic
    - Session updates
@@ -715,12 +721,14 @@ const passwordUpdateRequestSchema = z.object({
 ### Faza 4: Password Management (2 dni)
 
 1. **POST /api/auth/password/reset**
+
    - Email validation i normalization
    - Rate limiting implementation
    - Supabase integration
    - Email delivery verification
 
 2. **POST /api/auth/password/update**
+
    - Reset token validation
    - Password policy enforcement
    - All-session invalidation
@@ -735,12 +743,14 @@ const passwordUpdateRequestSchema = z.object({
 ### Faza 5: Security Enhancement (1.5 dnia)
 
 1. **Advanced rate limiting**
+
    - Redis-based counters
    - Per-IP i per-user limits
    - Distributed throttling
    - Grace period handling
 
 2. **Comprehensive audit logging**
+
    - Structured security logs
    - PII protection
    - Real-time alerting
@@ -755,12 +765,14 @@ const passwordUpdateRequestSchema = z.object({
 ### Faza 6: Performance Optimization (1 dzień)
 
 1. **Caching implementation**
+
    - User profile caching
    - Rate limit counters optimization
    - Session state caching
    - Cache invalidation strategies
 
 2. **Database optimization**
+
    - Query performance tuning
    - Index verification
    - Connection pooling
@@ -775,12 +787,14 @@ const passwordUpdateRequestSchema = z.object({
 ### Faza 7: Testing & Integration (2 dni)
 
 1. **Comprehensive unit testing**
+
    - All AuthService methods
    - Validation schemas
    - Error scenarios
    - Edge cases
 
 2. **Integration testing**
+
    - End-to-end auth flows
    - API endpoint testing
    - Cross-browser validation
@@ -795,12 +809,14 @@ const passwordUpdateRequestSchema = z.object({
 ### Faza 8: Deployment & Monitoring (1 dzień)
 
 1. **Monitoring setup**
+
    - Authentication metrics
    - Security event tracking
    - Performance dashboards
    - Error rate alerting
 
 2. **Production deployment**
+
    - Staging validation
    - Feature flag implementation
    - Gradual rollout

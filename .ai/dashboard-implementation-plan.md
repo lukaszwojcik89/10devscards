@@ -56,14 +56,7 @@
 Metoda agreguje dane przy użyciu `Promise.all()` dla optymalnej wydajności:
 
 ```typescript
-const [
-  userStats,
-  studyProgress,
-  upcomingSessions,
-  recentDecks,
-  aiUsage,
-  quickActions,
-] = await Promise.all([
+const [userStats, studyProgress, upcomingSessions, recentDecks, aiUsage, quickActions] = await Promise.all([
   this.getUserStats(userId),
   this.getStudyProgress(userId),
   this.getUpcomingSessions(userId),
@@ -103,7 +96,7 @@ const [
 
 - **Zapytania**: 5 ostatnich zestawów z fiszkami (ORDER BY `updated_at` DESC LIMIT 5)
 - **Agregacja**: Zliczanie fiszek według statusu i dat
-- **Złożoność**: O(5 * m) gdzie m = średnia liczba fiszek na zestaw
+- **Złożoność**: O(5 \* m) gdzie m = średnia liczba fiszek na zestaw
 
 #### `getAIUsage(userId: string): Promise<AIUsage>`
 
@@ -241,11 +234,11 @@ if (cached) return JSON.parse(cached);
 ```sql
 -- Zmaterializowany widok dla statystyk użytkownika
 CREATE MATERIALIZED VIEW user_stats_mv AS
-SELECT 
+SELECT
   owner_id,
   COUNT(DISTINCT id) as total_decks,
   SUM(flashcard_count) as total_flashcards
-FROM decks 
+FROM decks
 WHERE is_deleted = false
 GROUP BY owner_id;
 ```
@@ -272,16 +265,19 @@ $$ LANGUAGE plpgsql;
 ### 8.1 Implementacja już ukończona ✅
 
 1. **Utworzenie endpointu API** (`src/pages/api/dashboard.ts`)
+
    - Autoryzacja Bearer token
    - Wywoływanie serwisu
    - Obsługa błędów
 
 2. **Implementacja serwisu** (`src/lib/services/dashboard.service.ts`)
+
    - Wszystkie 6 metod agregacji danych
    - Promise.all() dla wydajności
    - Obsługa null values
 
 3. **Definicje typów** (`src/types.ts`)
+
    - Wszystkie DTO dla dashboard
    - Type safety całego pipeline'a
 

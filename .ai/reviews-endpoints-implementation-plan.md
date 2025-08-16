@@ -269,7 +269,7 @@ Endpoint do pobierania historii powtórek użytkownika z zaawansowanym filtrowan
 
 - **Efficient pagination** - LIMIT/OFFSET z proper indexing
 - **JOIN optimization** - selective fields z flashcards i decks
-- **COUNT optimization** - COUNT(*) OVER() dla pagination
+- **COUNT optimization** - COUNT(\*) OVER() dla pagination
 - **Date filtering** - index-friendly WHERE conditions
 
 ### SRS algorithm optimization
@@ -305,15 +305,18 @@ Endpoint do pobierania historii powtórek użytkownika z zaawansowanym filtrowan
 ### Faza 1: Przygotowanie infrastruktury (1 dzień)
 
 1. **Utworzenie endpoint files** - API route files
+
    - `/api/reviews/index.ts` (obsługa GET i POST)
 
 2. **Rozszerzenie lub utworzenie ReviewsService** - business logic
+
    - `submitReview()`
    - `getReviewHistory()`
    - `calculateNextReview()` (SRS logic)
    - `validateDailyLimits()`
 
 3. **Zod schemas implementacja** - validation
+
    - `submitReviewRequestSchema`
    - `reviewHistoryQuerySchema`
 
@@ -325,12 +328,14 @@ Endpoint do pobierania historii powtórek użytkownika z zaawansowanym filtrowan
 ### Faza 2: Implementacja POST endpoint (2 dni)
 
 1. **POST /api/reviews core logic**
+
    - Request validation z Zod
    - Flashcard ownership verification
    - Daily limits checking
    - SRS algorithm implementation
 
 2. **Leitner system implementation**
+
    - Box progression rules (1d, 3d, 7d, 30d)
    - Due date calculations z timezone handling
    - Correct/incorrect answer handling
@@ -344,12 +349,14 @@ Endpoint do pobierania historii powtórek użytkownika z zaawansowanym filtrowan
 ### Faza 3: Implementacja GET endpoint (1.5 dnia)
 
 1. **GET /api/reviews core logic**
+
    - Query parameters validation
    - Complex filtering logic
    - JOIN optimization z flashcards/decks
    - Pagination implementation
 
 2. **Advanced filtering**
+
    - Flashcard-specific history
    - Date range filtering
    - Performance optimization
@@ -364,12 +371,14 @@ Endpoint do pobierania historii powtórek użytkownika z zaawansowanym filtrowan
 ### Faza 4: Business rules implementation (1 dzień)
 
 1. **Daily limits enforcement**
+
    - UTC day calculation
    - Standard vs catch-up limits tracking
    - Limit validation przed review submission
    - Error handling dla exceeded limits
 
 2. **SRS business rules**
+
    - Only accepted cards can be reviewed
    - Due date validation
    - Duplicate review prevention
@@ -384,12 +393,14 @@ Endpoint do pobierania historii powtórek użytkownika z zaawansowanym filtrowan
 ### Faza 5: Performance optimization (1 dzień)
 
 1. **Database optimization**
+
    - Index analysis i optimization
    - Query performance tuning
    - Connection pooling verification
    - Slow query identification
 
 2. **Caching implementation**
+
    - Daily limits caching
    - Flashcard metadata caching
    - Review statistics caching
@@ -404,12 +415,14 @@ Endpoint do pobierania historii powtórek użytkownika z zaawansowanym filtrowan
 ### Faza 6: Testing i validation (1.5 dnia)
 
 1. **Unit testing**
+
    - ReviewsService methods testing
    - SRS algorithm validation
    - Edge cases coverage
    - Mock data scenarios
 
 2. **Integration testing**
+
    - API endpoints testing
    - Database transactions testing
    - Authentication flow testing
@@ -424,6 +437,7 @@ Endpoint do pobierania historii powtórek użytkownika z zaawansowanym filtrowan
 ### Faza 7: Monitoring i deployment (0.5 dnia)
 
 1. **Monitoring setup**
+
    - Review submission metrics
    - SRS algorithm effectiveness tracking
    - Daily usage patterns monitoring
