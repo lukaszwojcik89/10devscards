@@ -7,7 +7,7 @@ import type { ToastWelcomeProps } from "@/types";
  * Jednorazowy toast powitalny wyświetlany po pierwszym logowaniu w sesji
  */
 export const ToastWelcome: React.FC<ToastWelcomeProps> = ({
-  userName,
+  userName: _userName,
   onDismiss,
   autoClose = true,
   duration = 5000,
@@ -24,23 +24,19 @@ export const ToastWelcome: React.FC<ToastWelcomeProps> = ({
 
   return (
     <div
-      className="fixed top-4 right-4 z-50 max-w-sm w-full bg-white border border-gray-200 rounded-lg shadow-lg p-4 animate-in slide-in-from-top-2"
+      className="fixed right-4 z-50 max-w-xs w-80 bg-white border border-gray-200 rounded-lg shadow-lg px-4 py-3 flex flex-col items-start animate-in slide-in-from-top-2"
+      style={{ top: "var(--navbar-height)" }}
       role="alert"
       aria-live="polite"
     >
-      <div className="flex items-start gap-3">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-2xl">👋</span>
-            <h3 className="font-semibold text-gray-900">Witaj{userName ? ` ${userName}` : ""}!</h3>
-          </div>
-          <p className="text-sm text-gray-600">Miło Cię widzieć. Sprawdź swoje postępy i zaplanuj naukę na dziś.</p>
-        </div>
+      <div className="flex items-center gap-2 w-full min-h-[32px]">
+        <span className="text-xl">👋</span>
+        <span className="font-semibold text-gray-900 text-sm truncate">Witaj! Miło Cię widzieć.</span>
         <Button
           onClick={onDismiss}
           variant="ghost"
           size="sm"
-          className="h-6 w-6 p-0 hover:bg-gray-100"
+          className="h-6 w-6 p-0 hover:bg-gray-100 ml-auto"
           aria-label="Zamknij powiadomienie"
         >
           <X className="h-4 w-4" />
@@ -48,7 +44,7 @@ export const ToastWelcome: React.FC<ToastWelcomeProps> = ({
       </div>
 
       {autoClose && (
-        <div className="mt-3 w-full bg-gray-200 rounded-full h-1">
+        <div className="mt-2 w-full bg-gray-200 rounded-full h-1">
           <div
             className="bg-blue-500 h-1 rounded-full"
             style={{

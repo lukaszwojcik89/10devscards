@@ -222,7 +222,7 @@ export function RegisterForm({ onSuccess, onError }: RegisterFormProps) {
       />
 
       {/* Register Form */}
-      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate suppressHydrationWarning>
         <div>
           <label htmlFor="register-email" className="block text-sm font-medium mb-1">
             Email
@@ -240,6 +240,7 @@ export function RegisterForm({ onSuccess, onError }: RegisterFormProps) {
             required
             aria-invalid={!!errors.email}
             aria-describedby={errors.email ? "email-error" : undefined}
+            suppressHydrationWarning
           />
           {errors.email && (
             <p id="email-error" className="mt-1 text-xs text-red-600" role="alert">
@@ -265,6 +266,7 @@ export function RegisterForm({ onSuccess, onError }: RegisterFormProps) {
             required
             aria-invalid={!!errors.password}
             aria-describedby={errors.password ? "password-error" : "password-hint"}
+            suppressHydrationWarning
           />
           <p id="password-hint" className="text-xs text-muted-foreground mt-1">
             Minimum 8 znaków

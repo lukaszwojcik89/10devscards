@@ -184,7 +184,7 @@ export function ResetPasswordForm({ onSuccess, onError }: ResetPasswordFormProps
       />
 
       {/* Reset Password Form */}
-      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate suppressHydrationWarning>
         <div>
           <label htmlFor="reset-email" className="block text-sm font-medium mb-1">
             Email
@@ -202,6 +202,7 @@ export function ResetPasswordForm({ onSuccess, onError }: ResetPasswordFormProps
             required
             aria-invalid={!!errors.email}
             aria-describedby={errors.email ? "email-error" : "email-description"}
+            suppressHydrationWarning
           />
           <p id="email-description" className="text-xs text-muted-foreground mt-1">
             Podaj adres email powiązany z Twoim kontem

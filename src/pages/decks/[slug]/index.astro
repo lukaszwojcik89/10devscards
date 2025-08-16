@@ -53,6 +53,7 @@ import Layout from "../../../layouts/Layout.astro";
             </label>
             <textarea
               id="flashcard-question"
+              name="question"
               rows="3"
               maxlength="256"
               class="w-full border-gray-300 rounded-md shadow-sm"
@@ -64,6 +65,7 @@ import Layout from "../../../layouts/Layout.astro";
             </label>
             <textarea
               id="flashcard-answer"
+              name="answer"
               rows="4"
               maxlength="512"
               class="w-full border-gray-300 rounded-md shadow-sm"
@@ -85,156 +87,204 @@ import Layout from "../../../layouts/Layout.astro";
       </div>
     </div>
   </div>
+</Layout>
 
-  <script is:inline>
-    document.addEventListener('DOMContentLoaded', async () => {
-      const token = localStorage.getItem("access_token");
-      if (!token) {
-        alert("Brak tokena autoryzacji");
-        window.location.href = "/login";
+<script is:inline>
+  /* eslint-disable */
+  document.addEventListener("DOMContentLoaded", async () => {
+    const deckTitle = document.getElementById("deck-title");
+    const deckDescription = document.getElementById("deck-description");
+    const flashcardsCount = document.getElementById("flashcards-count");
+    const flashcardsContainer = document.getElementById("flashcards-container");
+    const loadingState = document.getElementById("loading-state");
+    const addFlashcardBtn = document.getElementById("add-manual-flashcard-btn");
+    const addFlashcardModal = document.getElementById("add-flashcard-modal");
+    const addFlashcardForm = document.getElementById("add-flashcard-form");
+    const cancelAddBtn = document.getElementById("cancel-add-flashcard");
+
+    // Get deck slug from URL
+    const pathParts = window.location.pathname.split('/');
+    const deckSlug = pathParts[pathParts.length - 1];
+
+    // Check if user is logged in
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      window.location.href = "/login";
+      return;
+    }
+
+    // Global variables to store deck info
+    let currentDeck = null;
+    
+    // Load deck and flashcards
+    async function loadDeckData() {
+      try {
+        // Load deck info
+        const deckResponse = await fetch(`/api/decks/${deckSlug}`, {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (deckResponse.ok) {
+          const deckData = await deckResponse.json();
+          const deck = deckData.data;
+          currentDeck = deck; // Store for later use
+          
+          deckTitle.textContent = deck.name;
+          deckDescription.textContent = deck.description || "Brak opisu";
+        }
+
+        // Load flashcards using deck_id from currentDeck
+        if (currentDeck) {
+          const flashcardsResponse = await fetch(`/api/flashcards?deck_id=${currentDeck.id}`, {
+            headers: {
+              "Authorization": `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+        if (flashcardsResponse.ok) {
+          const flashcardsData = await flashcardsResponse.json();
+          const flashcards = flashcardsData.data;
+          
+          flashcardsCount.textContent = `(${flashcards.length})`;
+          loadingState.classList.add("hidden");
+          
+          if (flashcards.length === 0) {
+            flashcardsContainer.innerHTML = `
+              <div class="p-8 text-center text-gray-500">
+                <p>Brak fiszek w tej talii</p>
+                <p class="text-sm mt-2">Dodaj pierwszą fiszkę lub użyj generatora AI</p>
+              </div>
+            `;
+          } else {
+            renderFlashcards(flashcards);
+          }
+        }
+        } // Close the if (currentDeck) block
+      } catch (error) {
+        console.error("Error loading deck data:", error);
+        loadingState.innerHTML = `
+          <p class="text-red-500">Błąd podczas ładowania danych</p>
+        `;
+      }
+    }
+
+    // Render flashcards
+    function renderFlashcards(flashcards) {
+      flashcardsContainer.innerHTML = flashcards.map(flashcard => `
+        <div class="p-4 hover:bg-gray-50" data-id="${flashcard.id}">
+          <div class="flex justify-between items-start">
+            <div class="flex-1">
+              <h3 class="font-medium text-gray-900 mb-2">${flashcard.question}</h3>
+              <p class="text-gray-600 text-sm">${flashcard.answer}</p>
+            </div>
+            <div class="flex gap-2 ml-4">
+              <button class="edit-flashcard-btn text-blue-600 hover:text-blue-800 text-sm" data-id="${flashcard.id}">
+                Edytuj
+              </button>
+              <button class="delete-flashcard-btn text-red-600 hover:text-red-800 text-sm" data-id="${flashcard.id}">
+                Usuń
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      // Add event listeners to buttons
+      document.querySelectorAll('.delete-flashcard-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const flashcardId = e.target.dataset.id;
+          if (confirm('Czy na pewno chcesz usunąć tę fiszkę?')) {
+            await deleteFlashcard(flashcardId);
+          }
+        });
+      });
+    }
+
+    // Delete flashcard
+    async function deleteFlashcard(flashcardId) {
+      try {
+        const response = await fetch(`/api/flashcards/${flashcardId}`, {
+          method: 'DELETE',
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          await loadDeckData(); // Reload data
+        } else {
+          alert('Nie udało się usunąć fiszki');
+        }
+      } catch (error) {
+        console.error('Error deleting flashcard:', error);
+        alert('Wystąpił błąd podczas usuwania fiszki');
+      }
+    }
+
+    // Modal handling
+    addFlashcardBtn.addEventListener('click', () => {
+      addFlashcardModal.classList.remove('hidden');
+    });
+
+    cancelAddBtn.addEventListener('click', () => {
+      addFlashcardModal.classList.add('hidden');
+      addFlashcardForm.reset();
+    });
+
+    // Add flashcard form submission
+    addFlashcardForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      if (!currentDeck) {
+        alert('Błąd: nie udało się załadować informacji o talii');
         return;
       }
       
-      const slug = window.location.pathname.split("/").pop();
-      let deck = null;
-      
+      const formData = new FormData(e.target);
+      const data = {
+        question: formData.get('question'),
+        answer: formData.get('answer'),
+        deck_id: currentDeck.id  // Use deck_id instead of deck_slug
+      };
+
       try {
-        // Fetch deck details
-        const deckRes = await fetch(`/api/decks/${slug}`, { 
-          headers: { Authorization: `Bearer ${token}` } 
+        const response = await fetch('/api/flashcards', {
+          method: 'POST',
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
         });
-        
-        if (!deckRes.ok) {
-          if (deckRes.status === 401) {
-            // Check if it's a real auth error before logging out
-            const errorData = await deckRes.json().catch(() => ({}));
-            if (errorData.error?.code === "INVALID_TOKEN" || errorData.error?.code === "TOKEN_EXPIRED") {
-              localStorage.removeItem("access_token");
-              localStorage.removeItem("refresh_token");
-              window.location.href = "/login";
-              return;
-            }
-          }
-          alert("Nie udało się załadować talii");
-          window.location.href = "/";
-          return;
-        }
-        
-        const deckData = await deckRes.json();
-        deck = deckData.data;
-        document.getElementById("deck-title").textContent = deck.name;
-        document.getElementById("deck-description").textContent = deck.description || '';
 
-        // Load flashcards function
-        async function loadFlashcards() {
-          try {
-            const res = await fetch(`/api/flashcards?deck_id=${deck.id}&limit=20&offset=0`, { 
-              headers: { Authorization: `Bearer ${token}` } 
-            });
-            
-            if (!res.ok) {
-              alert("Nie udało się załadować fiszek");
-              return;
-            }
-            
-            const data = await res.json();
-            const container = document.getElementById("flashcards-container");
-            
-            // Clear loading state
-            const loadingState = document.getElementById("loading-state");
-            if (loadingState) loadingState.style.display = "none";
-            
-            container.innerHTML = '';
-            
-            if (data.data.length === 0) {
-              container.innerHTML = '<div class="p-8 text-center text-gray-500">Brak fiszek w tej talii.</div>';
-              document.getElementById("flashcards-count").textContent = "(0)";
-              return;
-            }
-            
-            data.data.forEach(f => {
-              const row = document.createElement('div');
-              row.className = 'p-4 border-b flex flex-col gap-2';
-              row.innerHTML = `
-                <div class="flex justify-between items-start">
-                  <div class="flex-1">
-                    <div class="font-medium text-gray-900 mb-1">Pytanie:</div>
-                    <div class="text-gray-700 mb-2">${f.question}</div>
-                    <div class="font-medium text-gray-900 mb-1">Odpowiedź:</div>
-                    <div class="text-gray-700">${f.answer}</div>
-                  </div>
-                  <span class="text-sm px-2 py-1 rounded ${f.status === 'accepted' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">${f.status}</span>
-                </div>
-              `;
-              container.append(row);
-            });
-            
-            // Update counts
-            document.getElementById("flashcards-count").textContent = `(${data.pagination.total})`;
-            
-          } catch (error) {
-            alert("Błąd podczas ładowania fiszek");
-          }
+        if (response.ok) {
+          addFlashcardModal.classList.add('hidden');
+          addFlashcardForm.reset();
+          await loadDeckData(); // Reload data
+        } else {
+          const error = await response.json();
+          alert(`Błąd: ${error.error?.message || "Nie udało się dodać fiszki"}`);
         }
-
-        // Initial load
-        await loadFlashcards();
-        
-        // Setup form handlers
-        const addForm = document.getElementById("add-flashcard-form");
-        if (addForm) {
-          addForm.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            
-            const question = document.getElementById("flashcard-question").value.trim();
-            const answer = document.getElementById("flashcard-answer").value.trim();
-            
-            if (!question || !answer) {
-              alert("Pytanie i odpowiedź są wymagane");
-              return;
-            }
-            
-            try {
-              const response = await fetch("/api/flashcards", {
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  deck_id: deck.id,
-                  question,
-                  answer,
-                }),
-              });
-              
-              if (response.ok) {
-                alert("✅ Fiszka została dodana pomyślnie!");
-                document.getElementById("add-flashcard-modal").classList.add("hidden");
-                addForm.reset();
-                await loadFlashcards();
-              } else {
-                const error = await response.json();
-                alert("❌ " + (error.error?.message || "Nie udało się dodać fiszki"));
-              }
-            } catch (error) {
-              alert("❌ Błąd podczas dodawania fiszki");
-            }
-          });
-        }
-        
-        // Setup modal handlers
-        const addBtn = document.getElementById("add-manual-flashcard-btn");
-        const cancelBtn = document.getElementById("cancel-add-flashcard");
-        const modal = document.getElementById("add-flashcard-modal");
-        
-        if (addBtn) addBtn.addEventListener("click", () => modal?.classList.remove("hidden"));
-        if (cancelBtn) cancelBtn.addEventListener("click", () => modal?.classList.add("hidden"));
-        
       } catch (error) {
-        alert("Błąd podczas ładowania talii");
-        window.location.href = "/";
+        console.error('Error adding flashcard:', error);
+        alert('Wystąpił błąd podczas dodawania fiszki');
       }
     });
-  </script>
-</Layout>
+
+    // Close modal when clicking outside
+    addFlashcardModal.addEventListener('click', (e) => {
+      if (e.target === addFlashcardModal) {
+        addFlashcardModal.classList.add('hidden');
+        addFlashcardForm.reset();
+      }
+    });
+
+    // Initial load
+    await loadDeckData();
+  });
+</script>

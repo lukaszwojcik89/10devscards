@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Tables, TablesUpdate } from "@/db/database.types";
 import { supabaseAdminClient } from "@/db/supabase.client";
@@ -31,31 +32,72 @@ export class FlashcardsService {
     // Walidacja danych wejściowych
     const validated = generateFlashcardsRequestSchema.parse(request);
 
-    // Weryfikacja talii
-    await this.verifyDeck(validated.deck_id, userId);
+    // Obsługa deck_id - CREATE_NEW lub istniejąca talia
+    let deckId: string;
+    if (validated.deck_id === "CREATE_NEW") {
+      // Tworzymy nową talię na podstawie tematu
+      const newDeck = await this.createDeckFromTopic(validated.input_text, userId);
+      deckId = newDeck.id;
+    } else {
+      // Weryfikacja istniejącej talii
+      await this.verifyDeck(validated.deck_id, userId);
+      deckId = validated.deck_id;
+    }
 
     // Sprawdzenie budżetu
     await this.checkBudgetLimits(userId);
 
     // Wywołanie AI z difficulty parameter
-    const aiRes = await this.callAI(validated.input_text, validated.max_cards, validated.difficulty, validated.context, validated.language);
+    const aiRes = await this.callAI(
+      validated.input_text,
+      validated.max_cards,
+      validated.difficulty,
+      validated.context,
+      validated.language
+    );
 
     // Zapis fiszek
-    const saved = await this.saveToDB(aiRes.flashcards, validated.deck_id, aiRes.metadata);
+    const saved = await this.saveToDB(aiRes.flashcards, deckId, aiRes.metadata);
 
     // Zapis zdarzenia budżetu
     await this.recordEvent(userId, aiRes.metadata);
 
+    // Pobierz slug nowo utworzonej/istniejącej talii
+    const { data: deck } = await this.supabase.from("decks").select("slug").eq("id", deckId).single();
+
     // Zwrócenie odpowiedzi
     return {
-      generated_flashcards: saved,
-      generation_summary: {
-        total_generated: saved.length,
-        total_tokens: aiRes.metadata.tokens_used,
-        total_cost_usd: aiRes.metadata.cost_usd,
-        model_used: aiRes.metadata.model,
+      data: {
+        generated_flashcards: saved,
+        deck_slug: deck?.slug || "",
+        generation_summary: {
+          total_generated: saved.length,
+          total_tokens: aiRes.metadata.tokens_used,
+          total_cost_usd: aiRes.metadata.cost_usd,
+          model_used: aiRes.metadata.model,
+        },
       },
     };
+  }
+
+  /**
+   * Create a new deck from topic for AI generation
+   */
+  private async createDeckFromTopic(topic: string, userId: string): Promise<Tables<"decks">> {
+    // Import DeckService (lazy import to avoid circular dependency)
+    const { DeckService } = await import("./deck.service");
+    const deckService = new DeckService(this.supabase);
+
+    // Generate deck name from topic (limit to 100 chars)
+    const deckName = topic.length > 100 ? topic.substring(0, 97) + "..." : topic;
+
+    const newDeck = await deckService.createDeck({
+      name: deckName,
+      description: `Fiszki AI: ${topic}`,
+      owner_id: userId,
+    });
+
+    return newDeck;
   }
 
   /**
@@ -63,7 +105,7 @@ export class FlashcardsService {
    */
   private async verifyDeck(deckId: string, userId: string): Promise<Tables<"decks">> {
     console.log("Verifying deck:", { deckId, userId });
-    
+
     const { data: deck, error } = await this.supabase
       .from("decks")
       .select("*")
@@ -114,7 +156,8 @@ export class FlashcardsService {
     inputText: string,
     maxFlashcards: number,
     difficulty: "beginner" | "intermediate" | "advanced" = "intermediate",
-    context?: string
+    context: string | undefined,
+    language: "pl" | "en" | "de" | "fr" | "es" | "it"
   ): Promise<{
     flashcards: { question: string; answer: string }[];
     metadata: { tokens_used: number; cost_usd: number; model: string };
@@ -124,14 +167,16 @@ export class FlashcardsService {
     const BASE_URL = import.meta.env.OPENROUTER_BASE_URL || "https://openrouter.ai/api/v1";
 
     if (!API_KEY) {
-      throw new Error("OpenRouter API key not configured. Please set OPENROUTER_API_KEY in your environment variables.");
+      throw new Error(
+        "OpenRouter API key not configured. Please set OPENROUTER_API_KEY in your environment variables."
+      );
     }
 
-    console.log("OpenRouter config:", { 
-      hasApiKey: !!API_KEY, 
-      model: MODEL, 
+    console.log("OpenRouter config:", {
+      hasApiKey: !!API_KEY,
+      model: MODEL,
       baseUrl: BASE_URL,
-      apiKeyPrefix: API_KEY ? API_KEY.substring(0, 10) + "..." : "none"
+      apiKeyPrefix: API_KEY ? API_KEY.substring(0, 10) + "..." : "none",
     });
 
     // Language mapping for clear instructions
@@ -141,7 +186,7 @@ export class FlashcardsService {
       de: "WICHTIG: Generiere alle Karteikarten auf Deutsch. Sowohl Fragen als auch Antworten müssen auf Deutsch sein.",
       fr: "IMPORTANT: Générez toutes les cartes en français. Les questions et réponses doivent être en français.",
       es: "IMPORTANTE: Genera todas las tarjetas en español. Tanto preguntas como respuestas deben estar en español.",
-      it: "IMPORTANTE: Genera tutte le schede in italiano. Sia domande che risposte devono essere in italiano."
+      it: "IMPORTANTE: Genera tutte le schede in italiano. Sia domande che risposte devono essere in italiano.",
     };
     // Create difficulty-specific prompt
     const difficultyPrompts = {
@@ -157,7 +202,7 @@ export class FlashcardsService {
 ${languageInstructions[language as keyof typeof languageInstructions] || languageInstructions.pl}
 ${difficultyPrompts[difficulty]}
 
-${context ? `\nKONTEKST DODATKOWY: ${context}\nTo jest bardzo ważne - fiszki MUSZĄ być związane z tym kontekstem. Ignoruj inne tematy i skup się tylko na tym kontekście.` : ''}
+${context ? `\nKONTEKST DODATKOWY: ${context}\nTo jest bardzo ważne - fiszki MUSZĄ być związane z tym kontekstem. Ignoruj inne tematy i skup się tylko na tym kontekście.` : ""}
 
 IMPORTANT: Respond with ONLY a valid JSON array in this exact format:
 [
@@ -171,7 +216,7 @@ Generate exactly ${maxFlashcards} flashcards. Each question should be self-conta
 
     try {
       console.log("Making request to OpenRouter...");
-      
+
       const response = await fetch(`${BASE_URL}/chat/completions`, {
         method: "POST",
         headers: {
@@ -198,7 +243,7 @@ Generate exactly ${maxFlashcards} flashcards. Each question should be self-conta
       });
 
       console.log("OpenRouter response status:", response.status);
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         console.error("OpenRouter API error:", response.status, errorText);
@@ -261,14 +306,14 @@ Generate exactly ${maxFlashcards} flashcards. Each question should be self-conta
       console.error("Full error object:", {
         message: error instanceof Error ? error.message : "Unknown error",
         stack: error instanceof Error ? error.stack : undefined,
-        name: error instanceof Error ? error.name : undefined
+        name: error instanceof Error ? error.name : undefined,
       });
-      
+
       // Handle specific network errors
       if (error instanceof TypeError && error.message === "fetch failed") {
         throw new Error("Network connection failed. Please check your internet connection and try again.");
       }
-      
+
       throw new Error(`AI service failed: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   }

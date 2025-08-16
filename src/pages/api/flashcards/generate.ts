@@ -39,15 +39,15 @@ export const POST: APIRoute = async ({ request }) => {
 
   try {
     const body = (await request.json()) as GenerateFlashcardsRequest;
-    console.log("Generate flashcards request:", { 
-      ...body, 
+    console.log("Generate flashcards request:", {
+      ...body,
       userId,
-      timestamp: new Date().toISOString() 
+      timestamp: new Date().toISOString(),
     });
-    
+
     const service = new FlashcardsService(supabaseClient);
     const result = await service.generateFlashcards(body, userId);
-    
+
     console.log("Generate flashcards result:", result);
 
     return new Response(JSON.stringify(result), {
@@ -75,9 +75,9 @@ export const POST: APIRoute = async ({ request }) => {
       message,
       userId,
       error: err,
-      stack: err instanceof Error ? err.stack : undefined
+      stack: err instanceof Error ? err.stack : undefined,
     });
-    
+
     if (message.includes("Deck not found")) {
       return new Response(
         JSON.stringify({

@@ -222,7 +222,7 @@ export function UpdatePasswordForm({ onSuccess, onError }: UpdatePasswordFormPro
       />
 
       {/* Update Password Form */}
-      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate suppressHydrationWarning>
         <div>
           <label htmlFor="new-password" className="block text-sm font-medium mb-1">
             Nowe hasło
@@ -240,6 +240,7 @@ export function UpdatePasswordForm({ onSuccess, onError }: UpdatePasswordFormPro
             required
             aria-invalid={!!errors.password}
             aria-describedby={errors.password ? "password-error" : "password-hint"}
+            suppressHydrationWarning
           />
           <p id="password-hint" className="text-xs text-muted-foreground mt-1">
             Minimum 8 znaków
@@ -267,6 +268,7 @@ export function UpdatePasswordForm({ onSuccess, onError }: UpdatePasswordFormPro
             required
             aria-invalid={!!errors.confirmPassword}
             aria-describedby={errors.confirmPassword ? "confirm-password-error" : undefined}
+            suppressHydrationWarning
           />
           {errors.confirmPassword && (
             <p id="confirm-password-error" className="mt-1 text-xs text-red-600" role="alert">

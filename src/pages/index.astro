@@ -21,7 +21,7 @@ const pageDescription = isAuthenticated
     <div class="max-w-6xl mx-auto">
       {isAuthenticated ? (
         <div>
-          <DashboardContainer client:load />
+          <DashboardContainer client:idle />
         </div>
       ) : (
         <div>
