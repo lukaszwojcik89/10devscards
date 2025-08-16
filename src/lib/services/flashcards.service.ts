@@ -31,17 +31,34 @@ export class FlashcardsService {
   async generateFlashcards(request: GenerateFlashcardsRequest, userId: string): Promise<GenerateFlashcardsResponse> {
     // Walidacja danych wejściowych
     const validated = generateFlashcardsRequestSchema.parse(request);
+    
+    console.log("FlashcardsService.generateFlashcards - start:", {
+      deck_id: validated.deck_id,
+      userId,
+      input_text: validated.input_text.substring(0, 100) + "...",
+      max_cards: validated.max_cards,
+      timestamp: new Date().toISOString(),
+    });
 
     // Obsługa deck_id - CREATE_NEW lub istniejąca talia
     let deckId: string;
     if (validated.deck_id === "CREATE_NEW") {
-      // Tworzymy nową talię na podstawie tematu
-      const newDeck = await this.createDeckFromTopic(validated.input_text, userId);
+      console.log("Creating new deck from topic...");
+      // Tworzymy nową talię na podstawie tematu lub danych użytkownika
+      const newDeck = await this.createDeckFromTopic(
+        validated.input_text,
+        userId,
+        validated.new_deck_name,
+        validated.new_deck_description
+      );
       deckId = newDeck.id;
+      console.log("New deck created:", { deckId, name: newDeck.name });
     } else {
+      console.log("Verifying existing deck:", { deck_id: validated.deck_id });
       // Weryfikacja istniejącej talii
       await this.verifyDeck(validated.deck_id, userId);
       deckId = validated.deck_id;
+      console.log("Deck verified successfully:", { deckId });
     }
 
     // Sprawdzenie budżetu
@@ -83,17 +100,25 @@ export class FlashcardsService {
   /**
    * Create a new deck from topic for AI generation
    */
-  private async createDeckFromTopic(topic: string, userId: string): Promise<Tables<"decks">> {
+  private async createDeckFromTopic(
+    topic: string,
+    userId: string,
+    customName?: string,
+    customDescription?: string
+  ): Promise<Tables<"decks">> {
     // Import DeckService (lazy import to avoid circular dependency)
     const { DeckService } = await import("./deck.service");
     const deckService = new DeckService(this.supabase);
 
-    // Generate deck name from topic (limit to 100 chars)
-    const deckName = topic.length > 100 ? topic.substring(0, 97) + "..." : topic;
+    // Use custom name if provided, otherwise generate from topic
+    const deckName = customName?.trim() || (topic.length > 100 ? topic.substring(0, 97) + "..." : topic);
+    
+    // Use custom description if provided, otherwise generate from topic
+    const deckDescription = customDescription?.trim() || `Fiszki AI: ${topic}`;
 
     const newDeck = await deckService.createDeck({
       name: deckName,
-      description: `Fiszki AI: ${topic}`,
+      description: deckDescription,
       owner_id: userId,
     });
 
@@ -111,7 +136,7 @@ export class FlashcardsService {
       .select("*")
       .eq("id", deckId)
       .eq("owner_id", userId)
-      .eq("is_deleted", false)
+      .or("is_deleted.eq.false,is_deleted.is.null")
       .single();
 
     if (error || !deck) {

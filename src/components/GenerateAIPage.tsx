@@ -172,6 +172,7 @@ export function GenerateAIPage({ autoOpen: _autoOpen = true }: GenerateAIPagePro
           isLoadingDecks={isLoadingDecks}
           triggerSource="navbar"
           onSuccess={handleGenerationSuccess}
+          onDeckCreated={fetchDecks} // Refresh deck list when new deck is created
         />
       </div>
     </div>

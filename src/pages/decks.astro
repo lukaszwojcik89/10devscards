@@ -511,6 +511,8 @@ import Layout from "../layouts/Layout.astro";
         description: formData.get("description") || undefined,
       };
 
+      console.log("Creating deck", { data, formDataName: formData.get("name"), formDataDesc: formData.get("description") });
+
       try {
         const response = await fetch("/api/decks", {
           method: "POST",
@@ -521,7 +523,11 @@ import Layout from "../layouts/Layout.astro";
           body: JSON.stringify(data),
         });
 
+        console.log("Create deck response", { status: response.status, ok: response.ok });
+
         if (!response.ok) {
+          const errorData = await response.json().catch(() => null);
+          console.error("Create deck error", errorData);
           throw new Error(`HTTP ${response.status}`);
         }
 
@@ -530,7 +536,8 @@ import Layout from "../layouts/Layout.astro";
 
         // Redirect to the new deck
         window.location.href = `/decks/${result.data.slug}`;
-      } catch {
+      } catch (error) {
+        console.error("Create deck exception", error);
         alert("Nie udało się stworzyć talii. Spróbuj ponownie.");
       }
     });
@@ -571,6 +578,18 @@ import Layout from "../layouts/Layout.astro";
 
     // Initial load
     await loadDecks();
+
+    // Refresh decks when user returns to the page (after creating deck elsewhere)
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) {
+        loadDecks();
+      }
+    });
+
+    // Also refresh when window gets focus
+    window.addEventListener("focus", () => {
+      loadDecks();
+    });
   });
 </script>
 

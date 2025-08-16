@@ -119,17 +119,21 @@ export function useGenerateAIModal() {
   /**
    * Ustawia wybraną talię
    */
-  const setDeck = useCallback((deckId: string | null) => {
-    setModalState((prev) => ({
-      ...prev,
-      selectedDeckId: deckId,
-      newDeckData: deckId ? null : prev.newDeckData, // Clear newDeckData if selecting existing deck
-      validationErrors: {
-        ...prev.validationErrors,
-        deckSelection: undefined,
-      },
-    }));
-  }, []);
+  const setDeck = useCallback(
+    (deckId: string | null) => {
+      console.log("setDeck called", { deckId, currentNewDeckData: modalState.newDeckData });
+      setModalState((prev) => ({
+        ...prev,
+        selectedDeckId: deckId,
+        newDeckData: deckId === "CREATE_NEW" ? prev.newDeckData : null, // Keep newDeckData if creating new deck
+        validationErrors: {
+          ...prev.validationErrors,
+          deckSelection: undefined,
+        },
+      }));
+    },
+    [modalState.newDeckData]
+  );
 
   /**
    * Ustawia tekst input
@@ -166,7 +170,8 @@ export function useGenerateAIModal() {
       ...prev,
       showInlineCreate: !prev.showInlineCreate,
       selectedDeckId: prev.showInlineCreate ? prev.selectedDeckId : null,
-      newDeckData: prev.showInlineCreate ? null : prev.newDeckData,
+      // Don't reset newDeckData when hiding form - keep it for API call
+      // newDeckData: prev.showInlineCreate ? null : prev.newDeckData,
     }));
   }, []);
 
@@ -292,7 +297,7 @@ export function useGenerateAIModal() {
       canGenerate:
         modalState.inputText.trim().length > 10 &&
         modalState.inputText.length <= 2000 &&
-        (modalState.selectedDeckId !== null || modalState.newDeckData !== null) &&
+        modalState.selectedDeckId !== null &&
         !modalState.isGenerating,
 
       /**

@@ -16,6 +16,7 @@ interface GenerateAIModalProps {
   preselectedDeckId?: string;
   triggerSource?: "dashboard" | "decks" | "deck-detail" | "navbar";
   onSuccess?: (deckSlug: string) => void;
+  onDeckCreated?: () => void;
 }
 
 /**
@@ -28,6 +29,7 @@ export function GenerateAIModal({
   preselectedDeckId,
   triggerSource = "dashboard",
   onSuccess,
+  onDeckCreated,
 }: GenerateAIModalProps) {
   const { modalState, actions, computed } = useGenerateAIModal();
   const { budgetInfo, calculateEstimatedCost } = useBudgetMonitoring();
@@ -60,16 +62,21 @@ export function GenerateAIModal({
       const modalParam = urlParams.get("modal");
       const deckParam = urlParams.get("deck");
 
+      console.log("checkUrlParams", { modalParam, deckParam, isOpen: modalState.isOpen });
+
       if (modalParam === "generate" && !modalState.isOpen) {
+        console.log("Opening modal from URL params");
         actions.openModal(triggerSource, deckParam || preselectedDeckId);
       }
     };
 
     // Check on component mount
+    console.log("useEffect mounted, checking URL params");
     checkUrlParams();
 
     // Listen for URL changes
     const handlePopState = () => {
+      console.log("popstate event");
       checkUrlParams();
     };
 
@@ -79,6 +86,13 @@ export function GenerateAIModal({
 
   // Prawdziwa funkcja generacji z API
   const handleGenerate = useCallback(async () => {
+    console.log("handleGenerate called", {
+      selectedDeckId: modalState.selectedDeckId,
+      newDeckData: modalState.newDeckData,
+      inputText: modalState.inputText.substring(0, 50) + "...",
+      canGenerate: computed.canGenerate
+    });
+
     try {
       // Przygotuj request DTO
       const request = {
@@ -90,6 +104,8 @@ export function GenerateAIModal({
         context: modalState.generationSettings.context,
       };
 
+      console.log("Sending generation request", request);
+
       // Callback dla aktualizacji progress
       const onProgressUpdate = (progress: GenerationProgress) => {
         actions.setGenerationState(true, progress);
@@ -97,6 +113,8 @@ export function GenerateAIModal({
 
       // Wywołaj prawdziwe API
       const result = await generateFlashcards(request, onProgressUpdate);
+
+      console.log("Generation completed", result);
 
       // Zapisz deck_slug dla późniejszego użycia
       localStorage.setItem("lastGeneratedDeckSlug", result.deckSlug);
@@ -106,6 +124,7 @@ export function GenerateAIModal({
     } catch (err) {
       // Obsłuż błąd - rzutuj na GenerationError lub stwórz nowy
       const error = err as GenerationError;
+      console.error("Generation error", error);
       actions.setError({
         type: error.type || "unknown",
         code: error.code || "GENERATION_ERROR",
@@ -113,7 +132,7 @@ export function GenerateAIModal({
         isRetryable: error.isRetryable !== false, // domyślnie true
       });
     }
-  }, [modalState, actions, generateFlashcards]);
+  }, [modalState, actions, generateFlashcards, computed.canGenerate]);
 
   const handleSave = useCallback(async () => {
     // Pobierz zapisany deck_slug z localStorage
@@ -217,6 +236,7 @@ export function GenerateAIModal({
                 validationError={modalState.validationErrors.deckSelection}
                 newDeckData={modalState.newDeckData}
                 onNewDeckDataChange={actions.setNewDeckData}
+                onDeckCreated={onDeckCreated}
               />
 
               {/* Text Input */}

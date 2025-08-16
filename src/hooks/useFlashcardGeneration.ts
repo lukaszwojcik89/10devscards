@@ -34,8 +34,8 @@ export function useFlashcardGeneration() {
       errors.push("Tekst może mieć maksymalnie 2000 znaków");
     }
 
-    if (request.max_cards && (request.max_cards < 1 || request.max_cards > 10)) {
-      errors.push("Liczba fiszek musi być między 1 a 10");
+    if (request.max_cards && (request.max_cards < 1 || request.max_cards > 20)) {
+      errors.push("Liczba fiszek musi być między 1 a 20");
     }
 
     if (request.difficulty && !["beginner", "intermediate", "advanced"].includes(request.difficulty)) {

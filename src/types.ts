@@ -131,6 +131,8 @@ export interface GenerateFlashcardsRequestDTO {
   difficulty?: "beginner" | "intermediate" | "advanced";
   context?: string;
   language?: "pl" | "en" | "de" | "fr" | "es" | "it";
+  new_deck_name?: string;
+  new_deck_description?: string;
 }
 
 /**

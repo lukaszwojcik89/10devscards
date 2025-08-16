@@ -12,6 +12,7 @@ interface DeckSelectionSectionProps {
   validationError?: string;
   newDeckData: CreateDeckData | null;
   onNewDeckDataChange: (data: CreateDeckData | null) => void;
+  onDeckCreated?: () => void;
 }
 
 /**
@@ -27,15 +28,71 @@ export function DeckSelectionSection({
   validationError,
   newDeckData,
   onNewDeckDataChange,
+  onDeckCreated,
 }: DeckSelectionSectionProps) {
-  const handleCreateDeck = (event: React.FormEvent) => {
+  const handleCreateDeck = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!newDeckData?.name?.trim()) return;
+    console.log("handleCreateDeck called", { newDeckData });
+    
+    if (!newDeckData?.name?.trim()) {
+      console.log("Missing deck name, aborting");
+      return;
+    }
 
-    // Instead of creating a mock deck, signal that we want to create a new deck
-    // This will be handled by the API with "CREATE_NEW" deck_id
-    onSelect("CREATE_NEW");
-    onToggleInlineCreate(); // Hide inline form
+    try {
+      // Get token from localStorage
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        throw new Error("Brak tokena autoryzacji");
+      }
+
+      // Create deck via API
+      const requestBody: { name: string; description?: string } = {
+        name: newDeckData.name,
+      };
+
+      // Only add description if it's not empty
+      if (newDeckData.description?.trim()) {
+        requestBody.description = newDeckData.description.trim();
+      }
+
+      console.log("Creating deck with data:", requestBody);
+
+      const response = await fetch("/api/decks", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      console.log("Create deck response:", { status: response.status, ok: response.ok });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        console.log("Error data:", errorData);
+        throw new Error(errorData?.error?.message || `HTTP ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log("Deck created successfully", result);
+
+      // Select the newly created deck
+      onSelect(result.data.id);
+
+      // Clear the newDeckData since we now have a real deck
+      onNewDeckDataChange(null);
+
+      // Hide inline form
+      onToggleInlineCreate();
+
+      // Notify parent that deck was created (refresh deck list)
+      onDeckCreated?.();
+    } catch (error) {
+      console.error("Failed to create deck", error);
+      alert(`Nie udało się utworzyć talii: ${error instanceof Error ? error.message : "Nieznany błąd"}`);
+    }
   };
 
   return (

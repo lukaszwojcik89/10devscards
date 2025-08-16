@@ -33,6 +33,15 @@ export const generateFlashcardsRequestSchema = z.object({
       errorMap: () => ({ message: "language must be one of: pl, en, de, fr, es, it" }),
     })
     .default("pl"),
+
+  // Optional new deck data when deck_id is "CREATE_NEW"
+  new_deck_name: z
+    .string()
+    .min(1, "new_deck_name is required when creating new deck")
+    .max(100, "new_deck_name must be less than 100 characters")
+    .optional(),
+
+  new_deck_description: z.string().max(500, "new_deck_description must be less than 500 characters").optional(),
 });
 
 export type GenerateFlashcardsRequestSchema = z.infer<typeof generateFlashcardsRequestSchema>;
