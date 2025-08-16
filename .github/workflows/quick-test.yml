@@ -38,4 +38,3 @@ jobs:
           echo "✅ Lint: OK"
           echo "✅ Tests: OK" 
           echo "✅ Build: OK"
-test trigger change
