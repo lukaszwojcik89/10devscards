@@ -3,18 +3,18 @@ name: Release Pipeline
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
   release:
     types: [published]
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to release (e.g., v1.0.0)'
+        description: "Version to release (e.g., v1.0.0)"
         required: true
         type: string
 
 env:
-  NODE_VERSION: '18'
+  NODE_VERSION: "18"
 
 jobs:
   validate:
@@ -41,7 +41,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -64,7 +64,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -96,7 +96,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -147,23 +147,23 @@ jobs:
             const fs = require('fs');
             const version = "${{ needs.validate.outputs.version }}";
             const changelog = `${{ steps.changelog.outputs.changelog }}`;
-            
+
             const releaseBody = `## 🚀 Release ${version}
-            
+
             ### 📋 Zmiany w tej wersji:
             ${changelog}
-            
+
             ### 🔧 Szczegóły techniczne:
             - ✅ Wszystkie testy jednostkowe przeszły
             - ✅ Build produkcyjny zakończony sukcesem  
             - ✅ Pokrycie testami dostępne w artifaktach
             - 📦 Artefakty release dostępne do pobrania
-            
+
             ### 📊 Statystyki:
             - Node.js: ${{ env.NODE_VERSION }}
             - Build time: ${new Date().toISOString()}
             `;
-            
+
             try {
               const release = await github.rest.repos.getReleaseByTag({
                 owner: context.repo.owner,
@@ -207,7 +207,7 @@ jobs:
           echo "   - Testy: ${{ needs.test.result }}"
           echo "   - Build: ${{ needs.build.result }}"
           echo "   - Release Notes: ${{ needs.release-notes.result }}"
-          
+
           if [ "${{ needs.test.result }}" = "success" ] && [ "${{ needs.build.result }}" = "success" ]; then
             echo "✅ Release zakończony sukcesem!"
           else

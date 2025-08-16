@@ -2,7 +2,7 @@ name: Pull Request Validation
 
 on:
   pull_request:
-    branches: [ master, main ]
+    branches: [master, main]
     types: [opened, synchronize, reopened]
 
 jobs:
@@ -16,8 +16,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: "18"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -39,8 +39,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: "18"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -69,8 +69,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: "18"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -99,30 +99,30 @@ jobs:
           script: |
             const needs = ${{ toJson(needs) }};
             const results = Object.entries(needs);
-            
+
             let status = '✅ Wszystkie sprawdzenia przeszły pomyślnie!';
             let details = '';
-            
+
             for (const [jobName, result] of results) {
               const icon = result.result === 'success' ? '✅' : '❌';
               details += `${icon} **${jobName}**: ${result.result}\n`;
             }
-            
+
             if (results.some(([, result]) => result.result !== 'success')) {
               status = '❌ Niektóre sprawdzenia nie powiodły się';
             }
-            
+
             const body = `## 🔍 Status Pull Request
-            
+
             ${status}
-            
+
             ### Szczegóły:
             ${details}
-            
+
             ### Pokrycie testami
             Raport pokrycia testami został wygenerowany i jest dostępny w artifaktach.
             `;
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
