@@ -149,6 +149,8 @@ export interface AIGenerationMetadata {
  * Response DTO for POST /api/flashcards/generate
  */
 export interface GenerateFlashcardsResponseDTO {
+  generated_flashcards(generated_flashcards: any): unknown;
+  generation_summary(generation_summary: any): unknown;
   data: {
     generated_flashcards: FlashcardListItem[];
     deck_slug: string;
