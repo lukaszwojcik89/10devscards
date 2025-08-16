@@ -19,6 +19,7 @@ export const createDeckRequestSchema = z.object({
     .string()
     .max(1000, "Description must be less than 1000 characters")
     .optional()
+    .nullable()
     .transform((desc) => desc?.trim() || null),
 });
 

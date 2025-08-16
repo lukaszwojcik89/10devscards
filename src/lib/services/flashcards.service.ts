@@ -31,17 +31,34 @@ export class FlashcardsService {
   async generateFlashcards(request: GenerateFlashcardsRequest, userId: string): Promise<GenerateFlashcardsResponse> {
     // Walidacja danych wejściowych
     const validated = generateFlashcardsRequestSchema.parse(request);
+    
+    console.log("FlashcardsService.generateFlashcards - start:", {
+      deck_id: validated.deck_id,
+      userId,
+      input_text: validated.input_text.substring(0, 100) + "...",
+      max_cards: validated.max_cards,
+      timestamp: new Date().toISOString(),
+    });
 
     // Obsługa deck_id - CREATE_NEW lub istniejąca talia
     let deckId: string;
     if (validated.deck_id === "CREATE_NEW") {
-      // Tworzymy nową talię na podstawie tematu
-      const newDeck = await this.createDeckFromTopic(validated.input_text, userId);
+      console.log("Creating new deck from topic...");
+      // Tworzymy nową talię na podstawie tematu lub danych użytkownika
+      const newDeck = await this.createDeckFromTopic(
+        validated.input_text,
+        userId,
+        validated.new_deck_name,
+        validated.new_deck_description
+      );
       deckId = newDeck.id;
+      console.log("New deck created:", { deckId, name: newDeck.name });
     } else {
+      console.log("Verifying existing deck:", { deck_id: validated.deck_id });
       // Weryfikacja istniejącej talii
       await this.verifyDeck(validated.deck_id, userId);
       deckId = validated.deck_id;
+      console.log("Deck verified successfully:", { deckId });
     }
 
     // Sprawdzenie budżetu
@@ -83,17 +100,25 @@ export class FlashcardsService {
   /**
    * Create a new deck from topic for AI generation
    */
-  private async createDeckFromTopic(topic: string, userId: string): Promise<Tables<"decks">> {
+  private async createDeckFromTopic(
+    topic: string,
+    userId: string,
+    customName?: string,
+    customDescription?: string
+  ): Promise<Tables<"decks">> {
     // Import DeckService (lazy import to avoid circular dependency)
     const { DeckService } = await import("./deck.service");
     const deckService = new DeckService(this.supabase);
 
-    // Generate deck name from topic (limit to 100 chars)
-    const deckName = topic.length > 100 ? topic.substring(0, 97) + "..." : topic;
+    // Use custom name if provided, otherwise generate from topic
+    const deckName = customName?.trim() || (topic.length > 100 ? topic.substring(0, 97) + "..." : topic);
+    
+    // Use custom description if provided, otherwise generate from topic
+    const deckDescription = customDescription?.trim() || `Fiszki AI: ${topic}`;
 
     const newDeck = await deckService.createDeck({
       name: deckName,
-      description: `Fiszki AI: ${topic}`,
+      description: deckDescription,
       owner_id: userId,
     });
 
@@ -111,7 +136,7 @@ export class FlashcardsService {
       .select("*")
       .eq("id", deckId)
       .eq("owner_id", userId)
-      .eq("is_deleted", false)
+      .or("is_deleted.eq.false,is_deleted.is.null")
       .single();
 
     if (error || !deck) {
@@ -279,6 +304,101 @@ Generate exactly ${maxFlashcards} flashcards. Each question should be self-conta
           (card) => card.question && card.answer && typeof card.question === "string" && typeof card.answer === "string"
         )
         .slice(0, maxFlashcards); // Limit to requested amount
+
+      // If we got significantly fewer flashcards than requested, try again with adjusted prompt
+      if (validFlashcards.length < maxFlashcards * 0.8) {
+        console.log(
+          `Generated only ${validFlashcards.length}/${maxFlashcards} flashcards. Retrying with more aggressive prompt...`
+        );
+
+        const retrySystemPrompt = `You are an expert educational content creator. Your task is to generate high-quality flashcards based on the provided text.
+
+${languageInstructions[language as keyof typeof languageInstructions] || languageInstructions.pl}
+${difficultyPrompts[difficulty]}
+
+${context ? `\nKONTEKST DODATKOWY: ${context}\nTo jest bardzo ważne - fiszki MUSZĄ być związane z tym kontekstem. Ignoruj inne tematy i skup się tylko na tym kontekście.` : ""}
+
+CRITICAL: You MUST generate exactly ${maxFlashcards} flashcards. This is a hard requirement. 
+Do not generate fewer than ${maxFlashcards} flashcards under any circumstances.
+If the content seems insufficient, create more detailed questions about different aspects, implications, examples, or related concepts.
+
+IMPORTANT: Respond with ONLY a valid JSON array in this exact format:
+[
+  {
+    "question": "Clear, specific question",
+    "answer": "Comprehensive but concise answer"
+  }
+]
+
+Generate exactly ${maxFlashcards} flashcards. Each question should be self-contained and each answer should be complete but concise.`;
+
+        const retryResponse = await fetch(`${BASE_URL}/chat/completions`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${API_KEY}`,
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://10devscards.com",
+            "X-Title": "AI Flashcards",
+          },
+          body: JSON.stringify({
+            model: MODEL,
+            messages: [
+              {
+                role: "system",
+                content: retrySystemPrompt,
+              },
+              {
+                role: "user",
+                content: `Generate exactly ${maxFlashcards} flashcards from this content. You must create exactly ${maxFlashcards} flashcards, no more, no less:\n\n${inputText}`,
+              },
+            ],
+            max_tokens: 3000, // Increased for more flashcards
+            temperature: 0.5, // Lower temperature for more consistent results
+          }),
+        });
+
+        if (retryResponse.ok) {
+          const retryData = await retryResponse.json();
+          const retryContent = retryData.choices?.[0]?.message?.content?.trim();
+
+          if (retryContent) {
+            try {
+              const retryFlashcards = JSON.parse(retryContent);
+              if (Array.isArray(retryFlashcards)) {
+                const retryValidFlashcards = retryFlashcards
+                  .filter(
+                    (card) =>
+                      card.question &&
+                      card.answer &&
+                      typeof card.question === "string" &&
+                      typeof card.answer === "string"
+                  )
+                  .slice(0, maxFlashcards);
+
+                if (retryValidFlashcards.length > validFlashcards.length) {
+                  console.log(`Retry successful: ${retryValidFlashcards.length}/${maxFlashcards} flashcards generated`);
+                  // Use retry result instead
+                  const retryTokensUsed = retryData.usage?.total_tokens || 0;
+                  const retryPromptTokens = retryData.usage?.prompt_tokens || 0;
+                  const retryCompletionTokens = retryData.usage?.completion_tokens || 0;
+                  const retryCostUsd = retryPromptTokens * 0.00000015 + retryCompletionTokens * 0.0000006;
+
+                  return {
+                    flashcards: retryValidFlashcards,
+                    metadata: {
+                      tokens_used: retryTokensUsed,
+                      cost_usd: retryCostUsd,
+                      model: MODEL,
+                    },
+                  };
+                }
+              }
+            } catch {
+              console.log("Retry parsing failed, using original result");
+            }
+          }
+        }
+      }
 
       if (validFlashcards.length === 0) {
         throw new Error("No valid flashcards generated by AI");
