@@ -31,7 +31,7 @@ export class FlashcardsService {
   async generateFlashcards(request: GenerateFlashcardsRequest, userId: string): Promise<GenerateFlashcardsResponse> {
     // Walidacja danych wejściowych
     const validated = generateFlashcardsRequestSchema.parse(request);
-    
+
     console.log("FlashcardsService.generateFlashcards - start:", {
       deck_id: validated.deck_id,
       userId,
@@ -112,7 +112,7 @@ export class FlashcardsService {
 
     // Use custom name if provided, otherwise generate from topic
     const deckName = customName?.trim() || (topic.length > 100 ? topic.substring(0, 97) + "..." : topic);
-    
+
     // Use custom description if provided, otherwise generate from topic
     const deckDescription = customDescription?.trim() || `Fiszki AI: ${topic}`;
 

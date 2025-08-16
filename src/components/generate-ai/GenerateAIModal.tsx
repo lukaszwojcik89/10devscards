@@ -90,7 +90,7 @@ export function GenerateAIModal({
       selectedDeckId: modalState.selectedDeckId,
       newDeckData: modalState.newDeckData,
       inputText: modalState.inputText.substring(0, 50) + "...",
-      canGenerate: computed.canGenerate
+      canGenerate: computed.canGenerate,
     });
 
     try {

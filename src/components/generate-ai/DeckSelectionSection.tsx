@@ -33,7 +33,7 @@ export function DeckSelectionSection({
   const handleCreateDeck = async (event: React.FormEvent) => {
     event.preventDefault();
     console.log("handleCreateDeck called", { newDeckData });
-    
+
     if (!newDeckData?.name?.trim()) {
       console.log("Missing deck name, aborting");
       return;
