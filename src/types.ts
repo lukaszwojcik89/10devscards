@@ -300,6 +300,11 @@ export interface DeleteAccountRequestDTO {
 // =============================================================================
 
 /**
+ * Status budżetu dla użytkownika
+ */
+export type BudgetStatus = "safe" | "warning" | "critical" | "exceeded" | "unknown";
+
+/**
  * Budget status data for admin panel
  */
 export interface BudgetStatusData {
@@ -648,10 +653,187 @@ export interface KpiTileProps {
   value: number | string;
   subtitle?: string;
   variant: "primary" | "warning" | "success" | "neutral";
-  onClick?: () => void;
-  isClickable?: boolean;
-  icon?: React.ComponentType;
-  tooltip?: string;
+}
+
+// =============================================================================
+// GENERATOR AI TYPES
+// =============================================================================
+
+/**
+ * Stan głównego modal Generator AI
+ */
+export interface GenerateAIModalState {
+  // Modal control
+  isOpen: boolean;
+  step: "input" | "generating" | "preview" | "error";
+  triggerSource: "dashboard" | "decks" | "deck-detail" | "navbar";
+
+  // Form data
+  selectedDeckId: string | null;
+  newDeckData: CreateDeckData | null;
+  inputText: string;
+  generationSettings: GenerationSettings;
+
+  // Generation state
+  isGenerating: boolean;
+  generationProgress: GenerationProgress | null;
+
+  // Results data
+  generatedFlashcards: FlashcardPreview[];
+  generationSummary: GenerationSummary | null;
+  selectedCards: string[];
+
+  // Error handling
+  error: GenerationError | null;
+  validationErrors: ValidationErrors;
+
+  // UI state
+  showInlineCreate: boolean;
+  budgetWarningDismissed: boolean;
+}
+
+/**
+ * Ustawienia generacji AI
+ */
+export interface GenerationSettings {
+  maxCards: number; // 1-10
+  difficulty: "beginner" | "intermediate" | "advanced";
+  language: "pl" | "en";
+  context?: string; // dodatkowy kontekst dla AI
+}
+
+/**
+ * Dane nowej talii (inline create)
+ */
+export interface CreateDeckData {
+  name: string;
+  description?: string;
+  slug?: string; // auto-generated if not provided
+}
+
+/**
+ * Preview fiszki przed zapisem
+ */
+export interface FlashcardPreview {
+  id: string; // temporary ID for preview
+  question: string;
+  answer: string;
+  isSelected: boolean;
+  isEdited: boolean;
+  originalQuestion?: string; // backup for undo
+  originalAnswer?: string;
+}
+
+/**
+ * Podsumowanie generacji
+ */
+export interface GenerationSummary {
+  totalGenerated: number;
+  totalCost: number;
+  totalTokens: number;
+  modelUsed: string;
+  generationTime: number; // ms
+  acceptanceRate?: number; // if user has history
+}
+
+/**
+ * Progress tracking
+ */
+export interface GenerationProgress {
+  current: number;
+  total: number;
+  status: "initializing" | "processing" | "generating" | "finalizing";
+  statusMessage: string;
+  estimatedTimeRemaining?: number; // seconds
+}
+
+/**
+ * Informacje budżetu
+ */
+export interface BudgetInfo {
+  currentSpend: number;
+  monthlyLimit: number;
+  usagePercentage: number;
+  estimatedCost: number;
+  warningThreshold: number; // 80% default
+  isBlocked: boolean; // 100% exceeded
+}
+
+/**
+ * Błędy generacji
+ */
+export interface GenerationError {
+  type: "validation" | "budget" | "rate_limit" | "api" | "network" | "unknown";
+  code: string;
+  message: string;
+  details?: Record<string, unknown>;
+  isRetryable: boolean;
+  retryAfter?: number; // seconds for rate limits
+}
+
+/**
+ * Walidacja input
+ */
+export interface ValidationErrors {
+  deckSelection?: string;
+  inputText?: string;
+  maxCards?: string;
+  difficulty?: string;
+  budgetExceeded?: string;
+  general?: string;
+}
+
+/**
+ * Props dla głównych komponentów Generator AI
+ */
+export interface DeckSelectorProps {
+  decks: DeckWithCounts[];
+  selectedDeckId: string | null;
+  onSelect: (deckId: string) => void;
+  showInlineCreate: boolean;
+  onToggleInlineCreate: () => void;
+  isLoading: boolean;
+}
+
+export interface TextInputProps {
+  inputText: string;
+  onTextChange: (text: string) => void;
+  maxLength: number;
+  placeholder: string;
+  isDisabled: boolean;
+  validationError?: string;
+}
+
+export interface PreviewResultsProps {
+  flashcards: FlashcardPreview[];
+  summary: GenerationSummary;
+  selectedCards: string[];
+  onSelectionChange: (cardIds: string[]) => void;
+  onCardEdit: (cardId: string, updates: Partial<FlashcardPreview>) => void;
+  onRegenerate: () => void;
+}
+
+export interface GenerationSettingsProps {
+  settings: GenerationSettings;
+  onSettingsChange: (settings: Partial<GenerationSettings>) => void;
+  estimatedCost: number;
+  maxAllowedCards: number;
+}
+
+export interface BudgetWarningProps {
+  budgetInfo: BudgetInfo;
+  estimatedCost: number;
+  onDismiss: () => void;
+  onUpgrade: () => void;
+  warningLevel: "info" | "warning" | "error";
+}
+
+export interface ErrorDisplayProps {
+  error: GenerationError;
+  onRetry: () => void;
+  onDismiss: () => void;
+  showDetails: boolean;
+  canRetry: boolean;
 }
 
 /**

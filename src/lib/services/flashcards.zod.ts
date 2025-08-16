@@ -13,7 +13,7 @@ export const generateFlashcardsRequestSchema = z.object({
     .number()
     .int("max_cards must be an integer")
     .min(1, "max_cards must be at least 1")
-    .max(10, "max_cards cannot exceed 10")
+    .max(20, "max_cards cannot exceed 20")
     .default(5),
 
   difficulty: z
