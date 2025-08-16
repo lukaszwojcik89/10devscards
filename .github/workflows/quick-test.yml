@@ -1,0 +1,40 @@
+name: Quick Test
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/**'
+
+jobs:
+  quick-test:
+    name: Quick Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Quick lint check
+        run: npm run lint
+
+      - name: Quick test run
+        run: npm run test:run
+
+      - name: Build check
+        run: npm run build
+
+      - name: Success message
+        run: |
+          echo "🎉 Quick test zakończony sukcesem!"
+          echo "✅ Lint: OK"
+          echo "✅ Tests: OK" 
+          echo "✅ Build: OK"
