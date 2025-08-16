@@ -4,8 +4,19 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/db/database.types";
 import type { GenerateFlashcardsRequest } from "@/types";
 
-// Mock supabase client with minimal methods
-const mockFrom = vi.fn();
+// Mock supabase client with complete chain methods
+const mockSelect = vi.fn();
+const mockEq = vi.fn();
+const mockSingle = vi.fn();
+
+const mockFrom = vi.fn().mockReturnValue({
+  select: mockSelect.mockReturnValue({
+    eq: mockEq.mockReturnValue({
+      single: mockSingle,
+    }),
+  }),
+});
+
 const mockSupabase = {
   from: mockFrom,
 } as unknown as SupabaseClient<Database>;
@@ -15,8 +26,25 @@ describe("FlashcardsService.generateFlashcards", () => {
 
   beforeEach(() => {
     service = new FlashcardsService(mockSupabase);
+
+    // Reset all mocks
     mockFrom.mockReset();
+    mockSelect.mockReset();
+    mockEq.mockReset();
+    mockSingle.mockReset();
     vi.clearAllMocks();
+
+    // Setup complete mock chain for "decks" table queries
+    mockFrom.mockReturnValue({
+      select: mockSelect.mockReturnValue({
+        eq: mockEq.mockReturnValue({
+          single: mockSingle.mockResolvedValue({
+            data: { slug: "test-deck" },
+            error: null,
+          }),
+        }),
+      }),
+    });
   });
 
   it("should throw when no flashcards generated", async () => {
@@ -105,8 +133,8 @@ describe("FlashcardsService.generateFlashcards", () => {
     const result = await service.generateFlashcards(request, "user-id");
 
     // Assert
-    expect(result.generated_flashcards).toHaveLength(2);
-    expect(result.generation_summary).toEqual({
+    expect(result.data.generated_flashcards).toHaveLength(2);
+    expect(result.data.generation_summary).toEqual({
       total_generated: 2,
       total_tokens: 150,
       total_cost_usd: 0.003,
@@ -119,7 +147,9 @@ describe("FlashcardsService.generateFlashcards", () => {
     expect(vi.mocked(service["callAI"])).toHaveBeenCalledWith(
       "TypeScript basics: types, interfaces, and classes",
       5,
-      "intermediate"
+      "intermediate",
+      undefined,
+      "pl"
     );
     expect(vi.mocked(service["saveToDB"])).toHaveBeenCalledWith(
       fakeFlashcards,
@@ -174,7 +204,7 @@ describe("FlashcardsService.generateFlashcards", () => {
     await service.generateFlashcards(request, "user-id");
 
     // Assert
-    expect(vi.mocked(service["callAI"])).toHaveBeenCalledWith("Simple math concepts", 3, "beginner");
+    expect(vi.mocked(service["callAI"])).toHaveBeenCalledWith("Simple math concepts", 3, "beginner", undefined, "pl");
   });
 
   it("should use default values when not provided", async () => {
@@ -221,6 +251,6 @@ describe("FlashcardsService.generateFlashcards", () => {
     await service.generateFlashcards(request, "user-id");
 
     // Assert - should use default values: max_cards=5, difficulty="intermediate"
-    expect(vi.mocked(service["callAI"])).toHaveBeenCalledWith("Test content", 5, "intermediate");
+    expect(vi.mocked(service["callAI"])).toHaveBeenCalledWith("Test content", 5, "intermediate", undefined, "pl");
   });
 });

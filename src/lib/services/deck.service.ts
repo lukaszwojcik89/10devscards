@@ -277,7 +277,13 @@ export class DeckService {
       .from("decks")
       .update(updateData)
       .eq("id", existingDeck.id)
-      .select("*")
+      .select(
+        `
+        *,
+        flashcard_count:flashcards(count),
+        pending_count:flashcards(count).eq(status, 'pending')
+        `
+      )
       .single();
 
     if (error) {
@@ -303,8 +309,8 @@ export class DeckService {
       updated_at: data.updated_at,
       deleted_at: data.deleted_at,
       is_deleted: data.is_deleted || false,
-      flashcard_count: 0, // Simplify for now
-      pending_count: 0, // Simplify for now
+      flashcard_count: data.flashcard_count?.[0]?.count || 0,
+      pending_count: data.pending_count?.[0]?.count || 0,
     };
 
     return result as unknown as DeckWithCounts;
