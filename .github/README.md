@@ -64,9 +64,6 @@ Ten projekt wykorzystuje GitHub Actions do automatyzacji procesów CI/CD. Poniż
 - **Artifacts:** coverage reports, build files (retention 7-365 dni)
 - **Permissions:** pull-requests: write dla komentarzy
 
-## 🚫 Wyłączenia
-
-Testy E2E (Playwright) są wyłączone ze względu na problemy z WSL i przeglądarkami.
 
 ## 📊 Quality Gates
 
